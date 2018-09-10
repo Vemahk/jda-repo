@@ -37,7 +37,6 @@ import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.core.exceptions.RateLimitedException;
 
 public class Bot {
 
@@ -130,7 +129,7 @@ public class Bot {
 		}
 		
 		try {
-			jda = new JDABuilder(AccountType.BOT).addEventListener(new Listener()).setToken(token).buildBlocking();
+			jda = new JDABuilder(AccountType.BOT).addEventListener(new Listener()).setToken(token).build().awaitReady();
 			jda.setAutoReconnect(true);
 			jda.getPresence().setGame(Game.playing("@me for info!"));
 		} catch (LoginException | IllegalArgumentException | InterruptedException e) {
