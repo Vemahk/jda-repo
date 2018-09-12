@@ -12,7 +12,10 @@ public class ExtFileManager {
 
 	private static final String configDir = "config/";
 	
-	private static Gson gson = new GsonBuilder().setPrettyPrinting().create();
+	private static Gson gsonPretty = new GsonBuilder().setPrettyPrinting().create();
+	public static Gson getGsonPretty() { return gsonPretty; }
+	
+	private static Gson gson = new GsonBuilder().create();
 	public static Gson getGson() { return gson; }
 	
 	public static String readFileAsString(File file) {

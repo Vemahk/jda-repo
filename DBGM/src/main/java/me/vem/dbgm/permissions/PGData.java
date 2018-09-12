@@ -22,7 +22,7 @@ public class PGData {
 	
 	private HashMap<SecureCommand, Integer> cp; //cp >> Command Permissions -- The required level of permissions required to use a certain command.
 	
-	private int dp = 0; //dp >> Default Permissions (dp also stands for Dynamic Programming in other contexts. Fun fact)
+	private int dp = 0; //dp >> Default Permissions
 	
 	public PGData(Guild g) {
 		this.guild = g;
@@ -41,7 +41,7 @@ public class PGData {
 		return dp;
 	}
 	
-	public int getRolePermissoin(long id) {
+	public int getRolePermission(long id) {
 		return getRolePermission(guild.getRoleById(id));
 	}
 	
@@ -74,10 +74,10 @@ public class PGData {
 	}
 	
 	/**
+	 * setPermission should be the only method that adds a member to 'mp', since it is designed to be overriding of any role-given permissions.
+	 * 
 	 * @param m >> Member
 	 * @param np >> New Permission levels
-	 * 
-	 * setPermission should be the only method that adds a member to 'mp', since it is designed to be overriding of any role-given permissions.
 	 */
 	public void setPermission(Member m, int np) {
 		if(m.getGuild() != guild) { //Again, shouldn't be possible...

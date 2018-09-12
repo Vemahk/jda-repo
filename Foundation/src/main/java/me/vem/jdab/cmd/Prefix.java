@@ -93,7 +93,7 @@ public class Prefix extends Command implements Configurable{
 	public void save() {
 		try {
 			PrintWriter out = ExtFileManager.getConfigOutput("prefix.json");
-			out.print(ExtFileManager.getGson().toJson(prefixDatabase));
+			out.print(ExtFileManager.getGsonPretty().toJson(prefixDatabase));
 			out.flush();
 			out.close();
 		} catch (IOException e) {
@@ -113,7 +113,7 @@ public class Prefix extends Command implements Configurable{
 		String content = ExtFileManager.readFileAsString(configFile);
 		if(content == null || content.length() == 0) return;
 		
-		Gson gson = ExtFileManager.getGson();
+		Gson gson = ExtFileManager.getGsonPretty();
 		prefixDatabase = gson.fromJson(content, new TypeToken<HashMap<Long, String>>(){}.getType());
 	}
 }
