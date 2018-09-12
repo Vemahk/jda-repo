@@ -1,4 +1,4 @@
-package me.vem.bot.cmd;
+package me.vem.dbgm.cmd;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,9 +8,9 @@ import java.util.HashMap;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import me.vem.bot.Bot;
-import me.vem.bot.utils.ExtFileManager;
-import me.vem.bot.utils.Logger;
+import me.vem.dbgm.Bot;
+import me.vem.dbgm.utils.ExtFileManager;
+import me.vem.dbgm.utils.Logger;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;

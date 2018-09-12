@@ -1,11 +1,11 @@
-package me.vem.bot;
+package me.vem.dbgm;
 
 import java.util.Arrays;
 import java.util.LinkedList;
 
-import me.vem.bot.cmd.Command;
-import me.vem.bot.cmd.Prefix;
-import me.vem.bot.utils.Logger;
+import me.vem.dbgm.cmd.Command;
+import me.vem.dbgm.cmd.Prefix;
+import me.vem.dbgm.utils.Logger;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;

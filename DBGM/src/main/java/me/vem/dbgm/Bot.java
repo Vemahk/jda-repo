@@ -1,15 +1,15 @@
-package me.vem.bot;
+package me.vem.dbgm;
 import java.io.IOException;
 import java.util.Arrays;
 
-import me.vem.bot.cmd.AntiPurge;
-import me.vem.bot.cmd.PermissionHandler;
-import me.vem.bot.cmd.Prefix;
-import me.vem.bot.cmd.Purge;
-import me.vem.bot.utils.Console;
-import me.vem.bot.utils.IgnoredReference;
-import me.vem.bot.utils.Logger;
-import me.vem.bot.utils.Version;
+import me.vem.dbgm.cmd.AntiPurge;
+import me.vem.dbgm.cmd.PermissionHandler;
+import me.vem.dbgm.cmd.Prefix;
+import me.vem.dbgm.cmd.Purge;
+import me.vem.dbgm.utils.Console;
+import me.vem.dbgm.utils.IgnoredReference;
+import me.vem.dbgm.utils.Logger;
+import me.vem.dbgm.utils.Version;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;

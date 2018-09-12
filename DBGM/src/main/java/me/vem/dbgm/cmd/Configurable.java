@@ -1,4 +1,4 @@
-package me.vem.bot.cmd;
+package me.vem.dbgm.cmd;
 
 public interface Configurable {
 	public void save();

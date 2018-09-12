@@ -1,4 +1,4 @@
-package me.vem.bot.cmd;
+package me.vem.dbgm.cmd;
 
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 

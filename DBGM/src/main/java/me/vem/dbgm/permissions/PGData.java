@@ -1,9 +1,9 @@
-package me.vem.bot.permissions;
+package me.vem.dbgm.permissions;
 
 import java.util.HashMap;
 
-import me.vem.bot.cmd.SecureCommand;
-import me.vem.bot.utils.Logger;
+import me.vem.dbgm.cmd.SecureCommand;
+import me.vem.dbgm.utils.Logger;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;

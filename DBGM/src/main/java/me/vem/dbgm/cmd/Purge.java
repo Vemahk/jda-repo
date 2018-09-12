@@ -1,4 +1,4 @@
-package me.vem.bot.cmd;
+package me.vem.dbgm.cmd;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -6,8 +6,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import me.vem.bot.Bot;
-import me.vem.bot.utils.Logger;
+import me.vem.dbgm.Bot;
+import me.vem.dbgm.utils.Logger;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;

@@ -1,4 +1,4 @@
-package me.vem.bot.utils;
+package me.vem.dbgm.utils;
 
 import java.awt.AWTException;
 import java.awt.Dimension;
@@ -26,7 +26,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-import me.vem.bot.Bot;
+import me.vem.dbgm.Bot;
 
 public class Console {
 

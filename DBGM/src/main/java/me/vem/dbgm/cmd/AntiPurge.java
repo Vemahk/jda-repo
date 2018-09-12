@@ -1,6 +1,6 @@
-package me.vem.bot.cmd;
+package me.vem.dbgm.cmd;
 
-import me.vem.bot.Bot;
+import me.vem.dbgm.Bot;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 

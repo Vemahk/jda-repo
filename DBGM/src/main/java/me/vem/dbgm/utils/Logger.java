@@ -1,4 +1,4 @@
-package me.vem.bot.utils;
+package me.vem.dbgm.utils;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;

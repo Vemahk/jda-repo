@@ -1,4 +1,4 @@
-package me.vem.bot.cmd;
+package me.vem.dbgm.cmd;
 
 public abstract class SecureCommand extends Command{
 	protected SecureCommand(String cmdname) { super(cmdname); }

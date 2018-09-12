@@ -1,8 +1,8 @@
-package me.vem.bot.cmd;
+package me.vem.dbgm.cmd;
 
 import java.util.HashMap;
 
-import me.vem.bot.Bot;
+import me.vem.dbgm.Bot;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public abstract class Command {
