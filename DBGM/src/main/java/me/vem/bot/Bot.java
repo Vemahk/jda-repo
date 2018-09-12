@@ -1,196 +1,115 @@
 package me.vem.bot;
-import java.awt.AWTException;
-import java.awt.Image;
-import java.awt.MenuItem;
-import java.awt.PopupMenu;
-import java.awt.SystemTray;
-import java.awt.TrayIcon;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.LinkedHashMap;
-import java.util.Scanner;
-import java.util.Set;
-
-import javax.imageio.ImageIO;
-import javax.swing.JTextArea;
 
 import me.vem.bot.cmd.AntiPurge;
-import me.vem.bot.cmd.Command;
+import me.vem.bot.cmd.PermissionHandler;
 import me.vem.bot.cmd.Prefix;
 import me.vem.bot.cmd.Purge;
+import me.vem.bot.utils.Console;
+import me.vem.bot.utils.IgnoredReference;
+import me.vem.bot.utils.Logger;
+import me.vem.bot.utils.Version;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
-import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 /**
  * @author Vemahk
  * @JDAVersion 
- * 3.6.0_354
+ * 3.7.1_421
  */
 public class Bot {
-
+	
+	/** The Bot Itself */
 	private static JDA jda;
-	public static ConsoleMenu openConsole;
+	public static JDA getJDA() { return jda; }
 	
-	public static JTextArea outArea;
-	public static PrintStream outStream;
-	
-	public static Prefix prefix;
+	public static void shutdown() {
+		Logger.infof("%s is shutting down...", Version.getVersion());
+		
+		//Perform any save operation that may have to occur here.
+		Prefix.getInstance().save();
+		
+		jda.shutdown(); 
+
+		if(Console.hasConsole())
+			Console.getConsole().dispose();
+		System.exit(0);
+	}
 	
 	public static void main(String[] args) throws IOException {
-		
-		if(SystemTray.isSupported()) {
-			
-			outArea = new JTextArea();
-			outArea.setEditable(false);
-			
-			outStream = new PrintStream(new OutputStream() {
-				@Override
-				public void write(int b) throws IOException{
-					outArea.append(""+(char)b);
-					outArea.setCaretPosition(outArea.getDocument().getLength());
-					outArea.update(outArea.getGraphics());
-				}
-			});
-			System.setOut(outStream);
-			System.setErr(outStream);
-			
-			openConsole = new ConsoleMenu();
-			
-			PopupMenu popup = new PopupMenu();
-			
-			MenuItem close = new MenuItem("Exit");
-			close.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					System.exit(0);
-				}
-			});
-
-			popup.add(close);
-			
-			try {
-				SystemTray tray = SystemTray.getSystemTray();
-				Image image = ImageIO.read(Bot.class.getClassLoader().getResource("GM.png"));
-				TrayIcon trayIcon = new TrayIcon(image, "DNDBot", popup);
-				trayIcon.setImageAutoSize(true);
-				trayIcon.addMouseListener(new MouseListener() {
-					public void mouseClicked(MouseEvent e) {
-						if(e.getButton() == MouseEvent.BUTTON1 && openConsole == null)
-							openConsole = new ConsoleMenu();
-					}
-					
-					public void mouseEntered(MouseEvent arg0) {}
-					public void mouseExited(MouseEvent arg0) {}
-					public void mousePressed(MouseEvent arg0) {}
-					public void mouseReleased(MouseEvent arg0) {}
-				});
-				tray.add(trayIcon);
-			}catch (AWTException e) {
-				e.printStackTrace();
-			}
-		}
-		
-		String token = "";
-		try{
-			File f = new File("token.dat");
-			if(f.exists()){
-				Scanner file = new Scanner(f);
-				token = file.nextLine();
-				file.close();
-			}
-		}catch(IOException e){
-			e.printStackTrace();
-		}
-		
-		if(token.equals("")){
-			Bot.info("Token is blank. Make sure there is a valid token.dat file.");
-			return;
-		}
+		Logger.infof("Hello World! From %s", Version.getVersion());
+		Console.buildConsole();
 		
 		try {
-			jda = new JDABuilder(AccountType.BOT).addEventListener(new Listener()).setToken(token).buildBlocking();
-			jda.setAutoReconnect(true);
-			jda.getPresence().setGame(Game.playing("@me for help!"));
+			jda = new JDABuilder(AccountType.BOT).addEventListener(MessageListener.getInstance()).setToken(IgnoredReference.botToken).build().awaitReady();
+			jda.setAutoReconnect(true);	
 		}catch (Exception e){
 			e.printStackTrace();
 		}
 		
-		registerCommand(Prefix.cmd_name, prefix = new Prefix(jda));
-		registerCommand(Purge.cmd_name, new Purge());
-		registerCommand(AntiPurge.cmd_name, new AntiPurge());
+		Prefix.initialize();
+		Purge.initialize();
+		AntiPurge.initialize();
+		PermissionHandler.initialize();
 	}
 	
-	public static void handle(String pcmd, MessageReceivedEvent e) {
-		String pre = prefix.getPrefix(e);
-		if(pcmd.startsWith(pre))
-			pcmd = pcmd.replaceFirst(pre, "");
+	/* RESPONCES */
+	public static enum TextFormat{
+		LINEDCODE("`"), CODE("```\n"), ITALICS("*"), BOLD("**"), BOLDITALICS("***"), UNDERLINE("__"), UNDERLINEITALICS("__*"), ALL("__***"), STRIKETHROUGH("--");
 		
-		pcmd = pcmd.trim();
+		private String s;
+		private TextFormat(String s) { this.s = s; }
+		public String format(String x) { return s + x + new StringBuffer(s).reverse().toString(); }
+	}
+	
+	/**
+	 * Synchronous response.
+	 * @param event
+	 * @param msg
+	 * 
+	 * @return the message object retrieved. Only possible for respondSync.
+	 */
+	public static Message respondSync(MessageReceivedEvent event, String msg) {
+		return event.getTextChannel().sendMessage(msg).complete();
+	}
+	
+	/**
+	 * Synchronous response. Deletes message (and user's command call) after 'timeout' milliseconds.
+	 * @param event
+	 * @param msg
+	 * @param timeout
+	 */
+	public static void respondTimeout(MessageReceivedEvent event, String msg, int timeout) {
+		Message m = event.getTextChannel().sendMessage(msg).complete();
+		if(timeout <= 0) return;
 		
-		if(!pcmd.contains(" ")) {
-			runCommand(pcmd, new String[] {}, e);
-			return;
-		}
-		int space = pcmd.indexOf(' ');
-		String cmd = pcmd.substring(0, space);
-		runCommand(cmd, pcmd.substring(space+1).split(" "), e);
+		new Thread(() ->{
+			try { Thread.sleep(timeout); } catch (InterruptedException e) { e.printStackTrace(); }
+			event.getTextChannel().deleteMessages(Arrays.asList(m, event.getMessage()));
+		}).start();
 	}
 	
-	private static LinkedHashMap<String, Command> commandMap = new LinkedHashMap<>();
-	public static void registerCommand(String str, Command cmd) {
-		commandMap.put(str, cmd);
-	}
-	
-	public static Set<String> commandSet(){
-		return commandMap.keySet();
-	}
-	
-	public static boolean isCommand(String str) {
-		return commandMap.containsKey(str);
-	}
-	
-	public static void runCommand(String str, String[] args, MessageReceivedEvent event) {
-		if(isCommand(str)) {
-			info(String.format("%s ran the command '%s' with arguments> %s.", event.getAuthor().getName(), str, Arrays.toString(args)));
-			
-			Command cmd = commandMap.get(str);
-			if(cmd.hasPermissions(event))
-				cmd.run(args, event);
-			else respond("You do not have permissions to run this command.", event);
-		}else respond("No such command known.", event);
-	}
-	
-	public static void respond(String msg, MessageReceivedEvent event) {
+	/**
+	 * Asynchronous response.
+	 * @param event
+	 * @param msg
+	 */
+	public static void respondAsync(MessageReceivedEvent event, String msg) {
 		event.getTextChannel().sendMessage(msg).queue();
 	}
 	
-	public static Message respondSync(String msg, MessageReceivedEvent event) {
-		Message m = event.getTextChannel().sendMessage(msg).complete();
-		return m;
-	}
-	
-	private static String getLogTime(String sev) {
-		return String.format("[%s] [%s] [GenMan]: ", new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime()), sev);
-	}
-	
-	public static void info(String msg) {
-		System.out.println(getLogTime("Info") + msg);
-	}
-	
-	public static void err(String msg) {
-		System.err.println(getLogTime("Error") + msg);
+	/**
+	 * Asynchronous, formatted response. Uses printf formatting.
+	 * @param event
+	 * @param format
+	 * @param objs
+	 */
+	public static void respondAsyncf(MessageReceivedEvent event, String format, Object... objs) {
+		respondAsync(event, String.format(format, objs));
 	}
 	
 }

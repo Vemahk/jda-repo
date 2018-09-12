@@ -1,8 +1,9 @@
 package me.vem.bot.cmd;
 
-public interface SecureCommand extends Command{
-	public int getPermissionLevel();
-	public SecureCommand setPermissionLevel(int i);
-	public long getToken();
-	public SecureCommand setToken(long l);
+public abstract class SecureCommand extends Command{
+	protected SecureCommand(String cmdname) { super(cmdname); }
+	public abstract int getPermissionLevel();
+	public abstract SecureCommand setPermissionLevel(int i);
+	public abstract long getToken();
+	public abstract SecureCommand setToken(long l);
 }

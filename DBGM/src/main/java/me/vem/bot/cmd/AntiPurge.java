@@ -4,37 +4,45 @@ import me.vem.bot.Bot;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
-public class AntiPurge implements Command{
+public class AntiPurge extends Command{
 
-	public static final String cmd_name = "antipurge";
+	private static AntiPurge instance;
+	public static AntiPurge getInstance() { return instance; }
+	public static void initialize() {
+		if(instance != null) return;
+		instance = new AntiPurge();
+	}
+	
+	private AntiPurge() {
+		super("anitpurge");
+	}
 	
 	@Override
-	public void run(String[] args, MessageReceivedEvent event) {
-		if(!hasPermissions(event)) {
-			Bot.respond("Only admins can post antipurge messages.", event);
-			return;
-		}
+	public boolean run(MessageReceivedEvent event, String... args) {
+		if(!super.run(event, args)) return false;
 		
 		if(args.length == 0) {
-			Bot.respond("SassyBot >> You gotta have a message to mark as [AntiPurge], bud.", event);
-			return;
+			super.getHelp(event);
+			return false;
 		}
 		
 		String trueText = event.getMessage().getContentRaw();
 		trueText = trueText.substring(trueText.indexOf(' ') + 1);
 		
-		StringBuffer out = new StringBuffer();
+		StringBuilder out = new StringBuilder();
 		
 		out.append("[AntiPurge] >> " + event.getMember().getAsMention() + "\n");
 		out.append(trueText);
 		
 		if(out.length() >= 2000) {
-			Bot.respond("Cannot [AntiPurge] message. Too long (exceeds 2,000 characters). Sorry boss.", event);
-			return;
+			Bot.respondAsync(event, "Cannot [AntiPurge] message. Too long (exceeds 2,000 characters). Sorry boss.");
+			return false;
 		}
 		
-		Bot.respond(out.toString(), event);
+		Bot.respondSync(event, out.toString());
 		event.getTextChannel().deleteMessageById(event.getMessageId()).queue();
+
+		return true;
 	}
 
 	@Override
@@ -43,7 +51,7 @@ public class AntiPurge implements Command{
 	}
 
 	@Override
-	public String help(MessageReceivedEvent event) {
-		return "Valid Usage: "+cmd_name+" <message>";
+	public String help() {
+		return "Valid Usage: antipurge <message>";
 	}
 }

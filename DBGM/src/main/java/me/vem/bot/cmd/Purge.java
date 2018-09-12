@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import me.vem.bot.Bot;
+import me.vem.bot.utils.Logger;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
@@ -14,20 +15,26 @@ import net.dv8tion.jda.core.entities.MessageHistory;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
-public class Purge implements Command{
+public class Purge extends Command{
+
+	private static Purge instance;
+	public static Purge getInstance() { return instance; }
+	public static void initialize() {
+		if(instance != null) return;
+		instance = new Purge();
+	}
+	
+	private Purge() { super("purge"); }
 
 	public static final String cmd_name = "purge";
 	
 	@Override
-	public void run(String[] args, MessageReceivedEvent event) {
-		if(!hasPermissions(event)) {
-			Bot.respond("You do not have the permissions to run this command.", event);
-			return;
-		}
+	public boolean run(MessageReceivedEvent event, String... args) {
+		if(!super.run(event, args)) return false;
 		
 		if(args.length == 0) { //Purge 100 anyone.
 			purge(event.getTextChannel(), 101, null); //101 includes the purge message.
-			return;
+			return true;
 		}
 		
 		Message msg = event.getMessage();
@@ -35,8 +42,8 @@ public class Purge implements Command{
 		if(!args[0].equalsIgnoreCase("regex")) { //NORMAL PURGE BEGIN
 			if(args.length == 1) {
 				if(args[0].equals("help")) {
-					Bot.respond(help(event), event);
-					return;
+					super.getHelp(event);
+					return true;
 				}
 				
 				if(msg.getMentionedMembers().size() == 1) { //Just in case some sneaky sob mentiones two people and deletes that space...
@@ -47,15 +54,15 @@ public class Purge implements Command{
 						int i = Integer.parseInt(args[0]);
 						purge(event.getTextChannel(), i+1, null); //i+1 to include purge message.
 					}catch(NumberFormatException e) {
-						Bot.respond("Error parsing expected number. Run 'purge help' for help.", event);
+						Bot.respondAsync(event, "Error parsing expected number. Run 'purge help' for help.");
 					}
 				}
 			}
 			
 			if(args.length == 2) {
 				if(msg.getMentionedMembers().size() != 1) { 
-					Bot.respond("Please mention (@) exactly one person whose messages you plan to purge.", event);
-					return;
+					Bot.respondAsync(event, "Please mention (@) exactly one person whose messages you plan to purge.");
+					return false;
 				}
 				
 				Member mem = msg.getMentionedMembers().get(0);
@@ -64,24 +71,15 @@ public class Purge implements Command{
 					int i = Integer.parseInt(args[1]);
 					purge(event.getTextChannel(), i, mem);
 				}catch(NumberFormatException e) {
-					Bot.respond("Error parsing expected number. Run 'purge help' for help.", event);
+					Bot.respondAsync(event, "Error parsing expected number. Run 'purge help' for help.");
 				}
 			}
 
-			return;
+			return true;
 		}else { //NORMAL PURGE END; REGEX BEGIN
-			try {
-				args = mergeQuotes(args);
-			} catch (Exception e) {
-				if(e.getMessage().contains("regex")) {
-					Bot.respond("Invalid regex formatting. Be sure to surround your regex with double quotes!", event);
-					return;
-				}else e.printStackTrace();
-			}
-			
 			if(args.length < 2 || args.length > 4) {
-				Bot.respond("Error in parsing regex... Is this correct?\n" + debugParsedStringArr(args), event);
-				return;
+				super.getHelp(event);
+				return false;
 			}
 			
 			int n = 100;
@@ -94,58 +92,36 @@ public class Purge implements Command{
 					try {
 						n = Integer.parseInt(args[3]);
 					}catch(NumberFormatException e) {
-						Bot.respond("Cannot parse expected integer...\nValidate: " + debugParsedStringArr(args), event);
-						return;
+						Bot.respondAsyncf(event, "Cannot parse expected integer...%nValidate: %s", debugParsedStringArr(args));
+						return false;
 					}
 				}
 				
 			}else if(msg.getMentionedChannels().size() > 1) {
-				Bot.respond("You can only delete messages from one person at a time.", event);
-				return;
-			}else {
+				Bot.respondAsync(event, "You can only delete messages from one person at a time.");
+				return false;
+			}else { //No mentions
 				if(args.length >= 3) {
 					try {
 						n = Integer.parseInt(args[2]);
 					}catch(NumberFormatException e) {
-						Bot.respond("Cannot parse expected integer...\nValidate: " + debugParsedStringArr(args), event);
-						return;
+						Bot.respondAsyncf(event, "Cannot parse expected integer...%nValidate: %s", debugParsedStringArr(args));
+						return false;
 					}
 				}
 			}
 			
-			Bot.info(String.format("%d | %s | %s | %s", n, mem, args[1], Arrays.toString(args)));
+			Logger.debugf("%d | %s | %s | %s", n, mem, args[1], Arrays.toString(args));
 			this.purgeRegex(event.getTextChannel(), n, mem, args[1]);
 		}//REGEX END
+		return true;
 	}
 	
 	public String debugParsedStringArr(String[] args) {
-		StringBuffer nargs = new StringBuffer();
+		StringBuilder nargs = new StringBuilder();
 		for(String s : args)
 			nargs.append("`" + s + "` ");
 		return nargs.toString();
-	}
-	
-	public String[] mergeQuotes(String[] in) throws Exception {
-		ArrayList<String> out = new ArrayList<>();
-		
-		Iterator<String> iter = Arrays.asList(in).iterator();
-		
-		while(iter.hasNext()) {
-			String s = iter.next();
-			if(!s.startsWith("\""))
-				out.add(s);
-			else {
-				StringBuffer app = new StringBuffer(s);
-				while(app.charAt(app.length() - 1) != '"') {
-					if(!iter.hasNext())
-						throw new Exception("Invalid regex formatting!");
-					app.append(" " + iter.next());
-				}
-				out.add(app.toString().substring(1, app.length()-1));
-			}
-		}
-		
-		return out.toArray(new String[out.size()]);
 	}
 
 	private void purge(TextChannel tc, int lastn, Member mem) {
@@ -205,7 +181,7 @@ public class Purge implements Command{
 	}
 
 	@Override
-	public String help(MessageReceivedEvent event) {
+	public String help() {
 		
 		StringBuffer help = new StringBuffer();
 		help.append("Valid usages: ```\n");

@@ -6,10 +6,8 @@ import java.awt.MenuItem;
 import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.TrayIcon;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -50,9 +48,6 @@ public class Main {
 	//The text area that takes over for System.out
 	public static JTextArea outArea;
 	
-	//The stream which replaces System.out as the main output stream. outArea reads from this stream.
-	public static PrintStream outStream;
-	
 	public static void main(String[] args) throws IOException {
 		
 		//Check if the user has a system tray on which this bot can reside.
@@ -61,7 +56,7 @@ public class Main {
 			outArea = new JTextArea();
 			outArea.setEditable(false);
 			
-			outStream = new PrintStream(new OutputStream() {
+			PrintStream outStream = new PrintStream(new OutputStream() {
 				@Override
 				public void write(int b) throws IOException{
 					outArea.append(""+(char)b);
@@ -75,32 +70,23 @@ public class Main {
 
 			openConsole = new ConsoleMenu();
 			
-			PopupMenu popup = new PopupMenu();
-			
-			MenuItem close = new MenuItem("Exit");
-			close.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					System.exit(0);
-				}
-			});
-
-			popup.add(close);
-			
 			try {
+				PopupMenu popup = new PopupMenu();
+				
+				MenuItem close = new MenuItem("Exit");
+				close.addActionListener(e -> System.exit(0));
+
+				popup.add(close);
+				
 				SystemTray tray = SystemTray.getSystemTray();
 				Image image = ImageIO.read(Main.class.getResource("tray.png"));
 				TrayIcon trayIcon = new TrayIcon(image, "CSTeam Bot", popup);
 				trayIcon.setImageAutoSize(true);
-				trayIcon.addMouseListener(new MouseListener() {
-					public void mouseClicked(MouseEvent e) {
+				trayIcon.addMouseListener(new MouseAdapter() {
+					@Override public void mouseClicked(MouseEvent e) {
 						if(e.getButton() == MouseEvent.BUTTON1 && openConsole == null)
 							openConsole = new ConsoleMenu();
 					}
-					
-					public void mouseEntered(MouseEvent arg0) {}
-					public void mouseExited(MouseEvent arg0) {}
-					public void mousePressed(MouseEvent arg0) {}
-					public void mouseReleased(MouseEvent arg0) {}
 				});
 				tray.add(trayIcon);
 			}catch (AWTException e) {

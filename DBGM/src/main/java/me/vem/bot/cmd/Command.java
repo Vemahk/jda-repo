@@ -1,8 +1,41 @@
 package me.vem.bot.cmd;
+
+import java.util.HashMap;
+
+import me.vem.bot.Bot;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
-public interface Command {
-	public void run(String[] args, MessageReceivedEvent event);
-	public boolean hasPermissions(MessageReceivedEvent event);
-	public String help(MessageReceivedEvent event);
+public abstract class Command {
+
+	/* Mmm, block code. Noice. */
+	private static HashMap<String, Command> commands = new HashMap<>();
+	public static boolean isCommand(String cmdname) { return commands.containsKey(cmdname); }
+	public static Command getCommand(String cmdname) { return commands.get(cmdname); }
+	protected Command(String cmdname) { commands.put(cmdname, this); }
+	
+	public abstract boolean hasPermissions(MessageReceivedEvent event);
+	protected abstract String help();
+
+	/**
+	 * The super implementation of this method only checks permissions. Override this method in all implementing classes.
+	 * @param event
+	 * @param args
+	 */
+	public boolean run(MessageReceivedEvent event, String... args) {
+		if(!hasPermissions(event)) {
+			Bot.respondAsync(event, "You do not have the permissions to run this command.");
+			return false;
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * Tells the bot to respond in the channel given in the event with the help for this command.
+	 * @param event
+	 */
+	public void getHelp(MessageReceivedEvent event) {
+		Bot.respondAsync(event, this.help());
+	}
+	
 }

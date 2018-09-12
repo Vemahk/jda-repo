@@ -2,8 +2,8 @@ package me.vem.bot.permissions;
 
 import java.util.HashMap;
 
-import me.vem.bot.Bot;
 import me.vem.bot.cmd.SecureCommand;
+import me.vem.bot.utils.Logger;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
@@ -66,7 +66,7 @@ public class PGData {
 	 */
 	public void setRolePermission(Role r, int np) {
 		if(r.getGuild() != guild) {//This shouldn't be possible... Just being sure, eh?
-			Bot.err("Role permissions added to a guild it is not a part of?");
+			Logger.err("Role permissions added to a guild it is not a part of?");
 			return;
 		}
 		
@@ -81,7 +81,7 @@ public class PGData {
 	 */
 	public void setPermission(Member m, int np) {
 		if(m.getGuild() != guild) { //Again, shouldn't be possible...
-			Bot.err("Member permissions added to a guild it is not a part of?");
+			Logger.err("Member permissions added to a guild it is not a part of?");
 			return;
 		}
 		

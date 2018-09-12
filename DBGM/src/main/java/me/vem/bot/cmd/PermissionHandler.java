@@ -2,11 +2,24 @@ package me.vem.bot.cmd;
 
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
-public class PermissionHandler implements Command{
+public class PermissionHandler extends Command{
 
+	private static PermissionHandler instance;
+	public static PermissionHandler getInstance() { return instance; }
+	public static void initialize() {
+		if(instance != null) return;
+		instance = new PermissionHandler();
+	}
+	
+	private PermissionHandler() {
+		super("permissions");
+	}
+	
 	@Override
-	public void run(String[] args, MessageReceivedEvent event) {
+	public boolean run(MessageReceivedEvent event, String... args) {
+		if(!super.run(event, args)) return false;
 		
+		return true;
 	}
 
 	@Override
@@ -15,7 +28,7 @@ public class PermissionHandler implements Command{
 	}
 
 	@Override
-	public String help(MessageReceivedEvent event) {
+	public String help() {
 		return "Hmm...";
 	}
 }
