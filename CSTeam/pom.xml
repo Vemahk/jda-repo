@@ -39,7 +39,7 @@
 						<configuration>
 							<archive>
 								<manifest>
-									<mainClass>me.vem.isle.App</mainClass>
+									<mainClass>me.vem.cs.Main</mainClass>
 								</manifest>
 							</archive>
 							<descriptorRefs>

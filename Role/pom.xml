@@ -37,7 +37,7 @@
 						<configuration>
 							<archive>
 								<manifest>
-									<mainClass>me.vem.isle.App</mainClass>
+									<mainClass>me.vem.role.Bot</mainClass>
 								</manifest>
 							</archive>
 							<descriptorRefs>

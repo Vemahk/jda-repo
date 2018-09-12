@@ -2,7 +2,7 @@ package me.vem.dbgm.utils;
 
 public class Version {
 
-	private static final Version instance = new Version(0, 0, 0, 0, "DBGM");
+	private static final Version instance = new Version(0, 0, 1, 1, "DBGM");
 	public static Version getVersion() {
 		return instance;
 	}
