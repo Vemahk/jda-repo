@@ -15,6 +15,9 @@ public class ExtFileManager {
 	private static Gson gsonPretty = new GsonBuilder().setPrettyPrinting().create();
 	public static Gson getGsonPretty() { return gsonPretty; }
 	
+	private static Gson gson = new GsonBuilder().create();
+	public static Gson getGson() { return gson; }
+	
 	public static String readFileAsString(File file) {
 		if(file == null) return null;
 		
