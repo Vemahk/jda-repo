@@ -123,7 +123,10 @@ public class Console {
 	 * Restores System.out & System.err to their original state in the case that they are changed by buildTextArea().
 	 */
 	public static void restoreSTDPrintStreams() {
-		if(stdoutOld != null) System.setOut(stdoutOld);
+		if(stdoutOld != null) {
+			System.setOut(stdoutOld);
+			Logger.info("stdout restored.");
+		}
 		if(stderrOld != null) System.setErr(stderrOld);
 	}
 	

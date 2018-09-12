@@ -26,20 +26,19 @@ public class AntiPurge extends Command{
 			return false;
 		}
 		
-		String trueText = event.getMessage().getContentRaw();
-		trueText = trueText.substring(trueText.indexOf(' ') + 1);
-		
 		StringBuilder out = new StringBuilder();
 		
 		out.append("[AntiPurge] >> " + event.getMember().getAsMention() + "\n");
-		out.append(trueText);
+		
+		for(int i=0;i < args.length;i++)
+			out.append(args[i]).append(i < args.length - 1 ? " " : "");
 		
 		if(out.length() >= 2000) {
 			Bot.respondAsync(event, "Cannot [AntiPurge] message. Too long (exceeds 2,000 characters). Sorry boss.");
 			return false;
 		}
 		
-		Bot.respondSync(event, out.toString());
+		Bot.respondAsync(event, out.toString());
 		event.getTextChannel().deleteMessageById(event.getMessageId()).queue();
 
 		return true;
