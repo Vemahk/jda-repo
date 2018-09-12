@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>me.vem.jdab</groupId>
 	<artifactId>bot-foundation</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.0_0</version>
 	<name>JDA Bot Foundation</name>
 
 	<dependencies>
@@ -42,7 +42,7 @@
 						<configuration>
 							<archive>
 								<manifest>
-									<mainClass>me.vem.isle.App</mainClass>
+									<mainClass>me.vem.jdab.Bot</mainClass>
 								</manifest>
 							</archive>
 							<descriptorRefs>
