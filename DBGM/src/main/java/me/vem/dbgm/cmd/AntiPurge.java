@@ -14,7 +14,7 @@ public class AntiPurge extends Command{
 	}
 	
 	private AntiPurge() {
-		super("anitpurge");
+		super("antipurge");
 	}
 	
 	@Override

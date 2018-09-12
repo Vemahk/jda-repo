@@ -35,7 +35,11 @@ public class MessageListener extends ListenerAdapter{
 		
 		String rawContent = msg.getContentRaw();
 		if(rawContent.equals(self.getAsMention())) {
-			Bot.respondAsync(event, "You rang?");
+			StringBuilder resp = new StringBuilder("List of valid commands:\n```\n");
+			for(String cmd : Command.getCommandLabels())
+				resp.append(cmd + '\n');
+			resp.append("```");
+			Bot.respondAsync(event, resp.toString());
 			return;
 		}
 		

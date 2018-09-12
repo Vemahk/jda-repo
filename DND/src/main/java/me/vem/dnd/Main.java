@@ -77,7 +77,7 @@ public class Main {
 			
 			try {
 				SystemTray tray = SystemTray.getSystemTray();
-				Image image = ImageIO.read(Main.class.getResource("d20.png"));
+				Image image = ImageIO.read(Main.class.getResource("tray.png"));
 				TrayIcon trayIcon = new TrayIcon(image, "DNDBot", popup);
 				trayIcon.setImageAutoSize(true);
 				trayIcon.addMouseListener(new MouseListener() {

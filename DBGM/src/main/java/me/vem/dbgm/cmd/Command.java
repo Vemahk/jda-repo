@@ -1,6 +1,6 @@
 package me.vem.dbgm.cmd;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import me.vem.dbgm.Bot;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -8,9 +8,14 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 public abstract class Command {
 
 	/* Mmm, block code. Noice. */
-	private static HashMap<String, Command> commands = new HashMap<>();
+	private static LinkedHashMap<String, Command> commands = new LinkedHashMap<>();
 	public static boolean isCommand(String cmdname) { return commands.containsKey(cmdname); }
 	public static Command getCommand(String cmdname) { return commands.get(cmdname); }
+
+	public static String[] getCommandLabels() {
+		return commands.keySet().toArray(new String[0]);
+	}
+	
 	protected Command(String cmdname) { commands.put(cmdname, this); }
 	
 	public abstract boolean hasPermissions(MessageReceivedEvent event);
