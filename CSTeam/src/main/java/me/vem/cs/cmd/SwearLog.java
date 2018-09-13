@@ -47,6 +47,10 @@ public class SwearLog extends Command implements Configurable{
 			getHelp(event);
 			return true;
 		}else {//2 Arguments
+			if(!args[0].equals("add")) {
+				getHelp(event);
+				return false;
+			}
 			List<Member> mentions = event.getMessage().getMentionedMembers();
 			if(mentions.size() == 0) { //No mentions
 				Bot.respondAsync(event, "Second argument must be a mention.");
@@ -57,6 +61,7 @@ public class SwearLog extends Command implements Configurable{
 			}
 
 			userDatabase.add(mentions.get(0).getUser().getIdLong());
+			Bot.respondAsyncf(event, "Added `%s` to the list of swear notifications.", mentions.get(0).getNickname());
 		}
 		
 		return true;
@@ -107,7 +112,7 @@ public class SwearLog extends Command implements Configurable{
 		String data = ExtFileManager.readFileAsString(file);
 		if(data == null) return;
 		
-		userDatabase = ExtFileManager.getGsonPretty().fromJson(data, new TypeToken<Long>() {}.getType());
+		userDatabase = ExtFileManager.getGsonPretty().fromJson(data, new TypeToken<HashSet<Long>>() {}.getType());
 	}
 
 }

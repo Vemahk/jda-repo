@@ -44,7 +44,7 @@ public class MessageListener extends ListenerAdapter{
 		if(rawContent.equals(self.getAsMention())) {
 			StringBuilder resp = new StringBuilder("List of valid commands:\n```\n");
 			for(String cmd : Command.getCommandLabels())
-				resp.append(cmd + '\n');
+				resp.append(cmd).append('\n');
 			resp.append("```");
 			return;
 		}
@@ -61,8 +61,8 @@ public class MessageListener extends ListenerAdapter{
 				Bot.respondAsyncf(event, "Command `%s` not recognized.", cmdname);
 			}else{
 				String[] args = parseArgs(guild, rawContent);
-				cmd.run(event, args);
 				Logger.debugf("%s attempted to call %s with arguments %s.", event.getAuthor().getName(), cmdname, Arrays.toString(args));
+				cmd.run(event, args);
 			}
 		}
 		
@@ -107,7 +107,7 @@ public class MessageListener extends ListenerAdapter{
 				if(buf.length() == 0) continue;
 				argsTmp.add(buf.toString());
 				buf = new StringBuilder();
-			}else if(h == '`' && buf.length() == 0) { //Special case for grouped args
+			}else if(h == '`') { //Special case for grouped args
 				while(head < raw.length()) {
 					char h2 = raw.charAt(head++);
 					if(h2 == '\\' && head < raw.length() && raw.charAt(head) == '`') //For escaping quotation marks.

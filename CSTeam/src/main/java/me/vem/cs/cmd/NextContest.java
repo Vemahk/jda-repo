@@ -40,7 +40,7 @@ public class NextContest extends Command{
 	
 	public Contest getNextContest() {
 		Calendar cal = Calendar.getInstance();
-		int curMonth = cal.get(Calendar.MONTH) + 1;
+		int curMonth = cal.get(Calendar.MONTH);
 		int curDay = cal.get(Calendar.DAY_OF_MONTH); 
 		int curYear = cal.get(Calendar.YEAR);
 		

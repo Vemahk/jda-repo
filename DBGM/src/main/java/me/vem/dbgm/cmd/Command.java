@@ -11,12 +11,12 @@ public abstract class Command {
 	private static LinkedHashMap<String, Command> commands = new LinkedHashMap<>();
 	public static boolean isCommand(String cmdname) { return commands.containsKey(cmdname); }
 	public static Command getCommand(String cmdname) { return commands.get(cmdname); }
-
-	public static String[] getCommandLabels() {
-		return commands.keySet().toArray(new String[0]);
-	}
+	public static String[] getCommandLabels() { return commands.keySet().toArray(new String[0]); }
 	
-	protected Command(String cmdname) { commands.put(cmdname, this); }
+	private String label;
+	public String getLabel() { return label; }
+	
+	protected Command(String cmdname) { commands.put(label = cmdname, this); }
 	
 	public abstract boolean hasPermissions(MessageReceivedEvent event);
 	protected abstract String help();

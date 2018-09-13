@@ -33,11 +33,12 @@ public class Bot {
 		Prefix.getInstance().save();
 		SwearLog.getInstance().save();
 		Contests.getInstance().save();
-		
-		jda.shutdown(); 
 
 		if(Console.hasConsole())
 			Console.getConsole().dispose();
+		
+		jda.shutdown();
+		
 		System.exit(0);
 	}
 	

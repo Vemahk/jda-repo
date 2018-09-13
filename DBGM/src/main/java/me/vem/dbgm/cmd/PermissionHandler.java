@@ -2,7 +2,7 @@ package me.vem.dbgm.cmd;
 
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
-public class PermissionHandler extends Command{
+public class PermissionHandler extends Command implements Configurable{
 
 	private static PermissionHandler instance;
 	public static PermissionHandler getInstance() { return instance; }
@@ -29,6 +29,16 @@ public class PermissionHandler extends Command{
 
 	@Override
 	public String help() {
-		return "Hmm...";
+		return "This is a Work in Progress. Not even Vemahk knows what it does, so don't expect a help menu quite yet.";
+	}
+	
+	@Override
+	public void save() {
+		
+	}
+	
+	@Override
+	public void load() {
+		
 	}
 }

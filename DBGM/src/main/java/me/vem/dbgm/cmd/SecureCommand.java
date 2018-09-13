@@ -1,7 +1,17 @@
 package me.vem.dbgm.cmd;
 
+import java.util.HashMap;
+
 public abstract class SecureCommand extends Command{
-	protected SecureCommand(String cmdname) { super(cmdname); }
+	
+	private static HashMap<Long, SecureCommand> database = new HashMap<>();
+	public static SecureCommand getFromToken(long token) { return database.get(token); }
+	
+	protected SecureCommand(String cmdname) {
+		super(cmdname);
+		database.put(getToken(), this);
+	}
+	
 	public abstract int getPermissionLevel();
 	public abstract SecureCommand setPermissionLevel(int i);
 	public abstract long getToken();
