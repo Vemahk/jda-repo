@@ -1,25 +1,46 @@
 package me.vem.cs.cmd;
 
+import java.util.LinkedHashMap;
+
+import me.vem.cs.Bot;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
-public interface Command {
+public abstract class Command {
+
+	/* Mmm, block code. Noice. */
+	private static LinkedHashMap<String, Command> commands = new LinkedHashMap<>();
+	public static boolean isCommand(String cmdname) { return commands.containsKey(cmdname); }
+	public static Command getCommand(String cmdname) { return commands.get(cmdname); }
+	
+	public static String[] getCommandLabels() {
+		return commands.keySet().toArray(new String[0]);
+	}
+	
+	protected Command(String cmdname) { commands.put(cmdname, this); }
+	
+	public abstract boolean hasPermissions(MessageReceivedEvent event);
+	protected abstract String help();
+
 	/**
-	 * This is where 
+	 * The super implementation of this method only checks permissions. Override this method in all implementing classes.
+	 * @param event
 	 * @param args
-	 * @param event
 	 */
-	public void run(String[] args, MessageReceivedEvent event);
+	public boolean run(MessageReceivedEvent event, String... args) {
+		if(!hasPermissions(event)) {
+			Bot.respondAsync(event, "You do not have the permissions to run this command.");
+			return false;
+		}
+		
+		return true;
+	}
 	
 	/**
-	 * Determines whether a given user can use this command.
+	 * Tells the bot to respond in the channel given in the event with the help for this command.
 	 * @param event
-	 * @return True if the user is allowed to use this command. False otherwise.
 	 */
-	public boolean hasPermissions(MessageReceivedEvent event);
+	public void getHelp(MessageReceivedEvent event) {
+		Bot.respondAsync(event, this.help());
+	}
 	
-	/**
-	 * @return The string that the bot will respond with documenting how to use this specific command.
-	 * If the string is null, the command WILL NOT be listed upon doing ~!help.
-	 */
-	public String help();
 }

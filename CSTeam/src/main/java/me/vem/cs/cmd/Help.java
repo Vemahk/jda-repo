@@ -1,46 +1,40 @@
 package me.vem.cs.cmd;
 
-import java.util.ArrayList;
-import java.util.Collections;
-
-import me.vem.cs.Main;
-import me.vem.cs.Main.TextFormat;
+import me.vem.cs.Bot;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
-public class Help implements Command{
+public class Help extends Command{
+
+	private static Help instance;
+	public static Help getInstance() { return instance; }
+	public static void initialize() {
+		if(instance == null)
+			instance = new Help();
+	}
+	
+	private Help() { super("help"); }
 
 	@Override
-	public void run(String[] args, MessageReceivedEvent event) {
+	public boolean run(MessageReceivedEvent event, String... args) {
+		if(!super.run(event, args)) return false;
+		
 		if(args.length == 0) {
-			listCommands(event);
-			return;
+			Bot.respondAsync(event, getFormattedCommandList());
+			return true;
 		}
 		
-		if(Main.isCommand(args[0]))
-			Main.respond(Main.commands.get(args[0]).help(), event);
-		else listCommands("Unknown Command.\n", event);
+		if(Command.isCommand(args[0]))
+			Command.getCommand(args[0]).getHelp(event);
+		else Bot.respondAsync(event, "Command not recognized.\n" + getFormattedCommandList());
+		
+		return true;
 	}
 	
-	private void listCommands(MessageReceivedEvent event) {
-		listCommands("", event);
-	}
-	
-	/**
-	 * Makes the bot respond with a list of known commands (that don't return null from their help function). It will append the append string to the beginning of the message.
-	 * @param append
-	 * @param event
-	 */
-	private void listCommands(String append, MessageReceivedEvent event) {
-		ArrayList<String> cmds = new ArrayList<>();
-		for(String s : Main.commands.keySet()) cmds.add(s);
-		Collections.sort(cmds);
-		
-		String out = "";
-		for(String s : cmds) 
-			if(Main.commands.get(s).help() != null)
-				out += s+"\n";
-		
-		Main.respond(append + "List of known commands:\n" + Main.format(out, TextFormat.CODE), event);
+	private String getFormattedCommandList() {
+		StringBuilder list = new StringBuilder("List of known commands:\n```\n");
+		for(String s : Command.getCommandLabels())
+			list.append(s).append('\n');
+		return list.append("```").toString();
 	}
 
 	@Override
@@ -50,6 +44,6 @@ public class Help implements Command{
 	
 	@Override
 	public String help() {
-		return null; //Do not list this command. 
+		return "Usage: `help [command]`"; //Do not list this command. 
 	}
 }
