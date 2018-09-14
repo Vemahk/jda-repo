@@ -41,16 +41,21 @@ public class SwearLog extends Command implements Configurable{
 			getHelp(event);
 			return true;
 		}else if(args.length == 1) { //1 argument
-			if(args[0].equalsIgnoreCase("add")) //Add self
-				userDatabase.add(event.getAuthor().getIdLong());
+			if(args[0].equals("add")) //Add self
+				addMember(event, event.getMember());
+			else if(args[0].equals("remove"))
+				removeMember(event, event.getMember());
 		}else if(args.length != 2){//>2 arguments; invalid
 			getHelp(event);
 			return true;
 		}else {//2 Arguments
-			if(!args[0].equals("add")) {
+			boolean isAdd = "add".equals(args[0]);
+			boolean isRem = "remove".equals(args[0]);
+			if(!(isAdd || isRem)) {
 				getHelp(event);
 				return false;
 			}
+			
 			List<Member> mentions = event.getMessage().getMentionedMembers();
 			if(mentions.size() == 0) { //No mentions
 				Bot.respondAsync(event, "Second argument must be a mention.");
@@ -59,12 +64,24 @@ public class SwearLog extends Command implements Configurable{
 				Bot.respondAsync(event, "Cannot interpret multiple mentions. Please only mention 1 user.");
 				return false;
 			}
-
-			userDatabase.add(mentions.get(0).getUser().getIdLong());
-			Bot.respondAsyncf(event, "Added `%s` to the list of swear notifications.", mentions.get(0).getNickname());
+			
+			if(isAdd) addMember(event, mentions.get(0));
+			else if(isRem) removeMember(event, mentions.get(0));
 		}
 		
 		return true;
+	}
+	
+	private void addMember(MessageReceivedEvent event, Member m) {
+		if(userDatabase.add(m.getUser().getIdLong()))
+			Bot.respondAsyncf(event, "Added `%s` to the list of swear notifications.", m.getNickname());
+		else Bot.respondAsyncf(event, "`%s` already is a receiver of swear notifications.", m.getNickname());
+	}
+	
+	private void removeMember(MessageReceivedEvent event, Member m) {
+		if(userDatabase.remove(m.getUser().getIdLong()))
+			Bot.respondAsyncf(event, "Remove `%s` from the list of swear notifications.", m.getNickname());
+		else Bot.respondAsyncf(event, "`%s` was not found to be a receiver of swear notifications.", m.getNickname());
 	}
 	
 	/**
@@ -77,7 +94,9 @@ public class SwearLog extends Command implements Configurable{
 			User u = event.getJDA().getUserById(l);
 			if(!u.hasPrivateChannel()) u.openPrivateChannel().complete();
 			MessageChannel mc = ((UserImpl)u).getPrivateChannel();
-			mc.sendMessage(event.getMember().getEffectiveName() + " said the badword '"+badword+"'");
+			
+			mc.sendMessage(String.format("`%s` said the badword `%s`!",
+					event.getMember().getNickname(), badword)).queue();
 		}
 	}
 	

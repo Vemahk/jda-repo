@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import javax.security.auth.login.LoginException;
 
+import me.vem.jdab.cmd.Help;
 import me.vem.jdab.cmd.Prefix;
 import me.vem.jdab.utils.Console;
 import me.vem.jdab.utils.IgnoredReference;
@@ -51,6 +52,7 @@ public class Bot {
 		}
 		
 		//Command Registry
+		Help.initialize();
 		Prefix.initialize();
 	}
 	

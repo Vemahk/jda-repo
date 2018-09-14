@@ -18,6 +18,10 @@ public class ExtFileManager {
 	private static Gson gson = new GsonBuilder().create();
 	public static Gson getGson() { return gson; }
 	
+	/**
+	 * @param file
+	 * @return The stream form, including return carriages, of the given file. 
+	 */
 	public static String readFileAsString(File file) {
 		if(file == null) return null;
 		
@@ -33,6 +37,10 @@ public class ExtFileManager {
 		}
 	}
 	
+	/**
+	 * @param fileName
+	 * @return The file in the config/ directory (if it exists, null otherwise) specified by 'fileName'.
+	 */
 	public static File getConfigFile(String fileName) {
 		File dir = new File(configDir);
 		if(!dir.exists()) dir.mkdirs();
@@ -42,6 +50,13 @@ public class ExtFileManager {
 		return target;
 	}
 	
+	/**
+	 * Creates the PrintWriter for the given fileName in the config/ directory. 
+	 * 
+	 * @param fileName 
+	 * @return the PrintWriter of the specified file. Creates the file if one does not exist; null under no circumstance.
+	 * @throws IOException
+	 */
 	public static PrintWriter getConfigOutput(String fileName) throws IOException{
 		File dir = new File(configDir);
 		if(!dir.exists()) dir.mkdirs();

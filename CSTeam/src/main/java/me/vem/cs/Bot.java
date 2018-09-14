@@ -31,8 +31,8 @@ public class Bot {
 		
 		//Perform any save operation that may have to occur here.
 		Prefix.getInstance().save();
-		SwearLog.getInstance().save();
 		Contests.getInstance().save();
+		SwearLog.getInstance().save();
 
 		if(Console.hasConsole())
 			Console.getConsole().dispose();
@@ -57,10 +57,11 @@ public class Bot {
 		}
 		
 		//Registers all the commands. This is required for each command, else the bot won't recognize the command.
-		Prefix.initialize();
+
 		Help.initialize();
-		NextContest.initialize();
+		Prefix.initialize();
 		Contests.initialize();
+		NextContest.initialize();
 		SwearLog.initialize();
 	}
 	

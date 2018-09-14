@@ -46,6 +46,9 @@ public class MessageListener extends ListenerAdapter{
 			for(String cmd : Command.getCommandLabels())
 				resp.append(cmd).append('\n');
 			resp.append("```");
+			
+			Bot.respondAsync(event, resp.toString());
+			
 			return;
 		}
 		
