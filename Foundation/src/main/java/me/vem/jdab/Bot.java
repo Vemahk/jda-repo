@@ -27,11 +27,12 @@ public class Bot {
 		
 		//Perform any save operation that may have to occur here.
 		Prefix.getInstance().save();
-		
-		//jda.shutdown(); //TODO uncomment 
 
 		if(Console.hasConsole())
-			Console.getConsole().dispose();
+			Console.getConsole().dispose();		
+		
+		//jda.shutdown(); //TODO uncomment 
+		
 		System.exit(0);
 	}
 	
