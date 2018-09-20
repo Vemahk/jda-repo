@@ -31,9 +31,9 @@ public class Bot {
 		if(Console.hasConsole())
 			Console.getConsole().dispose();		
 		
-		//jda.shutdown(); //TODO uncomment 
+		//jda.shutdown(); //TODO uncomment
 		
-		System.exit(0);
+		Console.destroyTray();
 	}
 	
 	public static void main(String... args) {

@@ -34,10 +34,10 @@ public class Bot {
 		Prefix.getInstance().save();
 		
 		jda.shutdown(); 
-
+			
 		if(Console.hasConsole())
 			Console.getConsole().dispose();
-		System.exit(0);
+		Console.destroyTray();
 	}
 	
 	public static void main(String[] args) throws IOException {

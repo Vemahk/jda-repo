@@ -33,7 +33,7 @@ public class Console {
 	private static JFrame console;
 	private static JTextArea consoleOutput;
 
-	private static boolean trayActive;
+	private static TrayIcon tray;
 
 	/** @return The active console. */
 	public static JFrame getConsole() {
@@ -104,7 +104,7 @@ public class Console {
 		if (!hasConsole())
 			return;
 
-		if (!SystemTray.isSupported() || !trayActive) {
+		if (!SystemTray.isSupported() || tray == null) {
 				if(JOptionPane.showConfirmDialog(console,
 					"Bot function is dependent on this window.\nClosing it will shutdown the bot.\nAre you sure?",
 					"Shutdown Bot", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION)
@@ -160,7 +160,7 @@ public class Console {
 	 * Will not do anything for non-Windows systems.
 	 */
 	private static void activateTrayIcon() {
-		if(!SystemTray.isSupported() || trayActive)
+		if(!SystemTray.isSupported() || tray != null)
 			return;
 		
 		try {
@@ -169,26 +169,29 @@ public class Console {
 			close.addActionListener(e -> Bot.shutdown());
 			popup.add(close);
 			
-			SystemTray tray = SystemTray.getSystemTray();
+			SystemTray systray = SystemTray.getSystemTray();
 			InputStream imageStream = Console.class.getClassLoader().getResourceAsStream("tray.png");
 			if(imageStream == null) {
 				Logger.err("tray.png resource not found! The tray has failed to load.");
 				return;
 			}
 			Image icon = ImageIO.read(imageStream);
-			TrayIcon trayIcon = new TrayIcon(icon, Version.getVersion().getName(), popup);
-			trayIcon.setImageAutoSize(true);
-			trayIcon.addMouseListener(new MouseAdapter() {
+			tray = new TrayIcon(icon, Version.getVersion().getName(), popup);
+			tray.setImageAutoSize(true);
+			tray.addMouseListener(new MouseAdapter() {
 				@Override public void mouseClicked(MouseEvent e) {
 					if(e.getButton() == MouseEvent.BUTTON1)
 						buildConsole();
 				}
 			});
-			tray.add(trayIcon);
+			systray.add(tray);
 		}catch(AWTException | IOException e) {
 			e.printStackTrace();
 		}
-		
-		trayActive = true;
+	}
+	
+	public static void destroyTray() {
+		if(tray == null) return;
+		SystemTray.getSystemTray().remove(tray);
 	}
 }
