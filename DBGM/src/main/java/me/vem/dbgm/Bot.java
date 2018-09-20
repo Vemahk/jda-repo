@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import me.vem.dbgm.cmd.AntiPurge;
+import me.vem.dbgm.cmd.Help;
 import me.vem.dbgm.cmd.PermissionHandler;
 import me.vem.dbgm.cmd.Prefix;
 import me.vem.dbgm.cmd.Purge;
@@ -51,6 +52,7 @@ public class Bot {
 			e.printStackTrace();
 		}
 		
+		Help.initialize();
 		Prefix.initialize();
 		Purge.initialize();
 		AntiPurge.initialize();

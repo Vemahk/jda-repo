@@ -36,7 +36,7 @@ public class MessageListener extends ListenerAdapter{
 		String rawContent = msg.getContentRaw();
 		
 		if(rawContent.equals(self.getAsMention())) {
-			StringBuilder resp = new StringBuilder("List of valid commands:\n```\n");
+			StringBuilder resp = new StringBuilder("List of known commands:\n```\n");
 			for(String cmd : Command.getCommandLabels())
 				resp.append(cmd + '\n');
 			resp.append("```");

@@ -4,8 +4,6 @@ import java.awt.AWTException;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Image;
-import java.awt.MenuItem;
-import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.TrayIcon;
 import java.awt.event.MouseAdapter;
@@ -80,10 +78,6 @@ public class Console {
 		
 		JMenu menu = new JMenu("Options");
 		menuBar.add(menu);
-		
-		JMenuItem close = new JMenuItem("Close Window");
-		close.addActionListener(e -> disposeConsole());
-		menu.add(close);
 		
 		JMenuItem shutdown = new JMenuItem("Shutdown Bot");
 		shutdown.addActionListener(e -> {
@@ -168,11 +162,6 @@ public class Console {
 			return;
 		
 		try {
-			PopupMenu popup = new PopupMenu();
-			MenuItem close = new MenuItem("Close Bot");
-			close.addActionListener(e -> Bot.shutdown());
-			popup.add(close);
-			
 			SystemTray systray = SystemTray.getSystemTray();
 			InputStream imageStream = Console.class.getClassLoader().getResourceAsStream("tray.png");
 			if(imageStream == null) {
@@ -180,7 +169,7 @@ public class Console {
 				return;
 			}
 			Image icon = ImageIO.read(imageStream);
-			tray = new TrayIcon(icon, Version.getVersion().getName(), popup);
+			tray = new TrayIcon(icon, Version.getVersion().getName(), null);
 			tray.setImageAutoSize(true);
 			tray.addMouseListener(new MouseAdapter() {
 				@Override public void mouseClicked(MouseEvent e) {
