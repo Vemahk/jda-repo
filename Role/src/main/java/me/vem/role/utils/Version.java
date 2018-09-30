@@ -1,8 +1,8 @@
-package me.vem.dbgm.utils;
+package me.vem.role.utils;
 
 public class Version {
 
-	private static final Version instance = new Version(0, 0, 1, 2, "DBGM");
+	private static final Version instance = new Version(0, 0, 1, 0, "Role-Bot");
 	public static Version getVersion() {
 		return instance;
 	}

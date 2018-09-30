@@ -4,113 +4,121 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Scanner;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import me.vem.role.Bot;
-import net.dv8tion.jda.core.JDA;
+import me.vem.role.utils.ExtFileManager;
+import me.vem.role.utils.Logger;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
-public class Rankup implements Command{
+public class Rankup extends Command implements Configurable{
 	
-	private HashMap<Guild, RoleInfo> info;
-	private File datafile;
+	private static Rankup instance;
+	public static Rankup getInstance() { return instance; }
+	public static void initialize() {
+		if(instance == null) instance = new Rankup();
+	}
 	
-	public Rankup(JDA jda) {
-		loadRoles(jda);
+	private HashMap<Long, HashMap<String, Long>> info;
+	
+	private Rankup() {
+		super("rankup");
+		load();
 	}
 	
 	@Override
-	public void run(String[] args, MessageReceivedEvent event) {
+	public boolean run(MessageReceivedEvent event, String... args) {
+		if(!super.run(event, args)) return false;
+		
 		Guild g = event.getGuild();
-		RoleInfo ri = info.get(g);
+		long gid = g.getIdLong();
+		HashMap<String, Long> ri = info.get(gid);
 		if(ri == null)
-			info.put(g, ri = new RoleInfo(g));
+			info.put(gid, ri = new HashMap<>());
 		
 		if(args.length == 0) {
 			StringBuffer roleList = new StringBuffer();
-			Iterator<String> iter = ri.getStringIterator();
 			
-			while(iter.hasNext()) {
-				roleList.append(iter.next());
-				if(iter.hasNext())
-					roleList.append('\n');
-			}
+			for(String s : ri.keySet())
+				roleList.append(s).append('\n');
 			
-			if(roleList.length() == 0) {
-				roleList.append("This guild currently has no assignable roles.\nAsk an admin to 'rankup allow' to add roles.");
-			}
+			Logger.debugf("%s", ri);
 			
-			Bot.respond(help(event) + "\nList of assignable roles:" + Bot.format(roleList.toString(), Bot.TextFormat.CODE), event);
-			return;
+			if(roleList.length() == 0)
+				roleList.append("This guild currently has no assignable roles.\n"
+							  + "Ask an admin to 'rankup allow' to add roles.");
+			
+			Bot.respondAsyncf(event, "%s%nList of assignable roles: ```%n%s```", help(), roleList.toString());
+			return true;
 		}
 		
 		
 		if(args[0].equals("allow")) {
 			if(!event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
-				Bot.respond("You do not have the permissions to allow roles.", event);
-				return;
+				Bot.respondAsync(event, "You do not have the permissions to allow roles.");
+				return false;
 			}
 			
 			if(args.length != 3) {
-				Bot.respond("Usage: rankup allow <@role> <rolereference>", event);
-				return;
+				Bot.respondAsync(event, "Usage: rankup allow <@role> <rolereference>");
+				return false;
 			}
 			
-			if(ri.hasRole(args[2])) {
-				Bot.respond(String.format("The reference '%s' is already used. Try another.", args[2]), event);
-				return;
+			if(ri.containsKey(args[2])) {
+				Bot.respondAsyncf(event, "The reference '%s' is already used. Try another.", args[2]);
+				return true;
 			}
 			
 			List<Role> roleList = event.getMessage().getMentionedRoles();
 			if(roleList.size() != 1) {
-				Bot.respond("Specific role mention not found. Please mention exactly one role.", event);
-				return;
+				Bot.respondAsync(event, "Specific role mention not found. Please mention exactly one role.");
+				return false;
 			}
 			
 			Role r = roleList.get(0);
-			ri.addRole(args[2], r);
-			saveRoles();
+			ri.put(args[2], r.getIdLong());
 			
-			Bot.respond(String.format("Role '%s' added with alias '%s'", r.getName(), args[2]), event);
+			Bot.respondAsyncf(event, "Role '%s' added with alias '%s'", r.getName(), args[2]);
 			
 		}else if(args[0].equals("disallow")) {
 			if(!event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
-				Bot.respond("You do not have the permissions to disallow roles.", event);
-				return;
+				Bot.respondAsync(event, "You do not have the permissions to disallow roles.");
+				return false;
 			}
 			
 			if(args.length != 2) {
-				Bot.respond("Usage: rankup disallow <rolereference>", event);
-				return;
+				Bot.respondAsync(event, "Usage: rankup disallow <rolereference>");
+				return false;
 			}
 			
-			if(!ri.hasRole(args[1])) {
-				Bot.respond("Role with alias '"+ args[1] + "' does not exist.", event);
-				return;
+			if(!ri.containsKey(args[1])) {
+				Bot.respondAsyncf(event, "Role with alias '%s' does not exist.", args[1]);
+				return false;
 			}
 			
-			ri.removeRole(args[1]);
-			saveRoles();
+			ri.remove(args[1]);
 			
-			Bot.respond("Role alias '"+ args[1] +"' removed.", event);
+			Bot.respondAsync(event, "Role alias '"+ args[1] +"' removed.");
 		}else {
 			if(ri.size() == 0) {
-				Bot.respond("This guild currently has no assignable roles.\nAsk an admin to 'rankup allow' to add roles.", event);
-				return;
+				Bot.respondAsync(event, "This guild currently has no assignable roles.\nAsk an admin to 'rankup allow' to add roles.");
+				return true;
 			}
 			
 			Member mem = event.getMember();
 			StringBuffer response = new StringBuffer();
 			for(String ref : args) {
 				
-				if(ri.hasRole(ref)) {
-					Role r = ri.getRole(ref);
+				if(ri.containsKey(ref)) {
+					long rid = ri.get(ref);
+					Role r = event.getGuild().getRoleById(rid);
 					if(mem.getRoles().contains(r)) {
 						g.getController().removeSingleRoleFromMember(mem, r).queue();
 						response.append(String.format("Role '%s' removed.\n", ref));
@@ -122,112 +130,41 @@ public class Rankup implements Command{
 					response.append(String.format("Role '%s' not found.%n", ref));
 			}
 			
-			Bot.respond(response.toString(), event);
+			Bot.respondAsync(event, response.toString());
 		}
-	}
-
-	@Override
-	public boolean hasPermissions(MessageReceivedEvent event) {
 		return true;
 	}
 
+	@Override public boolean hasPermissions(MessageReceivedEvent event) { return true; }
+
 	@Override
-	public String help(MessageReceivedEvent event) {
-		return String.format("Usage: %srankup <role> [role2] [role3] [role...etc]", Bot.prefix.getPrefix(event.getGuild()));
+	protected String help() {
+		return "Usage: rankup <role> [role2] [role3] [role...etc]";
 	}
 	
-	private void saveRoles() {
+	@Override
+	public void save() {
 		try {
-			PrintWriter pw = new PrintWriter(datafile);
-			
-			for(Guild g : info.keySet())
-				pw.println(info.get(g).toString());
-			
-			pw.flush();
-			pw.close();
+			PrintWriter out = ExtFileManager.getConfigOutput("rankup.json");
+			out.print(ExtFileManager.getGsonPretty().toJson(info));
+			out.flush();
+			out.close();
 		}catch(IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	private void loadRoles(JDA jda) {
-		info = new HashMap<Guild, RoleInfo>();
-		datafile = new File("ranks.dat");
+	@Override
+	public void load() {
+		info = new HashMap<>();
 		
-		if(!datafile.exists()) {
-			try {
-				datafile.createNewFile();
-			}catch(IOException e) { e.printStackTrace(); }
-			return;
-		}
+		File configFile = ExtFileManager.getConfigFile("rankup.json");
+		if(configFile == null) return;
 		
-		try {
-			Scanner read = new Scanner(datafile);
-			
-			while(read.hasNextLine()) {
-				Scanner in = new Scanner(read.nextLine());
-				
-				Guild g = jda.getGuildById(in.nextLong());
-				Role r = g.getRoleById(in.nextLong());
-				String rep = in.next();
-				
-				if(info.containsKey(g)) 
-					info.get(g).addRole(rep, r);
-				else info.put(g, new RoleInfo(g).addRole(rep, r));
-				
-				in.close();
-			}
-			
-			read.close();
-		}catch(IOException e) {} //File is ensured to exist.
-	}
-}
-
-class RoleInfo{
-	
-	private HashMap<String, Role> data;
-	private Guild guild;
-	
-	public RoleInfo(Guild guild) {
-		data = new HashMap<>();
-		this.guild = guild;
-	}
-	
-	public RoleInfo addRole(String rep, Role r) {
-		data.put(rep, r);
-		return this;
-	}
-	
-	public RoleInfo removeRole(String rep) {
-		data.remove(rep);
-		return this;
-	}
-	
-	public boolean hasRole(String rep) {
-		return data.containsKey(rep);
-	}
-	
-	public Role getRole(String rep) {
-		return data.get(rep);
-	}
-	
-	public Iterator<String> getStringIterator(){
-		return data.keySet().iterator();
-	}
-	
-	public int size() {
-		return data.size();
-	}
-	
-	public String toString() {
-		StringBuffer out = new StringBuffer();
-		Iterator<String> iter = data.keySet().iterator();
-		while(iter.hasNext()) {
-			String rep = iter.next();
-			out.append(guild.getIdLong() + " " + data.get(rep).getIdLong() + " " + rep);
-			if(iter.hasNext())
-				out.append('\n');
-		}
-		return out.toString();
+		String content = ExtFileManager.readFileAsString(configFile);
+		if(content == null || content.length() == 0) return;
+		
+		Gson gson = ExtFileManager.getGsonPretty();
+		info = gson.fromJson(content, new TypeToken<HashMap<Long, HashMap<String, Long>>>(){}.getType());
 	}
 }
