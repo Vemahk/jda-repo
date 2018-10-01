@@ -176,7 +176,7 @@ public class Purge extends Command{
 	}
 	
 	@Override
-	public boolean hasPermissions(MessageReceivedEvent event) {
+	public boolean hasPermissions(MessageReceivedEvent event, String... args) {
 		return event.getMember().hasPermission(Permission.ADMINISTRATOR);
 	}
 
@@ -194,6 +194,10 @@ public class Purge extends Command{
 		
 		help.append("```");
 		return help.toString();
+	}
+	@Override
+	protected void unload() {
+		instance = null;
 	}
 }
 

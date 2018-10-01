@@ -23,7 +23,7 @@ public class PermissionHandler extends Command implements Configurable{
 	}
 
 	@Override
-	public boolean hasPermissions(MessageReceivedEvent event) {
+	public boolean hasPermissions(MessageReceivedEvent event, String... args) {
 		return false; //This is going to get pretty meta.
 	}
 
@@ -34,11 +34,17 @@ public class PermissionHandler extends Command implements Configurable{
 	
 	@Override
 	public void save() {
-		
+		//TODO DBGM Save/Load
 	}
 	
 	@Override
 	public void load() {
 		
+	}
+	
+	@Override
+	protected void unload() {
+		save();
+		instance = null;
 	}
 }

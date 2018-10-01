@@ -25,7 +25,7 @@ public class Prefix extends Command implements Configurable{
 	public static void initialize() {
 		if(instance != null) return;
 		instance = new Prefix();
-	}
+	} 
 	
 	/**
 	 * Shorthand for doing Prefix.getInstance().getPrefix(g);
@@ -78,7 +78,7 @@ public class Prefix extends Command implements Configurable{
 	}
 	
 	@Override
-	public boolean hasPermissions(MessageReceivedEvent event) {
+	public boolean hasPermissions(MessageReceivedEvent event, String... args) {
 		return event.getMember().hasPermission(Permission.ADMINISTRATOR);
 	}
 
@@ -115,5 +115,10 @@ public class Prefix extends Command implements Configurable{
 		
 		Gson gson = ExtFileManager.getGsonPretty();
 		prefixDatabase = gson.fromJson(content, new TypeToken<HashMap<Long, String>>(){}.getType());
+	}
+	@Override
+	protected void unload() {
+		save();
+		instance = null;
 	}
 }

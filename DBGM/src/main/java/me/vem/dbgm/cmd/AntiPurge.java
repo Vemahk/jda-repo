@@ -45,12 +45,17 @@ public class AntiPurge extends Command{
 	}
 
 	@Override
-	public boolean hasPermissions(MessageReceivedEvent event) {
+	public boolean hasPermissions(MessageReceivedEvent event, String... args) {
 		return event.getMember().hasPermission(Permission.ADMINISTRATOR);
 	}
 
 	@Override
 	public String help() {
 		return "Valid Usage: antipurge <message>";
+	}
+
+	@Override
+	protected void unload() {
+		instance = null;
 	}
 }

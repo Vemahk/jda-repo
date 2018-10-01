@@ -33,15 +33,8 @@ public class Console {
 
 	private static TrayIcon tray;
 
-	/** @return The active console. */
-	public static JFrame getConsole() {
-		return console;
-	}
-
 	/** @return true if there is an open console. */
-	public static boolean hasConsole() {
-		return console != null;
-	}
+	public static boolean hasConsole() { return console != null; }
 
 	/**
 	 * Creates the console only if it does not already exist.
@@ -119,9 +112,14 @@ public class Console {
 	public static void restoreSTDPrintStreams() {
 		if(stdoutOld != null) {
 			System.setOut(stdoutOld);
-			Logger.info("stdout restored.");
+			Logger.info("STDOUT Restored");
+			stdoutOld = null;
 		}
-		if(stderrOld != null) System.setErr(stderrOld);
+		if(stderrOld != null) {
+			System.setErr(stderrOld);
+			Logger.info("STDERR Restored");
+			stderrOld = null;
+		}
 	}
 	
 	/**
@@ -147,6 +145,9 @@ public class Console {
 		
 		System.setOut(out);
 		System.setErr(out);
+		
+		//Uncomment the following line if your program closes without any errors.
+		//restoreSTDPrintStreams();
 	}
 	
 	/**
@@ -182,5 +183,17 @@ public class Console {
 	public static void destroyTray() {
 		if(tray == null) return;
 		SystemTray.getSystemTray().remove(tray);
+		tray = null;
+	}
+	
+	public static void shutdown() {
+		restoreSTDPrintStreams();
+		
+		if(hasConsole())
+			console.dispose();
+		destroyTray();
+		
+		console = null;
+		consoleOutput = null;
 	}
 }

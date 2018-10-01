@@ -33,9 +33,6 @@ public class Console {
 
 	private static TrayIcon tray;
 
-	/** @return The active console. */
-	public static JFrame getConsole() { return console; }
-
 	/** @return true if there is an open console. */
 	public static boolean hasConsole() { return console != null; }
 
@@ -193,7 +190,7 @@ public class Console {
 		restoreSTDPrintStreams();
 		
 		if(hasConsole())
-			getConsole().dispose();
+			console.dispose();
 		destroyTray();
 		
 		console = null;

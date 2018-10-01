@@ -2,6 +2,7 @@ package me.vem.dbgm;
 import java.io.IOException;
 
 import me.vem.dbgm.cmd.AntiPurge;
+import me.vem.dbgm.cmd.Command;
 import me.vem.dbgm.cmd.Help;
 import me.vem.dbgm.cmd.PermissionHandler;
 import me.vem.dbgm.cmd.Prefix;
@@ -26,20 +27,16 @@ public class Bot {
 	public static JDA getJDA() { return jda; }
 	
 	public static void shutdown() {
+		Console.shutdown();
+		
 		Logger.infof("%s is shutting down...", Version.getVersion());
 		
-		//Perform any save operation that may have to occur here.
-		Prefix.getInstance().save();
+		Command.unloadAll();
 		
 		jda.shutdown(); 
-			
-		if(Console.hasConsole())
-			Console.getConsole().dispose();
-		Console.destroyTray();
 	}
 	
-	public static void main(String[] args) throws IOException {
-		Logger.infof("Hello World! From %s", Version.getVersion());
+	public static void startup() {
 		Console.buildConsole();
 		
 		try {
@@ -54,5 +51,10 @@ public class Bot {
 		Purge.initialize();
 		AntiPurge.initialize();
 		PermissionHandler.initialize();
+	}
+	
+	public static void main(String[] args) throws IOException {
+		Logger.infof("Hello World! From %s", Version.getVersion());
+		startup();
 	}
 }
