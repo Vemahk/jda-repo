@@ -98,11 +98,16 @@ public class ExportChannel extends Command {
 		return out;
 	}
 	
-	public boolean hasPermissions(MessageReceivedEvent event) {
+	@Override
+	public boolean hasPermissions(MessageReceivedEvent event, String... args) {
 		return event.getMember().hasPermission(Permission.ADMINISTRATOR);
 	}
 	
 	@Override protected String help() {
 		return "Usage: none at the moment.";
+	}
+	@Override
+	protected void unload() {
+		instance = null;
 	}
 }

@@ -100,7 +100,8 @@ public class ClearOOC extends Command implements Configurable{
 		return true;
 	}
 	
-	public boolean hasPermissions(MessageReceivedEvent event) {
+	@Override
+	public boolean hasPermissions(MessageReceivedEvent event, String... args) {
 		Member mem = event.getMember();
 		
 		if(mem.hasPermission(Permission.ADMINISTRATOR) || mem.hasPermission(Permission.MESSAGE_MANAGE)) return true;
@@ -142,6 +143,11 @@ public class ClearOOC extends Command implements Configurable{
 	
 	@Override protected String help() {
 		return "Usage; clearooc [amount=50]";
+	}
+	@Override
+	protected void unload() {
+		save();
+		instance = null;
 	}
 	
 }

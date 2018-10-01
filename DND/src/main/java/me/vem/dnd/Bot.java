@@ -2,6 +2,7 @@ package me.vem.dnd;
 import java.io.IOException;
 
 import me.vem.dnd.cmd.ClearOOC;
+import me.vem.dnd.cmd.Command;
 import me.vem.dnd.cmd.ExportChannel;
 import me.vem.dnd.cmd.Help;
 import me.vem.dnd.cmd.Jobs;
@@ -23,26 +24,16 @@ public class Bot {
 	public static JDA getJDA() { return jda; }
 	
 	public static void shutdown() {
+		Console.shutdown();
+		
 		Logger.infof("%s is shutting down...", Version.getVersion());
 		
-		//Perform any save operation that may have to occur here.
-		Prefix.getInstance().save();
-		ClearOOC.getInstance().save();
-		Jobs.getInstance().save();
-		Meme.getInstance().save();
+		Command.unloadAll();
 		
 		jda.shutdown();
-
-		if(Console.hasConsole())
-			Console.getConsole().dispose();		
-		Console.destroyTray();
 	}
 	
-	public static void start() {
-		
-	}
-	
-	public static void main(String[] args) throws IOException {
+	public static void startup() {
 		Console.buildConsole();
 		
 		try {
@@ -63,5 +54,10 @@ public class Bot {
 		Jobs.initialize();
 		Meme.initialize();
 		Move.initialize();
+	}
+	
+	public static void main(String[] args) throws IOException {
+		Logger.info("Hello World!");
+		startup();
 	}
 }

@@ -38,12 +38,16 @@ public class Help extends Command{
 	}
 
 	@Override
-	public boolean hasPermissions(MessageReceivedEvent event) {
+	public boolean hasPermissions(MessageReceivedEvent event, String... args) {
 		return true; //Everyone can use this command.
 	}
 	
 	@Override
 	public String help() {
 		return "Usage: `help [command]`"; //Do not list this command. 
+	}
+	@Override
+	protected void unload() {
+		instance = null;
 	}
 }

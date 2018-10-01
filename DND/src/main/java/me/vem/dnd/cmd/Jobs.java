@@ -128,7 +128,7 @@ public class Jobs extends Command implements Configurable{
 		return true;
 	}
 
-	@Override public boolean hasPermissions(MessageReceivedEvent event) {
+	@Override public boolean hasPermissions(MessageReceivedEvent event, String... args) {
 		return true;
 	}
 
@@ -206,5 +206,10 @@ public class Jobs extends Command implements Configurable{
 		
 		Gson gson = ExtFileManager.getGsonPretty();
 		jobsDatabase = gson.fromJson(content, new TypeToken<HashMap<String, List<Job>>>(){}.getType());
+	}
+	@Override
+	protected void unload() {
+		save();
+		instance = null;
 	}
 }

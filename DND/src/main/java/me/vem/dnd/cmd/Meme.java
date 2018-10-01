@@ -76,7 +76,7 @@ public class Meme extends Command implements Configurable{
 		return true;
 	}
 	
-	@Override public boolean hasPermissions(MessageReceivedEvent event) { return true; }
+	@Override public boolean hasPermissions(MessageReceivedEvent event, String... args) { return true; }
 	
 	@Override public void save() {
 		try {
@@ -106,5 +106,10 @@ public class Meme extends Command implements Configurable{
 
 	@Override protected String help() {
 		return "Usage: meme <memename> or ~meme list";
+	}
+	@Override
+	protected void unload() {
+		save();
+		instance = null;
 	}
 }
