@@ -8,6 +8,7 @@ import me.vem.jdab.cmd.Prefix;
 import me.vem.jdab.utils.Console;
 import me.vem.jdab.utils.IgnoredReference;
 import me.vem.jdab.utils.Logger;
+import me.vem.jdab.utils.Respond;
 import me.vem.jdab.utils.Version;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
@@ -23,6 +24,8 @@ public class Bot {
 		Console.shutdown();
 		
 		Logger.infof("%s is shutting down...", Version.getVersion());
+		
+		Respond.timerShutdown();
 		
 		Command.unloadAll();
 		

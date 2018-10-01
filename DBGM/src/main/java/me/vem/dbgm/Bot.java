@@ -10,6 +10,7 @@ import me.vem.dbgm.cmd.Purge;
 import me.vem.dbgm.utils.Console;
 import me.vem.dbgm.utils.IgnoredReference;
 import me.vem.dbgm.utils.Logger;
+import me.vem.dbgm.utils.Respond;
 import me.vem.dbgm.utils.Version;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
@@ -30,6 +31,8 @@ public class Bot {
 		Console.shutdown();
 		
 		Logger.infof("%s is shutting down...", Version.getVersion());
+		
+		Respond.timerShutdown();
 		
 		Command.unloadAll();
 		

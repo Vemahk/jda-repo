@@ -23,8 +23,8 @@ public class Prefix extends Command implements Configurable{
 	private static Prefix instance;
 	public static Prefix getInstance() { return instance; }
 	public static void initialize() {
-		if(instance != null) return;
-		instance = new Prefix();
+		if(instance == null)
+			instance = new Prefix();
 	} 
 	
 	/**

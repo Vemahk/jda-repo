@@ -12,6 +12,7 @@ import me.vem.dnd.cmd.Prefix;
 import me.vem.dnd.utils.Console;
 import me.vem.dnd.utils.IgnoredReference;
 import me.vem.dnd.utils.Logger;
+import me.vem.dnd.utils.Respond;
 import me.vem.dnd.utils.Version;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
@@ -27,6 +28,8 @@ public class Bot {
 		Console.shutdown();
 		
 		Logger.infof("%s is shutting down...", Version.getVersion());
+		
+		Respond.timerShutdown();
 		
 		Command.unloadAll();
 		

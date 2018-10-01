@@ -11,7 +11,9 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 public class Respond {
 
 	private static Timer timer = new Timer();
-	
+	public static void timerShutdown() {
+		timer.cancel();
+	}
 	/**
 	 * Synchronous bot response.
 	 * @param event
