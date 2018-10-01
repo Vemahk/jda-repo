@@ -15,12 +15,28 @@ public abstract class Command {
 	public static String[] getCommandLabels() {
 		return commands.keySet().toArray(new String[0]);
 	}
+	
+	/**
+	 * Calls the unload method on all initialized commands and clears the commands map.
+	 */
+	public static void unloadAll() {
+		for(Command cmd : commands.values())
+			cmd.unload();
+		commands.clear();
+	}
 	 
 	protected Command(String cmdname) { commands.put(cmdname, this); }
 	
 	public abstract boolean hasPermissions(MessageReceivedEvent event, String... args);
 	protected abstract String help();
-
+	
+	/**
+	 * Required postcondition: The command can be reloaded after this method is called.
+	 * 
+	 * In the case of my example commands, their static instance must be set back to null.
+	 */
+	protected abstract void unload();
+	
 	/**
 	 * The super implementation of this method only checks permissions. Override this method in all implementing classes.
 	 * @param event

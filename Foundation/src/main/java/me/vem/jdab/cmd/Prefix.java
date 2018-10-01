@@ -116,4 +116,9 @@ public class Prefix extends Command implements Configurable{
 		Gson gson = ExtFileManager.getGsonPretty();
 		prefixDatabase = gson.fromJson(content, new TypeToken<HashMap<Long, String>>(){}.getType());
 	}
+	@Override
+	protected void unload() {
+		save();
+		instance = null;
+	}
 }

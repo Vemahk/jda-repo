@@ -2,6 +2,7 @@ package me.vem.jdab;
 
 import javax.security.auth.login.LoginException;
 
+import me.vem.jdab.cmd.Command;
 import me.vem.jdab.cmd.Help;
 import me.vem.jdab.cmd.Prefix;
 import me.vem.jdab.utils.Console;
@@ -19,22 +20,16 @@ public class Bot {
 	public static JDA getJDA() { return jda; }
 	
 	public static void shutdown() {
+		Console.shutdown();
+		
 		Logger.infof("%s is shutting down...", Version.getVersion());
 		
-		//Perform any save operation that may have to occur here.
-		Prefix.getInstance().save();
-
-		if(Console.hasConsole())
-			Console.getConsole().dispose();		
+		Command.unloadAll();
 		
 		//jda.shutdown(); //TODO uncomment
-		
-		Console.destroyTray();
 	}
 	
-	public static void main(String... args) {
-		Logger.info("Hello World!");
-		
+	public static void startup() {
 		Console.buildConsole();
 		
 		try {
@@ -51,5 +46,19 @@ public class Bot {
 		//Command Registry
 		Help.initialize();
 		Prefix.initialize();
+	}
+	
+	public static void restart() throws InterruptedException {
+		shutdown();
+		
+		Thread.sleep(5000);
+		
+		startup();
+	}
+	
+	public static void main(String... args) {
+		Logger.info("Hello World!");
+		
+		startup();
 	}
 }

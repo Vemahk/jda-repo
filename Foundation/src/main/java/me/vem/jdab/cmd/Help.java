@@ -46,4 +46,8 @@ public class Help extends Command{
 	public String help() {
 		return "Usage: `help [command]`"; //Do not list this command. 
 	}
+	@Override
+	protected void unload() {
+		instance = null;
+	}
 }
