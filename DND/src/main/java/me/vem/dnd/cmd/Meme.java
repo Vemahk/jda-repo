@@ -3,27 +3,38 @@ package me.vem.dnd.cmd;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Scanner;
-import java.util.TreeMap;
+import java.util.HashMap;
+import java.util.Map;
 
-import me.vem.dnd.Main;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import me.vem.dnd.utils.ExtFileManager;
+import me.vem.dnd.utils.Logger;
+import me.vem.dnd.utils.Respond;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
-public class Meme implements Command{
+public class Meme extends Command implements Configurable{
 
-	private TreeMap<String, String> memes;
+	private static Meme instance;
+	public static Meme getInstance() { return instance; }
+	public static void initialize() {
+		if(instance == null) instance = new Meme();
+	}
 	
-	public Meme() {
-		memes = new TreeMap<>();
-		loadSettings();
+	private Map<String, String> memes;
+	
+	private Meme() {
+		super("meme");
+		load();
 	}
 	
 	@Override
-	public void run(String[] args, MessageReceivedEvent event) {
+	public boolean run(MessageReceivedEvent event, String... args) {
 		if(args.length == 0) {
-			Main.respondTimeout("Usage: ~meme <memename> or ~meme list", 5, event);
-			return;
+			Respond.timeout(event, 5000, help());
+			return false;
 		}
 		
 		String meme = args[0];
@@ -40,65 +51,60 @@ public class Meme implements Command{
 				}
 			}
 			if(timeout > 0)
-				Main.respondTimeout(rsp, timeout, event);
-			else Main.respond(rsp, event);
+				Respond.timeout(event, timeout * 1000, rsp);
+			else Respond.async(event, rsp);
 		}else if(meme.equals("add")) {
 			if(!event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
-				Main.respondTimeout("Aye, you can't do this. Sorry bud.", 5, event);
-				return;
+				Respond.timeout(event, 5000, "Aye, you can't do this. Sorry bud.");
+				return false;
 			}
 			
 			if(args.length<3) {
-				Main.respondTimeout("Aye, u dun goofed.", 5, event);
-				return;
+				Respond.timeout(event, 5000, "Aye, u dun goofed.");
+				return false;
 			}
 			
 			memes.put(args[1], args[2]);
-			saveSettings();
-			Main.respondTimeout("Meme added. OuO", 5, event);
+			Respond.timeout(event, 5000, "Meme added. OuO");
 		}else if(memes.containsKey(meme)){
 			event.getMessage().delete().complete();
 			String out = memes.get(meme);
-			if(ClearOOC.roomEnabled(event.getTextChannel())) out = "("+out+")";
-			event.getTextChannel().sendMessage(out).complete();
-		}else Main.respondTimeout("Unknown Meme. Ask Vem to add it, pleb.", 5, event);
+			if(ClearOOC.getInstance().roomEnabled(event.getGuild(), event.getTextChannel())) out = "("+out+")";
+			Respond.async(event, out);
+		}else Respond.timeout(event, 5000, "Unknown Meme. Ask an admin to add it.");
 		
+		return true;
+	}
+	
+	@Override public boolean hasPermissions(MessageReceivedEvent event) { return true; }
+	
+	@Override public void save() {
+		try {
+			PrintWriter out = ExtFileManager.getConfigOutput("memes.json");
+			out.print(ExtFileManager.getGsonPretty().toJson(memes));
+			out.flush();
+			out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		Logger.infof("Meme database saved...");
+	}
+	
+	@Override public void load() {
+		memes = new HashMap<>();
+		
+		File configFile = ExtFileManager.getConfigFile("memes.json");
+		if(configFile == null) return;
+		
+		String content = ExtFileManager.readFileAsString(configFile);
+		if(content == null || content.length() == 0) return;
+		
+		Gson gson = ExtFileManager.getGsonPretty();
+		memes = gson.fromJson(content, new TypeToken<HashMap<String, String>>(){}.getType());
 	}
 
-	private void saveSettings() {
-		File f = new File("memes.dat");
-		
-		try {
-			if(f.exists()) f.delete();
-			f.createNewFile();
-			
-			PrintWriter file = new PrintWriter(f);
-			for(String s : memes.keySet()) file.println(s+"::"+memes.get(s));
-			file.flush();
-			file.close();
-		}catch(IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	private void loadSettings() {
-		File f = new File("memes.dat");
-		if(!f.exists()) return;
-		
-		try {
-			Scanner file = new Scanner(f);
-			while(file.hasNextLine()) {
-				String[] ln = file.nextLine().split("::");
-				memes.put(ln[0], ln[1]);
-			}
-			file.close();
-		}catch(IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	@Override
-	public boolean hasPermissions(MessageReceivedEvent event) {
-		return true;
+	@Override protected String help() {
+		return "Usage: meme <memename> or ~meme list";
 	}
 }

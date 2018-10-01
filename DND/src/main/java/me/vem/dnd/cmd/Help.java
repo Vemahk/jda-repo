@@ -1,6 +1,6 @@
-package me.vem.dbgm.cmd;
+package me.vem.dnd.cmd;
 
-import me.vem.dbgm.utils.Respond;
+import me.vem.dnd.utils.Respond;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class Help extends Command{
@@ -10,7 +10,7 @@ public class Help extends Command{
 	public static void initialize() {
 		if(instance == null)
 			instance = new Help();
-	}
+	} 
 	
 	private Help() { super("help"); }
 

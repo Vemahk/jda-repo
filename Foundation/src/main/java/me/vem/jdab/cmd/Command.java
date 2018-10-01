@@ -2,7 +2,7 @@ package me.vem.jdab.cmd;
 
 import java.util.LinkedHashMap;
 
-import me.vem.jdab.Bot;
+import me.vem.jdab.utils.Respond;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public abstract class Command {
@@ -18,7 +18,7 @@ public abstract class Command {
 	 
 	protected Command(String cmdname) { commands.put(cmdname, this); }
 	
-	public abstract boolean hasPermissions(MessageReceivedEvent event);
+	public abstract boolean hasPermissions(MessageReceivedEvent event, String... args);
 	protected abstract String help();
 
 	/**
@@ -28,7 +28,7 @@ public abstract class Command {
 	 */
 	public boolean run(MessageReceivedEvent event, String... args) {
 		if(!hasPermissions(event)) {
-			Bot.respondAsync(event, "You do not have the permissions to run this command.");
+			Respond.async(event, "You do not have the permissions to run this command.");
 			return false;
 		}
 		
@@ -40,7 +40,7 @@ public abstract class Command {
 	 * @param event
 	 */
 	public void getHelp(MessageReceivedEvent event) {
-		Bot.respondAsync(event, this.help());
+		Respond.async(event, this.help());
 	}
 	
 }

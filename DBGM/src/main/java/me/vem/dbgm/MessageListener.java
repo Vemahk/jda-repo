@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import me.vem.dbgm.cmd.Command;
 import me.vem.dbgm.cmd.Prefix;
 import me.vem.dbgm.utils.Logger;
+import me.vem.dbgm.utils.Respond;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
@@ -40,7 +41,7 @@ public class MessageListener extends ListenerAdapter{
 				resp.append(cmd + '\n');
 			resp.append("```");
 			
-			Bot.respondAsync(event, resp.toString());
+			Respond.async(event, resp.toString());
 			
 			return;
 		}
@@ -54,7 +55,7 @@ public class MessageListener extends ListenerAdapter{
 			
 			Command cmd = Command.getCommand(cmdname);
 			if(cmd == null) {
-				Bot.respondAsyncf(event, "Command `%s` not recognized.", cmdname);
+				Respond.asyncf(event, "Command `%s` not recognized.", cmdname);
 			}else{
 				String[] args = parseArgs(guild, rawContent);
 				cmd.run(event, args);

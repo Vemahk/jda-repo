@@ -1,4 +1,4 @@
-package me.vem.jdab.utils;
+package me.vem.dnd.utils;
 
 import java.io.File;
 import java.io.FileInputStream;

@@ -1,6 +1,6 @@
 package me.vem.jdab.cmd;
 
-import me.vem.jdab.Bot;
+import me.vem.jdab.utils.Respond;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class Help extends Command{
@@ -19,13 +19,13 @@ public class Help extends Command{
 		if(!super.run(event, args)) return false;
 		
 		if(args.length == 0) {
-			Bot.respondAsync(event, getFormattedCommandList());
+			Respond.async(event, getFormattedCommandList());
 			return true;
 		}
 		
 		if(Command.isCommand(args[0]))
 			Command.getCommand(args[0]).getHelp(event);
-		else Bot.respondAsync(event, "Command not recognized.\n" + getFormattedCommandList());
+		else Respond.async(event, "Command not recognized.\n" + getFormattedCommandList());
 		
 		return true;
 	}
@@ -38,7 +38,7 @@ public class Help extends Command{
 	}
 
 	@Override
-	public boolean hasPermissions(MessageReceivedEvent event) {
+	public boolean hasPermissions(MessageReceivedEvent event, String... args) {
 		return true; //Everyone can use this command.
 	}
 	

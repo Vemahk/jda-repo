@@ -5,38 +5,52 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Scanner;
+import java.util.List;
+import java.util.Map;
 
-import me.vem.dnd.Main;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import me.vem.dnd.utils.ExtFileManager;
+import me.vem.dnd.utils.Logger;
+import me.vem.dnd.utils.Respond;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
-public class Jobs implements Command{
+public class Jobs extends Command implements Configurable{
 	
-	private HashMap<String, ArrayList<Job>> map;
+	private static Jobs instance;
+	public static Jobs getInstance() { return instance; }
+	public static void initialize() {
+		if(instance == null) instance = new Jobs();
+	}
 	
-	public Jobs() {
-		map = new HashMap<>();
-		loadSettings();
+	private Map<String, List<Job>> jobsDatabase;
+	
+	private Jobs() {
+		super("jobs");
+		load();
 	}
 
 	@Override
-	public void run(String[] args, MessageReceivedEvent event) {
+	public boolean run(MessageReceivedEvent event, String... args) {
+		if(!super.run(event, args)) return false;
+		
 		if(args.length == 0) {
-			Main.respondTimeout("Usage: ~jobs <cityname>.", 5, event);
-			return;
+			Respond.timeout(event, 10000, help());
+			return true;
 		}
 		
 		String city = args[0];
 		if(city.equals("add")) {
 			if(!event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
-				Main.respondTimeout("Only the GM can add job listings.", 5, event);
-				return;
+				Respond.timeout(event, 5000, "Only the GM can add job listings.");
+				return false;
 			}
 			
 			if(args.length < 4) {
-				Main.respondTimeout("Not enough arguments..", 5, event);
-				return;
+				Respond.timeout(event, 5000, "Not enough arguments..");
+				return false;
 			}
 			
 			String trueCity = casify(args[1]);
@@ -48,82 +62,79 @@ public class Jobs implements Command{
 			Job j = new Job(trueCity, desc, key);
 			addJob(trueCity, j);
 			
-			saveSettings();
-			Main.respondTimeout("Job added to "+trueCity+"!", 5, event);
+			Respond.timeout(event, 5000, "Job added to "+trueCity+"!");
 			
 		}else if(city.equals("remove")) {
 			if(!event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
-				Main.respondTimeout("Only the GM can remove job listings.", 5, event);
-				return;
+				Respond.timeout(event, 5000, "Only the GM can remove job listings.");
+				return false;
 			}
 			
 			if(args.length < 3) {
-				Main.respondTimeout("Not enough arguments..", 5, event);
-				return;
+				Respond.timeout(event, 5000, "Not enough arguments..");
+				return false;
 			}
 			
 			String trueCity = casify(args[1]);
 			String key = args[2];
 			
-			if(map.containsKey(trueCity)) {
-				ArrayList<Job> jobs = map.get(trueCity);
+			if(jobsDatabase.containsKey(trueCity)) {
+				List<Job> jobs = jobsDatabase.get(trueCity);
 				Job target = null;
-				for(Job j : map.get(trueCity)) {
+				for(Job j : jobs) {
 					if(j.getKey().equals(key)) {
 						target = j;
 						break;
 					}
 				}
 				
-				if(target==null) Main.respondTimeout("Job not found by key "+key, 5, event);
+				if(target==null) Respond.timeout(event, 5000, "Job not found by key "+key);
 				else{
 					jobs.remove(target);
-					if(jobs.size() == 0) map.remove(trueCity);
-					Main.respondTimeout("Job '"+key+"' removed!", 5, event);
-					saveSettings();
+					if(jobs.size() == 0) jobsDatabase.remove(trueCity);
+					Respond.timeout(event, 5000, "Job '"+key+"' removed!");
 				}
-			}else Main.respondTimeout("No such city.", 5, event);
+			}else Respond.timeout(event, 5000, "No such city.");
 		
 		}else if(city.equals("cities")){
 			String rsp = "";
-			for(String s : map.keySet()) rsp+=s+"\n";
-			Main.respondTimeout("Known Cities:\n"+rsp, 10, event);
+			for(String s : jobsDatabase.keySet()) rsp+=s+"\n";
+			Respond.timeout(event, 10000, "Known Cities:\n"+rsp);
 		}else{
 			city = casify(city);
 			
 			if(args.length > 1 && args[1].equals("getkeys"))
 				if(event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
-					if(map.containsKey(city)) {
+					if(jobsDatabase.containsKey(city)) {
 						String rsp = "";
-						for(Job j : map.get(city)) rsp += j.getKey()+"\n";
-						Main.respondTimeout(city+" Job Keys: \n"+rsp, 10, event);
-						return;
+						for(Job j : jobsDatabase.get(city)) rsp += j.getKey()+"\n";
+						Respond.timeout(event, 10000, city+" Job Keys: \n"+rsp);
+						return true;
 					}else{
-						Main.respondTimeout("No such city.", 5, event);
-						return;
+						Respond.timeout(event, 5000, "No such city.");
+						return true;
 					}
 				}else{
-					Main.respondTimeout("Only the GM can get the keys of the jobs.", 5, event);
-					return;
+					Respond.timeout(event, 5000, "Only the GM can get the keys of the jobs.");
+					return false;
 				}
 			
-			if(map.containsKey(city)) {
+			if(jobsDatabase.containsKey(city)) {
 				String rsp = "";
-				ArrayList<Job> jobs = map.get(city);
-				for(Job j : jobs) rsp += j.getDesc() + "\n\n";
-				Main.respondTimeout("Jobs at "+city+":\n"+rsp+"(Note: This message will be removed in 1 minute)", 60, event);
-			}else Main.respondTimeout(city + " does not appear to have any job listings at this moment. Try again later when the GM isn't a lazy bum.", 5, event);
+				for(Job j : jobsDatabase.get(city)) rsp += j.getDesc() + "\n\n";
+				Respond.timeout(event, 60000, "Jobs at "+city+":\n"+rsp+"(Note: This message will be removed in 1 minute)");
+			}else Respond.timeout(event, 5000, city + " does not appear to have any job listings at this moment. Try again later when the GM isn't a lazy bum.");
 		}
+		return true;
 	}
 
-	@Override
-	public boolean hasPermissions(MessageReceivedEvent event) {
+	@Override public boolean hasPermissions(MessageReceivedEvent event) {
 		return true;
 	}
 
 	private boolean addJob(String city, Job j) {
-		if(map.containsKey(city)) {
-			ArrayList<Job> jobs = map.get(city);
+		if(jobsDatabase.containsKey(city)) {
+			List<Job> jobs = jobsDatabase.get(city);
 			for(Job job : jobs) 
 				if(job.getKey().equals(j.getKey()))
 					return false;
@@ -132,51 +143,10 @@ public class Jobs implements Command{
 		else {
 			ArrayList<Job> l = new ArrayList<>();
 			l.add(j);
-			map.put(city, l);
+			jobsDatabase.put(city, l);
 		}
-		Main.info("Job '"+j.getKey()+"' added!");
+		Logger.infof("Job '%s' added!", j.getKey());
 		return true;
-	}
-	
-	private void saveSettings() {
-		File f = new File("jobs.dat");
-		
-		try {
-			if(f.exists()) f.delete();
-			f.createNewFile();
-			
-			PrintWriter file = new PrintWriter(f);
-			for(ArrayList<Job> jobArrs : map.values())
-				for(Job j : jobArrs)
-					file.println(j.saveFormat());
-			
-			file.flush();
-			file.close();
-		}catch(IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	private void loadSettings() {
-		File f = new File("jobs.dat");
-		if(!f.exists()) return;
-		
-		try {
-			Scanner file = new Scanner(f);
-			while(file.hasNextLine()) {
-				//Line format should be the following: <city>, <jobkey>: <desc>
-				String ln = file.nextLine();
-				String city = ln.substring(0, ln.indexOf(','));
-				String key = ln.substring(ln.indexOf(',')+2, ln.indexOf(':'));
-				String desc = ln.substring(ln.indexOf(':') + 2);
-				
-				Job j = new Job(city, desc, key);
-				addJob(city, j);
-			}
-			file.close();
-		}catch(IOException e) {
-			e.printStackTrace();
-		}
 	}
 	
 	private String casify(String s) {
@@ -202,5 +172,39 @@ public class Jobs implements Command{
 		public String saveFormat() {
 			return city + ", " +key+": "+desc;
 		}
+	}
+
+	@Override protected String help() {
+		return "Usage: jobs <cityname>\n"
+			 + "\tjobs <cityname> getkeys\n"
+			 + "\tjobs cities";
+	}
+
+	@Override
+	public void save() {
+		try {
+			PrintWriter out = ExtFileManager.getConfigOutput("jobs.json");
+			out.print(ExtFileManager.getGsonPretty().toJson(jobsDatabase));
+			out.flush();
+			out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		Logger.info("Jobs database saved.");
+	}
+
+	@Override
+	public void load() {
+		jobsDatabase = new HashMap<>();
+		
+		File configFile = ExtFileManager.getConfigFile("jobs.json");
+		if(configFile == null) return;
+		
+		String content = ExtFileManager.readFileAsString(configFile);
+		if(content == null || content.length() == 0) return;
+		
+		Gson gson = ExtFileManager.getGsonPretty();
+		jobsDatabase = gson.fromJson(content, new TypeToken<HashMap<String, List<Job>>>(){}.getType());
 	}
 }

@@ -1,6 +1,6 @@
 package me.vem.dbgm.cmd;
 
-import me.vem.dbgm.Bot;
+import me.vem.dbgm.utils.Respond;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
@@ -9,8 +9,8 @@ public class AntiPurge extends Command{
 	private static AntiPurge instance;
 	public static AntiPurge getInstance() { return instance; }
 	public static void initialize() {
-		if(instance != null) return;
-		instance = new AntiPurge();
+		if(instance == null)
+			instance = new AntiPurge();
 	}
 	
 	private AntiPurge() {
@@ -34,11 +34,11 @@ public class AntiPurge extends Command{
 			out.append(args[i]).append(i < args.length - 1 ? " " : "");
 		
 		if(out.length() >= 2000) {
-			Bot.respondAsync(event, "Cannot [AntiPurge] message. Too long (exceeds 2,000 characters). Sorry boss.");
+			Respond.async(event, "Cannot [AntiPurge] message. Too long (exceeds 2,000 characters). Sorry boss.");
 			return false;
 		}
 		
-		Bot.respondAsync(event, out.toString());
+		Respond.async(event, out.toString());
 		event.getTextChannel().deleteMessageById(event.getMessageId()).queue();
 
 		return true;

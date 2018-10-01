@@ -2,7 +2,7 @@ package me.vem.dbgm.cmd;
 
 import java.util.LinkedHashMap;
 
-import me.vem.dbgm.Bot;
+import me.vem.dbgm.utils.Respond;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public abstract class Command {
@@ -28,7 +28,7 @@ public abstract class Command {
 	 */
 	public boolean run(MessageReceivedEvent event, String... args) {
 		if(!hasPermissions(event)) {
-			Bot.respondAsync(event, "You do not have the permissions to run this command.");
+			Respond.async(event, "You do not have the permissions to run this command.");
 			return false;
 		}
 		
@@ -40,7 +40,7 @@ public abstract class Command {
 	 * @param event
 	 */
 	public void getHelp(MessageReceivedEvent event) {
-		Bot.respondAsync(event, this.help());
+		Respond.async(event, this.help());
 	}
 	
 }

@@ -8,9 +8,9 @@ import java.util.HashMap;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import me.vem.jdab.Bot;
 import me.vem.jdab.utils.ExtFileManager;
 import me.vem.jdab.utils.Logger;
+import me.vem.jdab.utils.Respond;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -51,18 +51,18 @@ public class Prefix extends Command implements Configurable{
 		}
 		
 		if(args.length == 0) {
-			Bot.respondAsyncf(event, "Guild's Current Prefix: `%s`", getPrefix(event.getGuild()));
+			Respond.asyncf(event, "Guild's Current Prefix: `%s`", getPrefix(event.getGuild()));
 			return true;
 		}
 		
 		for(char c : args[0].toCharArray())
 			if(Character.isWhitespace(c)) {
-				Bot.respondAsync(event, "Prefix cannot contain whitespace");
+				Respond.async(event, "Prefix cannot contain whitespace");
 				return false;
 			}
 		
 		setPrefix(event.getGuild(), args[0]);
-		Bot.respondAsyncf(event, "Guild's prefix set to `%s`", args[0]);
+		Respond.asyncf(event, "Guild's prefix set to `%s`", args[0]);
 		
 		return true;
 	}
@@ -78,7 +78,7 @@ public class Prefix extends Command implements Configurable{
 	}
 	
 	@Override
-	public boolean hasPermissions(MessageReceivedEvent event) {
+	public boolean hasPermissions(MessageReceivedEvent event, String... args) {
 		return event.getMember().hasPermission(Permission.ADMINISTRATOR);
 	}
 

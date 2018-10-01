@@ -1,4 +1,4 @@
-package me.vem.dbgm.cmd;
+package me.vem.dnd.cmd;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,9 +8,9 @@ import java.util.HashMap;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import me.vem.dbgm.utils.ExtFileManager;
-import me.vem.dbgm.utils.Logger;
-import me.vem.dbgm.utils.Respond;
+import me.vem.dnd.utils.ExtFileManager;
+import me.vem.dnd.utils.Logger;
+import me.vem.dnd.utils.Respond;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -25,7 +25,7 @@ public class Prefix extends Command implements Configurable{
 	public static void initialize() {
 		if(instance != null) return;
 		instance = new Prefix();
-	}
+	} 
 	
 	/**
 	 * Shorthand for doing Prefix.getInstance().getPrefix(g);

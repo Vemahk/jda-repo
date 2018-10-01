@@ -6,8 +6,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import me.vem.dbgm.Bot;
-import me.vem.dbgm.utils.Logger;
+import me.vem.dbgm.utils.Respond;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
@@ -54,14 +53,14 @@ public class Purge extends Command{
 						int i = Integer.parseInt(args[0]);
 						purge(event.getTextChannel(), i+1, null); //i+1 to include purge message.
 					}catch(NumberFormatException e) {
-						Bot.respondAsync(event, "Error parsing expected number. Run 'purge help' for help.");
+						Respond.async(event, "Error parsing expected number. Run 'purge help' for help.");
 					}
 				}
 			}
 			
 			if(args.length == 2) {
 				if(msg.getMentionedMembers().size() != 1) { 
-					Bot.respondAsync(event, "Please mention (@) exactly one person whose messages you plan to purge.");
+					Respond.async(event, "Please mention (@) exactly one person whose messages you plan to purge.");
 					return false;
 				}
 				
@@ -71,7 +70,7 @@ public class Purge extends Command{
 					int i = Integer.parseInt(args[1]);
 					purge(event.getTextChannel(), i, mem);
 				}catch(NumberFormatException e) {
-					Bot.respondAsync(event, "Error parsing expected number. Run 'purge help' for help.");
+					Respond.async(event, "Error parsing expected number. Run 'purge help' for help.");
 				}
 			}
 
@@ -92,26 +91,26 @@ public class Purge extends Command{
 					try {
 						n = Integer.parseInt(args[3]);
 					}catch(NumberFormatException e) {
-						Bot.respondAsyncf(event, "Cannot parse expected integer...%nValidate: %s", debugParsedStringArr(args));
+						Respond.asyncf(event, "Cannot parse expected integer...%nValidate: %s", debugParsedStringArr(args));
 						return false;
 					}
 				}
 				
 			}else if(msg.getMentionedChannels().size() > 1) {
-				Bot.respondAsync(event, "You can only delete messages from one person at a time.");
+				Respond.async(event, "You can only delete messages from one person at a time.");
 				return false;
 			}else { //No mentions
 				if(args.length >= 3) {
 					try {
 						n = Integer.parseInt(args[2]);
 					}catch(NumberFormatException e) {
-						Bot.respondAsyncf(event, "Cannot parse expected integer...%nValidate: %s", debugParsedStringArr(args));
+						Respond.asyncf(event, "Cannot parse expected integer...%nValidate: %s", debugParsedStringArr(args));
 						return false;
 					}
 				}
 			}
 			
-			Logger.debugf("%d | %s | %s | %s", n, mem, args[1], Arrays.toString(args));
+			//Logger.debugf("%d | %s | %s | %s", n, mem, args[1], Arrays.toString(args));
 			this.purgeRegex(event.getTextChannel(), n, mem, args[1]);
 		}//REGEX END
 		return true;
@@ -130,7 +129,8 @@ public class Purge extends Command{
 		SelfPurgeList rem = new SelfPurgeList(tc);
 		
 		for(Message mes : check)
-			if(mem == null || mes.getMember() == mem)
+			if(mes == null) break;
+			else if(mem == null || mes.getMember() == mem)
 				rem.add(mes);
 		
 		rem.clear();
@@ -142,7 +142,8 @@ public class Purge extends Command{
 		SelfPurgeList rem = new SelfPurgeList(tc);
 		
 		for(Message mes : check)
-			if(mem == null || mes.getMember() == mem)
+			if(mes == null) break;
+			else if(mem == null || mes.getMember() == mem)
 				if(mes.getContentDisplay().matches(reg))
 					rem.add(mes);
 		
@@ -152,27 +153,26 @@ public class Purge extends Command{
 	private List<Message> fullHistory(TextChannel tc, int n){
 		if(n == 0) return new ArrayList<>();
 		
-		ArrayList<Message> out = new ArrayList<>(n);
-		
+		Message[] out = new Message[n];
+		int i = 0;
 		Message next = tc.getMessageById(tc.getLatestMessageIdLong()).complete();
-		out.add(next);
-		n--;
+		out[i++] = next;
 		
-		while(n > 0) {
-			MessageHistory mh = tc.getHistoryBefore(next, n >= 100 ? 100 : n).complete();
-			n-=100;
+		while(i < n) {
+			MessageHistory mh = tc.getHistoryBefore(next, n-i > 100 ? 100 : n-i).complete();
+			if(mh.size() == 0) break;
 			
 			Iterator<Message> iter = mh.getRetrievedHistory().iterator();
 			
 			while(iter.hasNext()) {
 				Message m = iter.next();
-				out.add(m);
+				out[i++] = m;
 				if(!iter.hasNext())
 					next = m;
 			}
 		}
 		
-		return out;
+		return Arrays.asList(out);
 	}
 	
 	@Override

@@ -1,12 +1,12 @@
-package me.vem.jdab;
+package me.vem.dnd;
 
 import java.util.Arrays;
 import java.util.LinkedList;
 
-import me.vem.jdab.cmd.Command;
-import me.vem.jdab.cmd.Prefix;
-import me.vem.jdab.utils.Logger;
-import me.vem.jdab.utils.Respond;
+import me.vem.dnd.cmd.Command;
+import me.vem.dnd.cmd.Prefix;
+import me.vem.dnd.utils.Logger;
+import me.vem.dnd.utils.Respond;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
