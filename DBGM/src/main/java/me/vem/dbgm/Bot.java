@@ -27,6 +27,7 @@ public class Bot {
 	private static JDA jda;
 	public static JDA getJDA() { return jda; }
 	
+	//Close ALL the threads.
 	public static void shutdown() {
 		Console.shutdown();
 		

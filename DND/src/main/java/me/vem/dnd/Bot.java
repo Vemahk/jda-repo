@@ -7,7 +7,6 @@ import me.vem.dnd.cmd.ExportChannel;
 import me.vem.dnd.cmd.Help;
 import me.vem.dnd.cmd.Jobs;
 import me.vem.dnd.cmd.Meme;
-import me.vem.dnd.cmd.Move;
 import me.vem.dnd.cmd.Prefix;
 import me.vem.dnd.utils.Console;
 import me.vem.dnd.utils.IgnoredReference;
@@ -30,9 +29,7 @@ public class Bot {
 		Logger.infof("%s is shutting down...", Version.getVersion());
 		
 		Respond.timerShutdown();
-		
 		Command.unloadAll();
-		
 		jda.shutdown();
 	}
 	
@@ -56,7 +53,6 @@ public class Bot {
 		ExportChannel.initialize();
 		Jobs.initialize();
 		Meme.initialize();
-		Move.initialize();
 	}
 	
 	public static void main(String[] args) throws IOException {

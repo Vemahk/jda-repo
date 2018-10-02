@@ -40,16 +40,11 @@ public class ClearOOC extends Command implements Configurable{
 	@Override
 	public boolean run(MessageReceivedEvent event, String... args) {
 		Set<Long> guildSet = allowedRooms.get(event.getGuild().getIdLong());
-		if(guildSet == null) 
-			allowedRooms.put(event.getGuild().getIdLong(), guildSet = new HashSet<>());
+		if(guildSet == null) allowedRooms.put(event.getGuild().getIdLong(), guildSet = new HashSet<>());
 		
 		int check = 50;
 		if(args.length > 0) {
 			if(args[0].equals("allow")) {
-				if(!event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
-					Respond.timeout(event, 5000, "Only an administrator can allow/disallow text channels.");
-					return false;
-				}
 				if(!guildSet.add(event.getTextChannel().getIdLong())) {
 					Respond.timeout(event, 5000, "Chatroom was already allowed to begin with.");
 					return false;
@@ -57,10 +52,6 @@ public class ClearOOC extends Command implements Configurable{
 				Respond.timeout(event, 5000, "Chatroom allowed");
 				return true;
 			}else if(args[0].equals("disallow")) {
-				if(!event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
-					Respond.timeout(event, 5000, "Only an administrator can can allow/disallow text channels.");
-					return false;
-				}
 				if(!guildSet.remove(event.getTextChannel().getIdLong())) {
 					Respond.timeout(event, 5000, "Could not remove room. Reason: already not allowed.");
 					return false;
@@ -79,7 +70,7 @@ public class ClearOOC extends Command implements Configurable{
 			return false;
 		}
 		
-		Respond.timeout(event, 5000, "Checking past "+check+" messages for ooc...");
+		Respond.timeout(event, 5000, "Checking past "+check+" messages for OOC...");
 		
 		HashSet<Message> set = new HashSet<>();
 		for(Message x : event.getTextChannel().getHistory().retrievePast(check).complete())
@@ -104,8 +95,10 @@ public class ClearOOC extends Command implements Configurable{
 	public boolean hasPermissions(MessageReceivedEvent event, String... args) {
 		Member mem = event.getMember();
 		
-		if(mem.hasPermission(Permission.ADMINISTRATOR) || mem.hasPermission(Permission.MESSAGE_MANAGE)) return true;
-		return false;
+		if(args.length > 0 && ("allow".equals(args[0]) || "disallow".equals(args[0])))
+			return mem.hasPermission(Permission.ADMINISTRATOR);
+		
+		return mem.hasPermission(Permission.MESSAGE_MANAGE);
 	}
 	
 	public boolean roomEnabled(Guild g, TextChannel tc) {
