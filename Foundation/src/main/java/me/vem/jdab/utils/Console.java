@@ -23,6 +23,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.WindowConstants;
 
 import me.vem.jdab.DiscordBot;
 
@@ -50,6 +51,7 @@ public class Console {
 		activateTrayIcon();
 
 		console = new JFrame(Version.getVersion() + " Console");
+		console.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		console.setContentPane(new JScrollPane(consoleOutput));
 		console.setJMenuBar(getNewMenuBar());
 		console.setSize(new Dimension(600, 400));
@@ -93,9 +95,9 @@ public class Console {
 
 		if (!SystemTray.isSupported() || tray == null) {
 				if(JOptionPane.showConfirmDialog(console,
-					"Bot function is dependent on this window.\nClosing it will shutdown the bot.\nAre you sure?",
-					"Shutdown Bot", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION)
-				DiscordBot.getInstance().shutdown();
+						"Bot function is dependent on this window.\nClosing it will shutdown the bot.\nAre you sure?",
+						"Shutdown Bot", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION)
+					DiscordBot.getInstance().shutdown();
 			return;
 		}
 		
