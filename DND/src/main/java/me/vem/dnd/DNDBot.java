@@ -10,7 +10,7 @@ import me.vem.jdab.utils.Console;
 import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.Version;
 
-public class Main {
+public class DNDBot {
 	
 	public static void main(String[] args) throws IOException {
 		Logger.info("Hello World!");

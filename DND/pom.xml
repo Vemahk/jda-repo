@@ -46,7 +46,7 @@
 						<configuration>
 							<archive>
 								<manifest>
-									<mainClass>me.vem.dnd.Main</mainClass>
+									<mainClass>me.vem.dnd.DNDBot</mainClass>
 								</manifest>
 							</archive>
 							<descriptorRefs>
