@@ -11,9 +11,16 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 public class Respond {
 
 	private static Timer timer = new Timer();
-	public static void timerShutdown() {
-		timer.cancel();
+	public static void timerShutdown() { timer.cancel(); }
+	
+	public static void deleteMessage(long milliDelay, Message message) {
+		timer.schedule(new Task(() -> message.delete().queue()), milliDelay);
 	}
+	
+	public static void deleteMessages(TextChannel channel, long milliDelay, Message... messages) {
+		timer.schedule(new Task(() -> channel.deleteMessages(Arrays.asList(messages)).queue()), milliDelay);
+	}
+	
 	/**
 	 * Synchronous bot response.
 	 * @param event
@@ -98,55 +105,51 @@ public class Respond {
 	/**
 	 * Synchronous response. Deletes the bot's message *AND* the user's command call.
 	 * @param event
-	 * @param timeout Time to delay in milliseconds.
+	 * @param delay Time to delay in milliseconds.
 	 * @param msg
 	 */
-	public static void timeout(MessageReceivedEvent event, int timeout, String msg) {
+	public static void timeout(MessageReceivedEvent event, long delay, String msg) {
 		Message m = sync(event, msg);
-		if(timeout <= 0) return;
-		timer.schedule(new TimerTask() {
-			@Override public void run() {
-				event.getTextChannel().deleteMessages(Arrays.asList(m, event.getMessage())).queue();			
-			}
-		}, timeout);
+		if(delay > 0)
+			deleteMessages(event.getTextChannel(), delay, m, event.getMessage());
 	}
 	
 	/**
 	 * Synchronous response. Deletes *ONLY* the bot's message.
 	 * @param channel
-	 * @param timeout Time to delay in milliseconds.
+	 * @param delay Time to delay in milliseconds.
 	 * @param msg
 	 */
-	public static void timeout(TextChannel channel, int timeout, String msg) {
+	public static void timeout(TextChannel channel, long delay, String msg) {
 		Message m = sync(channel, msg);
-		if(timeout <= 0) return;
-		
-		timer.schedule(new TimerTask() {
-			@Override public void run() {
-				channel.deleteMessageById(m.getIdLong()).queue();				
-			}
-		}, timeout);
+		if(delay > 0) deleteMessage(delay, m);
 	}
 	
 	/**
 	 * Synchronous response using printf formatting. Deletes the bot's message *AND* the user's command call.
 	 * @param event
-	 * @param timeout Time to delay in milliseconds.
+	 * @param delay Time to delay in milliseconds.
 	 * @param format
 	 * @param args
 	 */
-	public static void timeoutf(MessageReceivedEvent event, int timeout, String format, Object... args) {
-		timeout(event, timeout, String.format(format, args));
+	public static void timeoutf(MessageReceivedEvent event, long delay, String format, Object... args) {
+		timeout(event, delay, String.format(format, args));
 	}
 	
 	/**
 	 * Synchronous response using printf formatting. Deletes *ONLY* the bot's message.
 	 * @param channel
-	 * @param timeout Time to delay in milliseconds.
+	 * @param delay Time to delay in milliseconds.
 	 * @param format
 	 * @param args
 	 */
-	public static void timeoutf(TextChannel channel, int timeout, String format, Object... args) {
-		timeout(channel, timeout, String.format(format, args));
+	public static void timeoutf(TextChannel channel, long delay, String format, Object... args) {
+		timeout(channel, delay, String.format(format, args));
+	}
+	
+	private static class Task extends TimerTask {
+		private Runnable func;
+		public Task(Runnable r) { this.func = r; }
+		@Override public void run() { func.run(); }
 	}
 }
