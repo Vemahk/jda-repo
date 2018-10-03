@@ -8,7 +8,7 @@ public class Logger {
 	private enum Severity{ INFO, WARNING, ERROR, DEBUG; }
 	
 	private static void log(Severity sev, String s){
-		String outStr = String.format("[%s][%s][%s]: %s", getFormattedTime(), Version.getVersion().getName(), sev, s);
+		String outStr = String.format("[%s][%s] %s", getFormattedTime(), sev, s);
 		if(sev == Severity.ERROR)
 			 System.err.println(outStr);
 		else System.out.println(outStr);

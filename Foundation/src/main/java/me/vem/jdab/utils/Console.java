@@ -24,7 +24,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-import me.vem.jdab.Bot;
+import me.vem.jdab.DiscordBot;
 
 public class Console {
 
@@ -77,7 +77,7 @@ public class Console {
 			if(JOptionPane.showConfirmDialog(console,
 					"Are you sure?", "Shutdown Bot", JOptionPane.YES_NO_OPTION,
 					JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION)
-				Bot.shutdown();
+				DiscordBot.getInstance().shutdown();
 		});
 		menu.add(shutdown);
 		
@@ -95,7 +95,7 @@ public class Console {
 				if(JOptionPane.showConfirmDialog(console,
 					"Bot function is dependent on this window.\nClosing it will shutdown the bot.\nAre you sure?",
 					"Shutdown Bot", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION)
-				Bot.shutdown();
+				DiscordBot.getInstance().shutdown();
 			return;
 		}
 		

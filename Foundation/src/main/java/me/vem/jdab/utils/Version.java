@@ -1,10 +1,12 @@
 package me.vem.jdab.utils;
 
 public class Version {
-
-	private static final Version instance = new Version(0, 0, 0, 0, "Foundation Bot"); //TODO change name
-	public static Version getVersion() {
-		return instance;
+	
+	private static Version instance;
+	public static Version getVersion() { return instance; }
+	public static void initialize(int major, int minor, int rev, int build, String name) {
+		if(instance == null)
+			instance = new Version(major, minor, rev, build, name);
 	}
 	
 	private int major, minor, rev, build;
@@ -24,6 +26,6 @@ public class Version {
 	
 	public String toString() {
 		return String.format("%s[%d.%d.%d_%d]", name, major, minor, rev, build);
-	} //3.2.4_512
+	} //e.g. 3.2.4_512
 	
 }
