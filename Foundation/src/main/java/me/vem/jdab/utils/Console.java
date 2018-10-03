@@ -147,9 +147,6 @@ public class Console {
 		
 		System.setOut(out);
 		System.setErr(out);
-		
-		//Uncomment the following line if your program closes without any errors.
-		//restoreSTDPrintStreams();
 	}
 	
 	/**

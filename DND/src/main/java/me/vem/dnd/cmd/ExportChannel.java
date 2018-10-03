@@ -7,8 +7,9 @@ import java.time.OffsetDateTime;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-import me.vem.dnd.utils.ExtFileManager;
-import me.vem.dnd.utils.Respond;
+import me.vem.jdab.cmd.Command;
+import me.vem.jdab.utils.ExtFileManager;
+import me.vem.jdab.utils.Respond;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Category;
 import net.dv8tion.jda.core.entities.Message;

@@ -12,9 +12,11 @@ import java.util.Set;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import me.vem.dnd.utils.ExtFileManager;
-import me.vem.dnd.utils.Logger;
-import me.vem.dnd.utils.Respond;
+import me.vem.jdab.cmd.Command;
+import me.vem.jdab.cmd.Configurable;
+import me.vem.jdab.utils.ExtFileManager;
+import me.vem.jdab.utils.Logger;
+import me.vem.jdab.utils.Respond;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
