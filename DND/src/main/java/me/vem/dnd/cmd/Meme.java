@@ -27,7 +27,6 @@ public class Meme extends Command implements Configurable{
 	}
 	
 	private Message lastList;
-	private int lastListPage;
 	private Map<String, String> memes;
 	
 	private Meme() {
@@ -82,7 +81,6 @@ public class Meme extends Command implements Configurable{
 	
 	private void respondPage(MessageReceivedEvent event, int page) {
 		lastList = Respond.sync(event, getPage(page));
-		lastListPage = page;
 	}
 
 	private String getPage(int page) {

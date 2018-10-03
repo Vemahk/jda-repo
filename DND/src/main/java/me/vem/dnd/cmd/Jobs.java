@@ -45,13 +45,8 @@ public class Jobs extends Command implements Configurable{
 		
 		String city = args[0];
 		if(city.equals("add")) {
-			if(!event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
-				Respond.timeout(event, 5000, "Only the GM can add job listings.");
-				return false;
-			}
-			
 			if(args.length < 4) {
-				Respond.timeout(event, 5000, "Not enough arguments..");
+				Respond.timeout(event, 5000, help());
 				return false;
 			}
 			
@@ -67,13 +62,9 @@ public class Jobs extends Command implements Configurable{
 			Respond.timeout(event, 5000, "Job added to "+trueCity+"!");
 			
 		}else if(city.equals("remove")) {
-			if(!event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
-				Respond.timeout(event, 5000, "Only the GM can remove job listings.");
-				return false;
-			}
 			
 			if(args.length < 3) {
-				Respond.timeout(event, 5000, "Not enough arguments..");
+				Respond.timeout(event, 5000, help());
 				return false;
 			}
 			
@@ -131,6 +122,8 @@ public class Jobs extends Command implements Configurable{
 	}
 
 	@Override public boolean hasPermissions(MessageReceivedEvent event, String... args) {
+		if(args.length > 0 && ("add".equals(args[0]) || "remove".equals(args[0])))
+			return event.getMember().hasPermission(Permission.ADMINISTRATOR);
 		return true;
 	}
 
@@ -177,9 +170,12 @@ public class Jobs extends Command implements Configurable{
 	}
 
 	@Override protected String help() {
-		return "Usage: jobs <cityname>\n"
-			 + "\tjobs <cityname> getkeys\n"
-			 + "\tjobs cities";
+		return "Usage:\n"
+			 + "jobs <cityname>\n"
+			 + "jobs <cityname> getkeys\n"
+			 + "jobs cities\n"
+			 + "jobs add <city> <job-key> <description>\n"
+			 + "jobs remove <city> <job-key>";
 	}
 
 	@Override
@@ -209,6 +205,7 @@ public class Jobs extends Command implements Configurable{
 		Gson gson = ExtFileManager.getGsonPretty();
 		jobsDatabase = gson.fromJson(content, new TypeToken<HashMap<String, List<Job>>>(){}.getType());
 	}
+	
 	@Override
 	protected void unload() {
 		save();
