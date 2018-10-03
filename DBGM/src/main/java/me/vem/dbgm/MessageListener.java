@@ -3,10 +3,10 @@ package me.vem.dbgm;
 import java.util.Arrays;
 import java.util.LinkedList;
 
-import me.vem.dbgm.cmd.Command;
-import me.vem.dbgm.cmd.Prefix;
-import me.vem.dbgm.utils.Logger;
-import me.vem.dbgm.utils.Respond;
+import me.vem.jdab.cmd.Command;
+import me.vem.jdab.cmd.Prefix;
+import me.vem.jdab.utils.Logger;
+import me.vem.jdab.utils.Respond;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;

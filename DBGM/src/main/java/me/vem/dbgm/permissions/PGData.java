@@ -5,8 +5,8 @@ import java.util.HashMap;
 import com.google.gson.Gson;
 
 import me.vem.dbgm.cmd.SecureCommand;
-import me.vem.dbgm.utils.ExtFileManager;
-import me.vem.dbgm.utils.Logger;
+import me.vem.jdab.utils.ExtFileManager;
+import me.vem.jdab.utils.Logger;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;

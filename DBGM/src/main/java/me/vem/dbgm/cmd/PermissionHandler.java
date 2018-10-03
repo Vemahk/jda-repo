@@ -1,5 +1,7 @@
 package me.vem.dbgm.cmd;
 
+import me.vem.jdab.cmd.Command;
+import me.vem.jdab.cmd.Configurable;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class PermissionHandler extends Command implements Configurable{

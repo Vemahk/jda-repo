@@ -2,6 +2,8 @@ package me.vem.dbgm.cmd;
 
 import java.util.HashMap;
 
+import me.vem.jdab.cmd.Command;
+
 public abstract class SecureCommand extends Command{
 	
 	private static HashMap<Long, SecureCommand> database = new HashMap<>();
