@@ -53,12 +53,19 @@ public class DiscordBot {
 		return jda;
 	}
 	
+	private Runnable preShutdown, postShutdown;
+	public void setPreShutdown(Runnable r) { preShutdown = r; }
+	public void setPostShutdown(Runnable r) { postShutdown = r; }
+	
 	/**
 	 * Shuts down the JDA instance safely.
 	 * 
 	 * Closes all related threads so that the program will shutdown safely.
 	 */
 	public void shutdown() {
+		if(preShutdown != null)
+			preShutdown.run();
+		
 		//Close the console and all related threads.
 		Console.shutdown();
 		
@@ -75,16 +82,8 @@ public class DiscordBot {
 		
 		//Set instance to null for potential reinitialization.
 		instance = null;
-	}
-	
-	/**
-	 * For adding actions to the pre and post shutdown. pre.run() will be executed, then DiscordBot.shutdown(), then post.run().
-	 * @param pre The pre-action to shutdown. If null, skipped.
-	 * @param post The post-action to shutdown. If null, skipped.
-	 */
-	public void shutdown(Runnable pre, Runnable post) {
-		if(pre != null) pre.run();
-		shutdown();
-		if(post != null) post.run();
+		
+		if(postShutdown != null)
+			postShutdown.run();
 	}
 }
