@@ -4,17 +4,15 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.Iterator;
-import java.util.List;
 
 import me.vem.dnd.utils.ExtFileManager;
 import me.vem.dnd.utils.Respond;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Category;
 import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageHistory;
+import net.dv8tion.jda.core.entities.Message.Attachment;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
@@ -34,22 +32,42 @@ public class ExportChannel extends Command {
 	public boolean run(MessageReceivedEvent event, String... args) {
 		if(!super.run(event, args)) return false;
 		
-		List<Message> history = fullHistory(event.getTextChannel());
-		Iterator<Message> iter = history.iterator();
-		if(iter.hasNext()) iter.next();
+		Message response = Respond.sync(event, "Creating channel export ...");
+		long start = System.currentTimeMillis();
 		
-		String guildName = event.getGuild().getName();
-		String channelName = event.getTextChannel().getName();
+		if(args.length == 1 && "all".equals(args[0])) {
+			for(TextChannel channel : event.getGuild().getTextChannels()) {
+				Category parent = channel.getParent();
+				String catname = (parent == null) ? "global_category" : parent.getName();
+				export(channel, event.getGuild().getName() + '/' + catname + '/');
+			}
+		}else if(args.length > 0){
+			for(TextChannel channel : event.getMessage().getMentionedChannels()) {
+				Category parent = channel.getParent();
+				String catname = (parent == null) ? "global_category" : parent.getName();
+				export(channel, event.getGuild().getName() + '/' + catname + '/');
+			}
+		}else export(event.getTextChannel(), "channel_export/");
+		
+		response.editMessage("Export completed\nRuntime: " + (System.currentTimeMillis() - start) +"ms").queue();
+		Respond.deleteMessages(event.getTextChannel(), 5000, response, event.getMessage());
+		
+		return true;
+	}
+	
+	private GregorianCalendar day;
+	private void export(TextChannel channel, String dir) {
+		day = null;
+		String guildName = channel.getGuild().getName();
+		String channelName = channel.getName();
 		String date = dateTimeFormatter.format(Calendar.getInstance().getTime());
 		
-		try {
-			PrintWriter writer = ExtFileManager.getConfigOutput("channel_export/", channelName + " " + date);
+		try (PrintWriter writer = ExtFileManager.getConfigOutput(dir, channelName + " " + date)){
+			
 			writer.printf("%s%n%s%n%s%n", guildName, channelName, date);
 
-			GregorianCalendar day = null;
-			
-			while(iter.hasNext()) {
-				Message m = iter.next();
+
+			channel.getIterableHistory().cache(false).forEach(m -> {
 				OffsetDateTime creation = m.getCreationTime();
 				if(day == null || creation.getDayOfMonth() != day.get(GregorianCalendar.DAY_OF_MONTH) || 
 						creation.getMonthValue()-1 != day.get(GregorianCalendar.MONTH) ||
@@ -58,44 +76,17 @@ public class ExportChannel extends Command {
 					writer.printf("%n%s%n", dateFormatter.format(day.getTime()));
 				}
 				
-				
 				writer.printf("[%02d:%02d] %s: %s%n", creation.getHour(), creation.getMinute(), m.getAuthor().getName(), m.getContentDisplay());
-			}
-
+				
+				for(Attachment a : m.getAttachments())
+					writer.printf("[Embeded: %s]%n", a.getUrl());
+			});
 			
 			writer.flush();
 			writer.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		event.getMessage().delete().complete();
-		Respond.timeout(event.getTextChannel(), 5000, "Channel exported...");
-		
-		return true;
-	}
-	
-	private List<Message> fullHistory(TextChannel channel){
-		ArrayList<Message> out = new ArrayList<>();
-
-		Message next = channel.getMessageById(channel.getLatestMessageIdLong()).complete();
-		out.add(next);
-		
-		do {
-			MessageHistory mh = channel.getHistoryBefore(next, 100).complete();
-			if(mh.size() == 0) break;
-			
-			Iterator<Message> iter = mh.getRetrievedHistory().iterator();
-			
-			while(iter.hasNext()) {
-				Message m = iter.next();
-				out.add(m);
-				if(!iter.hasNext())
-					next = m;
-			}
-		}while(true);
-		
-		return out;
 	}
 	
 	@Override
