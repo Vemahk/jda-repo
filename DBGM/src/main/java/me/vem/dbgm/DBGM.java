@@ -27,4 +27,5 @@ public class DBGM {
 		AntiPurge.initialize();
 		PermissionHandler.initialize();
 	}
+	
 }

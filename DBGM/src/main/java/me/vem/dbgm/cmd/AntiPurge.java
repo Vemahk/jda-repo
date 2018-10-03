@@ -29,10 +29,12 @@ public class AntiPurge extends Command{
 		
 		StringBuilder out = new StringBuilder();
 		
-		out.append("[AntiPurge] >> " + event.getMember().getAsMention() + "\n");
+		out.append("[AntiPurge]").append('\n');
 		
 		for(int i=0;i < args.length;i++)
 			out.append(args[i]).append(i < args.length - 1 ? " " : "");
+		
+		out.append("\n\n - ").append(event.getMember().getAsMention());
 		
 		if(out.length() >= 2000) {
 			Respond.async(event, "Cannot [AntiPurge] message. Too long (exceeds 2,000 characters). Sorry boss.");
