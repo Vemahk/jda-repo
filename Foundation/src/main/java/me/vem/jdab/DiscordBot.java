@@ -36,15 +36,7 @@ public class DiscordBot {
 		}catch(LoginException | IllegalArgumentException | InterruptedException e) {
 			e.printStackTrace();
 		}
-		
-		registerCommands();
-	}
-	
-	/**
-	 * Preferred that you override this method using an anonymous subclass...
-	 * Up to you: you can register your own commands through whatever means you want.
-	 */
-	public void registerCommands() {
+
 		Help.initialize();
 		Prefix.initialize();
 	}
