@@ -8,8 +8,10 @@ import java.util.List;
 
 import com.google.gson.reflect.TypeToken;
 
-import me.vem.cs.Bot;
-import me.vem.cs.utils.ExtFileManager;
+import me.vem.jdab.cmd.Command;
+import me.vem.jdab.cmd.Configurable;
+import me.vem.jdab.utils.ExtFileManager;
+import me.vem.jdab.utils.Respond;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.MessageChannel;
@@ -58,10 +60,10 @@ public class SwearLog extends Command implements Configurable{
 			
 			List<Member> mentions = event.getMessage().getMentionedMembers();
 			if(mentions.size() == 0) { //No mentions
-				Bot.respondAsync(event, "Second argument must be a mention.");
+				Respond.async(event, "Second argument must be a mention.");
 				return false;
 			}else if(mentions.size() > 1) {// Multiple mentions
-				Bot.respondAsync(event, "Cannot interpret multiple mentions. Please only mention 1 user.");
+				Respond.async(event, "Cannot interpret multiple mentions. Please only mention 1 user.");
 				return false;
 			}
 			
@@ -74,14 +76,14 @@ public class SwearLog extends Command implements Configurable{
 	
 	private void addMember(MessageReceivedEvent event, Member m) {
 		if(userDatabase.add(m.getUser().getIdLong()))
-			Bot.respondAsyncf(event, "Added `%s` to the list of swear notifications.", m.getNickname());
-		else Bot.respondAsyncf(event, "`%s` already is a receiver of swear notifications.", m.getNickname());
+			Respond.asyncf(event, "Added `%s` to the list of swear notifications.", m.getNickname());
+		else Respond.asyncf(event, "`%s` already is a receiver of swear notifications.", m.getNickname());
 	}
 	
 	private void removeMember(MessageReceivedEvent event, Member m) {
 		if(userDatabase.remove(m.getUser().getIdLong()))
-			Bot.respondAsyncf(event, "Remove `%s` from the list of swear notifications.", m.getNickname());
-		else Bot.respondAsyncf(event, "`%s` was not found to be a receiver of swear notifications.", m.getNickname());
+			Respond.asyncf(event, "Remove `%s` from the list of swear notifications.", m.getNickname());
+		else Respond.asyncf(event, "`%s` was not found to be a receiver of swear notifications.", m.getNickname());
 	}
 	
 	/**
@@ -101,7 +103,7 @@ public class SwearLog extends Command implements Configurable{
 	}
 	
 	@Override
-	public boolean hasPermissions(MessageReceivedEvent event) {
+	public boolean hasPermissions(MessageReceivedEvent event, String... args) {
 		return event.getMember().hasPermission(Permission.ADMINISTRATOR);
 	}
 
@@ -132,6 +134,11 @@ public class SwearLog extends Command implements Configurable{
 		if(data == null) return;
 		
 		userDatabase = ExtFileManager.getGsonPretty().fromJson(data, new TypeToken<HashSet<Long>>() {}.getType());
+	}
+	
+	@Override public void unload() {
+		save();
+		instance = null;
 	}
 
 }

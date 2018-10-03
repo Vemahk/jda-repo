@@ -9,9 +9,10 @@ import java.util.TreeSet;
 
 import com.google.gson.reflect.TypeToken;
 
-import me.vem.cs.Bot;
-import me.vem.cs.Bot.TextFormat;
-import me.vem.cs.utils.ExtFileManager;
+import me.vem.jdab.cmd.Command;
+import me.vem.jdab.cmd.Configurable;
+import me.vem.jdab.utils.ExtFileManager;
+import me.vem.jdab.utils.Respond;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
@@ -54,10 +55,10 @@ public class Contests extends Command implements Configurable{
 					+ "- location\n"
 					+ "- locationAddress```\n";
 			if(args[0].equals("add"))
-				Bot.respondAsync(event, "Recognized variables:" + vars
+				Respond.async(event, "Recognized variables:" + vars
 									  + "Example: contests add date=\\`Oct 14, 2017\\` name=\\`ffb\\` expectedLeaveTime=\\`7:30AM\\` expectedReturnTime=\\`1:00PM\\` location=\\`Frisco Libery High School\\` locationAddress=\\`15250 Rolater Rd, Frisco, TX 75035\\`");
 			else if(args[0].equals("edit"))
-				Bot.respondAsync(event, "List of all known contests:\n"+getNameList()	
+				Respond.async(event, "List of all known contests:\n"+getNameList()	
 										+"\nRecognized variables:\n"+vars);
 			return true;
 		}
@@ -67,7 +68,7 @@ public class Contests extends Command implements Configurable{
 			String date = getVar(args, "date");
 			
 			if(name == null || date == null) {
-				Bot.respondAsync(event, "Missing required fields: 'date' and/or 'name'.");
+				Respond.async(event, "Missing required fields: 'date' and/or 'name'.");
 				return false;
 			}
 			
@@ -81,7 +82,7 @@ public class Contests extends Command implements Configurable{
 			
 			Contest c = getContestFromString(cName);
 			if(c == null) {
-				Bot.respondAsync(event, "Unknown contest, '"+cName+"'. List of all known contests:\n"+getNameList());
+				Respond.async(event, "Unknown contest, '"+cName+"'. List of all known contests:\n"+getNameList());
 				return false;
 			}
 			
@@ -95,7 +96,7 @@ public class Contests extends Command implements Configurable{
 			contests.remove(c);
 			contests.add(c);
 			
-			Bot.respondAsync(event, "Changes made:\n"+c.formatOut());
+			Respond.async(event, "Changes made:\n"+c.formatOut());
 		}
 		
 		return true;
@@ -135,7 +136,7 @@ public class Contests extends Command implements Configurable{
 	}
 
 	@Override
-	public boolean hasPermissions(MessageReceivedEvent event) {
+	public boolean hasPermissions(MessageReceivedEvent event, String... args) {
 		return event.getMember().hasPermission(Permission.ADMINISTRATOR);
 	}
 
@@ -168,6 +169,11 @@ public class Contests extends Command implements Configurable{
 		if(json == null) return;
 		
 		contests = ExtFileManager.getGsonPretty().fromJson(json, new TypeToken<TreeSet<Contest>>() {}.getType());
+	}
+	@Override
+	protected void unload() {
+		save();
+		instance = null;
 	}
 }
 
@@ -256,14 +262,13 @@ class Contest implements Comparable<Contest> {
 	 * @return
 	 */
 	public String formatOut() {
-		String out = String.format("- Name: %s%n"
-								 + "- Date: %s%n"
-								 + "- Depature Time: %s%n"
-								 + "- Projected Return Time: %s%n"
-								 + "- Location: %s%n"
-								 + "- Address: %s", name, date, startTime, endTime, location, address);
-		
-		return TextFormat.CODE.apply(out);
+		return String.format("```%n"
+						   + "- Name: %s%n"
+						   + "- Date: %s%n"
+						   + "- Depature Time: %s%n"
+						   + "- Projected Return Time: %s%n"
+						   + "- Location: %s%n"
+						   + "- Address: %s%n```", name, date, startTime, endTime, location, address);
 	}
 	
 	@Override

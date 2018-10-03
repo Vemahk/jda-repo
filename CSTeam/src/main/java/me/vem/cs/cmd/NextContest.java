@@ -2,7 +2,8 @@ package me.vem.cs.cmd;
 
 import java.util.Calendar;
 
-import me.vem.cs.Bot;
+import me.vem.jdab.cmd.Command;
+import me.vem.jdab.utils.Respond;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 /**
@@ -25,15 +26,15 @@ public class NextContest extends Command{
 		if(!super.run(event, args)) return false;
 		
 		if(Contests.getInstance().getNumberOfContests() == 0) {
-			Bot.respondAsync(event, "There are no contests listed currently... That doesn't sound quite right.");
+			Respond.async(event, "There are no contests listed currently... That doesn't sound quite right.");
 			return true;
 		}
 		
 		Contest nextContest = getNextContest();
 		
 		if(nextContest != null)
-			Bot.respondAsync(event, "Next contest:\n"+nextContest.formatOut());
-		else Bot.respondAsync(event, "There is no contest listed for after today. Try again later?");
+			Respond.async(event, "Next contest:\n"+nextContest.formatOut());
+		else Respond.async(event, "There is no contest listed for after today. Try again later?");
 		
 		return true;
 	}
@@ -52,13 +53,18 @@ public class NextContest extends Command{
 	}
 
 	@Override
-	public boolean hasPermissions(MessageReceivedEvent event) {
+	public boolean hasPermissions(MessageReceivedEvent event, String... args) {
 		return true; //Everyone can use this.
 	}
 
 	@Override
 	public String help() {
 		return "Usage: `nextcontest`";
+	}
+	
+	@Override
+	protected void unload() {
+		instance = null;
 	}
 }
 
