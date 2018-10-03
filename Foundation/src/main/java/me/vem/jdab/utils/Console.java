@@ -49,7 +49,7 @@ public class Console {
 		buildTextArea();
 		activateTrayIcon();
 
-		console = new JFrame(Version.getVersion().getName() + " Console");
+		console = new JFrame(Version.getVersion() + " Console");
 		console.setContentPane(new JScrollPane(consoleOutput));
 		console.setJMenuBar(getNewMenuBar());
 		console.setSize(new Dimension(600, 400));
