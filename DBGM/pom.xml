@@ -46,7 +46,7 @@
 						<configuration>
 							<archive>
 								<manifest>
-									<mainClass>me.vem.dbgm.Bot</mainClass>
+									<mainClass>me.vem.dbgm.DBGM</mainClass>
 								</manifest>
 							</archive>
 							<descriptorRefs>
