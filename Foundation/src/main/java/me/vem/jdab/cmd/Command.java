@@ -56,8 +56,9 @@ public abstract class Command {
 	 * Tells the bot to respond in the channel given in the event with the help for this command.
 	 * @param event
 	 */
-	public void getHelp(MessageReceivedEvent event) {
+	public boolean getHelp(MessageReceivedEvent event) {
 		Respond.async(event, this.help());
+		return true;
 	}
 	
 }
