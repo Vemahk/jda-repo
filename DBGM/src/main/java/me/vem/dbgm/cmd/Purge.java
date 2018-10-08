@@ -20,8 +20,8 @@ public class Purge extends Command{
 	private static Purge instance;
 	public static Purge getInstance() { return instance; }
 	public static void initialize() {
-		if(instance != null) return;
-		instance = new Purge();
+		if(instance == null)
+			instance = new Purge();
 	}
 	
 	private Purge() { super("purge"); }
