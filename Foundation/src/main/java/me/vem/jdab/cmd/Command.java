@@ -32,6 +32,7 @@ public abstract class Command {
 	
 	/**
 	 * Required postcondition: The command can be reloaded after this method is called.
+	 * NOTE: The command class will remove the command instance from the HashMap, you do not need to do that here.
 	 * 
 	 * In the case of my example commands, their static instance must be set back to null.
 	 */

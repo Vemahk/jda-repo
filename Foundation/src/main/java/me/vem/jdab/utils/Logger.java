@@ -5,10 +5,10 @@ import java.util.Calendar;
 
 public class Logger {
 
-	private enum Severity{ INFO, WARNING, ERROR, DEBUG; }
+	private static enum Severity{ INFO, WARNING, ERROR, DEBUG; }
 	
-	private static void log(Severity sev, String s){
-		String outStr = String.format("[%s][%s] %s", getFormattedTime(), sev, s);
+	private static void log(Severity sev, Object o){
+		String outStr = String.format("[%s][%s] %s", getFormattedTime(), sev, o);
 		if(sev == Severity.ERROR)
 			 System.err.println(outStr);
 		else System.out.println(outStr);
@@ -16,10 +16,10 @@ public class Logger {
 	
 	private static void logf(Severity sev, String f, Object... objs) { log(sev, String.format(f, objs)); }
 	
-	public static void info(String s) { log(Severity.INFO, s); }
-	public static void warn(String s) { log(Severity.WARNING, s); }
-	public static void err(String s) { log(Severity.ERROR, s); }
-	public static void debug(String s) { log(Severity.DEBUG, s); }
+	public static void info(Object o) { log(Severity.INFO, o); }
+	public static void warn(Object o) { log(Severity.WARNING, o); }
+	public static void err(Object o) { log(Severity.ERROR, o); }
+	public static void debug(Object o) { log(Severity.DEBUG, o); }
 	
 	public static void infof(String f, Object... objs) { logf(Severity.INFO, f, objs); }
 	public static void warnf(String f, Object... objs) { logf(Severity.WARNING, f, objs); }
