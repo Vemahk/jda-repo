@@ -6,16 +6,14 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import me.vem.jdab.cmd.Command;
 import me.vem.jdab.utils.Respond;
-import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageHistory;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
-public class Purge extends Command{
+public class Purge extends SecureCommand{
 
 	private static Purge instance;
 	public static Purge getInstance() { return instance; }
@@ -25,8 +23,6 @@ public class Purge extends Command{
 	}
 	
 	private Purge() { super("purge"); }
-
-	public static final String cmd_name = "purge";
 	
 	@Override
 	public boolean run(MessageReceivedEvent event, String... args) {
@@ -178,7 +174,7 @@ public class Purge extends Command{
 	
 	@Override
 	public boolean hasPermissions(MessageReceivedEvent event, String... args) {
-		return event.getMember().hasPermission(Permission.ADMINISTRATOR);
+		return Permissions.getInstance().hasPermissionsFor(event.getMember(), "purge");
 	}
 
 	@Override
@@ -199,6 +195,10 @@ public class Purge extends Command{
 	@Override
 	protected void unload() {
 		instance = null;
+	}
+	@Override
+	public List<String> getValidKeySet() {
+		return Arrays.asList("purge");
 	}
 }
 

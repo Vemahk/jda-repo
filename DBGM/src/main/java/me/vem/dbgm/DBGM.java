@@ -24,12 +24,13 @@ public class DBGM {
 		Console.buildConsole();
 		
 		DiscordBot.initialize(IgnoredReference.botToken);
-		
+
+		Permissions.initialize();
 		Purge.initialize();
 		AntiPurge.initialize();
-		Permissions.initialize();
 		Meme.initialize();
 		ExportChannel.initialize();
+		ForceSave.initalize();
 	}
 	
 }

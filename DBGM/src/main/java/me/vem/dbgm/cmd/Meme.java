@@ -3,22 +3,22 @@ package me.vem.dbgm.cmd;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import me.vem.jdab.cmd.Command;
 import me.vem.jdab.cmd.Configurable;
 import me.vem.jdab.utils.ExtFileManager;
 import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.Respond;
-import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
-public class Meme extends Command implements Configurable{
+public class Meme extends SecureCommand implements Configurable{
 
 	private static Meme instance;
 	public static Meme getInstance() { return instance; }
@@ -40,7 +40,7 @@ public class Meme extends Command implements Configurable{
 		if(!super.run(event, args)) return false;
 		
 		if(args.length == 0) {
-			Respond.timeout(event, 5000, help());
+			Respond.async(event, help());
 			return false;
 		}
 		
@@ -64,17 +64,17 @@ public class Meme extends Command implements Configurable{
 			
 		}else if(meme.equals("add")) {
 			if(args.length<3) {
-				Respond.timeoutf(event, 5000, "Invalid usage.%n%s", help());
+				Respond.asyncf(event, "Invalid usage.%n%s", help());
 				return false;
 			}
 			
 			memes.put(args[1], args[2]);
-			Respond.timeout(event, 5000, "Meme added OuO");
+			Respond.asyncf(event, "Meme `%s` added", args[1]);
 		}else if(memes.containsKey(meme)){
 			event.getMessage().delete().complete();
 			String out = memes.get(meme);
 			Respond.async(event, out);
-		}else Respond.timeout(event, 5000, "Unknown Meme. Ask an admin to add it.");
+		}else Respond.async(event, "Unknown Meme. Ask an admin to add it.");
 		
 		return true;
 	}
@@ -100,8 +100,12 @@ public class Meme extends Command implements Configurable{
 	
 	@Override public boolean hasPermissions(MessageReceivedEvent event, String... args) {
 		if(args.length > 0 && "add".equals(args[0]))
-			return event.getMember().hasPermission(Permission.ADMINISTRATOR);
-		return true;
+			return Permissions.getInstance().hasPermissionsFor(event.getMember(), "meme.add");
+		return Permissions.getInstance().hasPermissionsFor(event.getMember(), "meme");
+	}
+	
+	@Override public List<String> getValidKeySet() {
+		return Arrays.asList("meme", "meme.add");
 	}
 	
 	@Override public void save() {
@@ -138,4 +142,6 @@ public class Meme extends Command implements Configurable{
 		save();
 		instance = null;
 	}
+	
+	
 }
