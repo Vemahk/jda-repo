@@ -159,14 +159,10 @@ public class Purge extends SecureCommand{
 			MessageHistory mh = tc.getHistoryBefore(next, n-i > 100 ? 100 : n-i).complete();
 			if(mh.size() == 0) break;
 			
-			Iterator<Message> iter = mh.getRetrievedHistory().iterator();
-			
-			while(iter.hasNext()) {
-				Message m = iter.next();
+			for(Message m : mh.getRetrievedHistory())
 				out[i++] = m;
-				if(!iter.hasNext())
-					next = m;
-			}
+			
+			next = out[i-1];
 		}
 		
 		return Arrays.asList(out);
@@ -244,9 +240,9 @@ class SelfPurgeList implements Collection<Message>, Iterable<Message>{
 	@Override
 	public void clear() {
 		if(len > 1)
-			linkedChannel.deleteMessages(this).complete();
+			linkedChannel.deleteMessages(this).queue();
 		if(len == 1)
-			linkedChannel.deleteMessageById(list[0].getIdLong()).complete();
+			linkedChannel.deleteMessageById(list[0].getIdLong()).queue();
 		else {
 			len = 0;
 			return;

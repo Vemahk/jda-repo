@@ -1,11 +1,13 @@
 package me.vem.dbgm.cmd;
 
-import me.vem.jdab.cmd.Command;
+import java.util.Arrays;
+import java.util.List;
+
 import me.vem.jdab.utils.Respond;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
-public class AntiPurge extends Command{
+public class AntiPurge extends SecureCommand{
 
 	private static AntiPurge instance;
 	public static AntiPurge getInstance() { return instance; }
@@ -37,12 +39,12 @@ public class AntiPurge extends Command{
 		out.append("\n\n - ").append(event.getMember().getAsMention());
 		
 		if(out.length() >= 2000) {
-			Respond.async(event, "Cannot [AntiPurge] message. Too long (exceeds 2,000 characters). Sorry boss.");
+			Respond.async(event, "Cannot [AntiPurge] message: too long (exceeds 2,000 characters)");
 			return false;
 		}
 		
 		Respond.async(event, out.toString());
-		event.getTextChannel().deleteMessageById(event.getMessageId()).queue();
+		event.getMessage().delete().queue();
 
 		return true;
 	}
@@ -54,11 +56,18 @@ public class AntiPurge extends Command{
 
 	@Override
 	public String help() {
-		return "Valid Usage: antipurge <message>";
+		return "Usage:\n```\n"
+			 + "antipurge <message>\n"
+			 + "```";
 	}
 
 	@Override
 	protected void unload() {
 		instance = null;
+	}
+	
+	@Override
+	public List<String> getValidKeySet() {
+		return Arrays.asList("antipurge");
 	}
 }
