@@ -1,5 +1,6 @@
 package me.vem.jdab.utils;
 
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import me.vem.jdab.DiscordBot;
@@ -10,8 +11,8 @@ import net.dv8tion.jda.core.entities.User;
 
 public class Utilities {
 
-	private static Pattern memberMentionPattern = Pattern.compile("<@\\d+>");
-	private static Pattern roleMentionPattern = Pattern.compile("<@&\\d+>");
+	private static Pattern memberMentionPattern = Pattern.compile("<?@?(\\d+)>?");
+	private static Pattern roleMentionPattern = Pattern.compile("<?@?&?(\\d+)>?");
 	
 	/**
 	 * @param mention (e.g. <@##############>)
@@ -20,9 +21,11 @@ public class Utilities {
 	 * The user if it is a valid mention.
 	 */
 	public static User getUserFromMention(String mention) {
-		if(!memberMentionPattern.matcher(mention).matches())
+		Matcher matcher = memberMentionPattern.matcher(mention);
+		if(!matcher.matches())
 			return null;
-		return DiscordBot.getInstance().getJDA().getUserById(mention.substring(2, mention.length()-1));
+		
+		return DiscordBot.getInstance().getJDA().getUserById(matcher.group(1));
 	}
 	
 	/**
@@ -46,9 +49,10 @@ public class Utilities {
 	 * The role if the mention is valid and the role is apart of this guild.
 	 */
 	public static Role getRoleFromMention(Guild guild, String mention) {
-		if(!roleMentionPattern.matcher(mention).matches())
+		Matcher matcher = roleMentionPattern.matcher(mention);
+		if(!matcher.matches())
 			return null;
 		
-		return guild.getRoleById(mention.substring(3, mention.length()-1));
+		return guild.getRoleById(matcher.group(1));
 	}
 }
