@@ -44,7 +44,7 @@ public abstract class Command {
 	 * @param args
 	 */
 	public boolean run(MessageReceivedEvent event, String... args) {
-		if(!hasPermissions(event)) {
+		if(!hasPermissions(event, args)) {
 			Respond.async(event, "You do not have the permissions to run this command.");
 			return false;
 		}
