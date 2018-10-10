@@ -167,7 +167,7 @@ public class Permissions extends Command implements Configurable{
 		int lvl = data.getMemberPermission(m);
 		int req = data.getKeyRequirement(key);
 		
-		Logger.debugf("Key: %s, %d required, %s has %d. %s", key, req, m.getEffectiveName(), lvl, lvl >= req);
+		//Logger.debugf("Key: %s, %d required, %s has %d. %s", key, req, m.getEffectiveName(), lvl, lvl >= req);
 		
 		return lvl >= req;
 	}
