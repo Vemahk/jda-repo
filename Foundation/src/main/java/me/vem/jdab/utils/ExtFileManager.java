@@ -2,11 +2,14 @@ package me.vem.jdab.utils;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.stream.JsonReader;
 
 public class ExtFileManager {
 
@@ -35,6 +38,32 @@ public class ExtFileManager {
 			e.printStackTrace();
 			return null;
 		}
+	}
+	
+	/**
+	 * @param file
+	 * @return The FileReader for the given file.
+	 * @throws IOException
+	 */
+	public static FileReader getFileReader(File file){
+		if(file == null) return null;
+		if(!file.exists()) return null;
+		
+		try {
+			return new FileReader(file);
+		} catch (FileNotFoundException e) {}
+		
+		return null;
+	}
+	
+	/**
+	 * @param file
+	 * @return The JsonReader for the given file. Assumes that the file is in .json format.
+	 * @throws IOException
+	 */
+	public static JsonReader getJsonReader(File file){
+		if(file == null) return null;
+		return new JsonReader(getFileReader(file));
 	}
 	
 	/**
