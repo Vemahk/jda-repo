@@ -24,6 +24,7 @@ public class DBGM {
 		Console.buildConsole();
 		
 		DiscordBot.initialize(IgnoredReference.botToken);
+		DiscordBot.getInstance().addEventListener(ReactionListener.getInstance());
 
 		Permissions.initialize();
 		Purge.initialize();

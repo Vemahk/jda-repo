@@ -214,13 +214,14 @@ class SelfPurgeList implements Collection<Message>, Iterable<Message>{
 	@Override
 	public boolean add(Message e) {
 		
-		/*
-		 * AntiPurge -- Hardcoded.
-		 * These messages cannot be purged, no matter what.
-		 * Note that only messages sent by the bot with [AntiPurge] will resist the purge. Users' [AntiPurge] messages will still be purged.
-		 * The bot will only send an [AntiPurge] message if the command is called by a allowable user.
-		 * See the AntiPurge command for more details.
-		 */
+		/********************************************************************************\
+		|* AntiPurge -- Hardcoded.														*|
+		|* These messages cannot be purged, no matter what. Note that only messages		*|
+		|* sent by the bot with [AntiPurge] will resist the purge. Users' [AntiPurge]	*|
+		|* messages will still be purged. The bot will only send an [AntiPurge]			*|
+		|* message if the command is called by a allowable user. See the AntiPurge		*|
+		|* command for more details. 													*|
+		\********************************************************************************/
 		if(e.getContentDisplay().startsWith("[AntiPurge]") && e.getAuthor().getIdLong() == e.getJDA().getSelfUser().getIdLong())
 			return false;
 		

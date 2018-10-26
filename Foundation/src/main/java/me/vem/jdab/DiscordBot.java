@@ -10,6 +10,7 @@ import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.Respond;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
+import net.dv8tion.jda.core.hooks.EventListener;
 
 /**
  * The bot object that will open the JDA instance upon initialization.
@@ -39,6 +40,10 @@ public class DiscordBot {
 
 		Help.initialize();
 		Prefix.initialize();
+	}
+	
+	public void addEventListener(EventListener listener) {
+		jda.addEventListener(listener);
 	}
 	
 	public JDA getJDA() {
