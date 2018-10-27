@@ -250,28 +250,16 @@ public class LinkedMap<K, V> implements Map<K, V>{
 				return size;
 			}
 			
-			/** View only. */
+			/* Read only. */
 			@Override public boolean add(V e) { return false; }
-
-			/** View only */
 			@Override public boolean addAll(Collection<? extends V> c) { return false; }
-
-			/** View only. */
-			@Override public void clear() { }
-
-			/** View only. */
+			@Override public void clear() {}
 			@Override public boolean remove(Object o) { return false; }
-
-			/** View only. */
 			@Override public boolean removeAll(Collection<?> c) { return false; }
-
-			/** View only. */
 			@Override public boolean retainAll(Collection<?> c) { return false; }
 
-			/** Unimplemented. */
+			/* Unimplemented. */
 			@Override public Object[] toArray() { return null; }
-
-			/** Unimplemented. */
 			@Override public <T> T[] toArray(T[] a) { return null; }
 		};
 	}

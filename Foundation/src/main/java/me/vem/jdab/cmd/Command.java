@@ -1,6 +1,7 @@
 package me.vem.jdab.cmd;
 
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import me.vem.jdab.utils.Respond;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -8,7 +9,7 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 public abstract class Command {
 
 	/* Mmm, block code. Noice. */
-	private static LinkedHashMap<String, Command> commands = new LinkedHashMap<>();
+	private static Map<String, Command> commands = new LinkedHashMap<>();
 	public static boolean isCommand(String cmdname) { return commands.containsKey(cmdname); }
 	public static Command getCommand(String cmdname) { return commands.get(cmdname); }
 	

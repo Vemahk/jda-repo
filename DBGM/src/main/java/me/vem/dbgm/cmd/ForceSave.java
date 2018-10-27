@@ -3,6 +3,7 @@ package me.vem.dbgm.cmd;
 import java.util.Arrays;
 import java.util.List;
 
+import me.vem.jdab.DiscordBot;
 import me.vem.jdab.cmd.Command;
 import me.vem.jdab.cmd.Configurable;
 import me.vem.jdab.utils.Respond;
@@ -32,6 +33,10 @@ public class ForceSave extends SecureCommand{
 				conf.save();
 			}
 		}
+		
+		for(Object o : DiscordBot.getInstance().getJDA().getRegisteredListeners())
+			if(o instanceof Configurable)
+				((Configurable)o).save();
 		
 		event.getMessage().delete().queue();
 		Respond.timeout(event.getTextChannel(), 3000, "Databases Saved");

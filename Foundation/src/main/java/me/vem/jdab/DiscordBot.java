@@ -3,6 +3,7 @@ package me.vem.jdab;
 import javax.security.auth.login.LoginException;
 
 import me.vem.jdab.cmd.Command;
+import me.vem.jdab.cmd.Configurable;
 import me.vem.jdab.cmd.Help;
 import me.vem.jdab.cmd.Prefix;
 import me.vem.jdab.utils.Console;
@@ -73,6 +74,11 @@ public class DiscordBot {
 		
 		//Call all registered commands' unload function.
 		Command.unloadAll();
+		
+		//Save all configurable event listeners
+		for(Object o : jda.getRegisteredListeners())
+			if(o instanceof Configurable)
+				((Configurable)o).save();
 		
 		//Safely shutdown the JDA
 		jda.shutdown();

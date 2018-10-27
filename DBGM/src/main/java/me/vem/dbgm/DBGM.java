@@ -7,6 +7,8 @@ import me.vem.dbgm.cmd.ForceSave;
 import me.vem.dbgm.cmd.Meme;
 import me.vem.dbgm.cmd.Permissions;
 import me.vem.dbgm.cmd.Purge;
+import me.vem.dbgm.cmd.reaction.AddCustomReaction;
+import me.vem.dbgm.cmd.reaction.DeleteCustomReaction;
 import me.vem.jdab.DiscordBot;
 import me.vem.jdab.utils.Console;
 import me.vem.jdab.utils.Logger;
@@ -32,5 +34,8 @@ public class DBGM {
 		Meme.initialize();
 		ExportChannel.initialize();
 		ForceSave.initialize();
+		
+		AddCustomReaction.initialize();
+		DeleteCustomReaction.initialize();
 	}
 }

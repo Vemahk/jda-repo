@@ -51,7 +51,7 @@ public class AntiPurge extends SecureCommand{
 
 	@Override
 	public boolean hasPermissions(MessageReceivedEvent event, String... args) {
-		return event.getMember().hasPermission(Permission.ADMINISTRATOR);
+		return Permissions.getInstance().hasPermissionsFor(event.getMember(), "antipurge");
 	}
 
 	@Override
