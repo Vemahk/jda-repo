@@ -17,6 +17,7 @@ import me.vem.jdab.utils.Respond;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.EventListener;
 
 public class ReactionListener implements EventListener, Configurable{
@@ -38,18 +39,18 @@ public class ReactionListener implements EventListener, Configurable{
 	private ReactionListener() { load(); }
 	
 	@Override public void onEvent(Event event) {
-		if (event instanceof MessageReceivedEvent)
-            onMessageReceived((MessageReceivedEvent) event);
+		if (event instanceof GuildMessageReceivedEvent)
+            onMessageReceived((GuildMessageReceivedEvent) event);
 	}
 	
-	public void onMessageReceived(MessageReceivedEvent event) {
+	public void onMessageReceived(GuildMessageReceivedEvent event) {
 		String content = event.getMessage().getContentRaw();
 		Map<String, String> data = database.get(event.getGuild().getIdLong());
 		if(data == null) return;
 		
 		String resp = data.get(content);
 		if(resp != null)
-			Respond.async(event, resp);
+			Respond.async(event.getChannel(), resp);
 	}
 	
 	public boolean addReaction(Guild guild, String trigger, String response) {

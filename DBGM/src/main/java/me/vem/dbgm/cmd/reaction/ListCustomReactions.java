@@ -34,7 +34,7 @@ public class ListCustomReactions extends Command{
 			return false;
 		}
 		
-		int fPage = page; //For the lambda.
+		final int fPage = page; //For the lambda.
 		if(lastList == null) respondPage(event, page);
 		else {
 			long diff = System.currentTimeMillis() / 1000 - lastList.getCreationTime().toEpochSecond();
