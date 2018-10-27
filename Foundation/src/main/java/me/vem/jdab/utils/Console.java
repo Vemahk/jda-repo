@@ -151,7 +151,7 @@ public class Console {
 	
 	/**
 	 * Activates the Windows Tray icon that this application will run out of. <br>
-	 * Will not do anything for non-Windows systems.
+	 * Will not do anything for non-Windows systems (To my knowledge).
 	 */
 	private static void activateTrayIcon() {
 		if(!SystemTray.isSupported() || tray != null)

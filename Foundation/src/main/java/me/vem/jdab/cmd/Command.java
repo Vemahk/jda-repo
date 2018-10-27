@@ -1,32 +1,63 @@
 package me.vem.jdab.cmd;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.LinkedList;
+import java.util.List;
 
+import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.Respond;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public abstract class Command {
 
-	/* Mmm, block code. Noice. */
-	private static Map<String, Command> commands = new LinkedHashMap<>();
-	public static boolean isCommand(String cmdname) { return commands.containsKey(cmdname); }
-	public static Command getCommand(String cmdname) { return commands.get(cmdname); }
+	private static List<Command> commands = new LinkedList<>();
+	
+	/**
+	 * O(n) b/c I am figuring that there won't be an insane amount of commands being registered, so screw efficiency.
+	 * @param cmd
+	 */
+	private static void addCommand(Command cmd) {
+		for(Command c : commands)
+			if(c.name.equals(cmd.name)) {
+				Logger.warnf("Cannot register command '%s' because another command with its name has already been registered.", cmd.getClass().getName());
+				return;
+			}
+		commands.add(cmd);
+	}
+	
+	public static Command getCommand(String cmdname) {
+		if(cmdname == null || cmdname.length() == 0)
+			return null;
+		
+		for(Command c : commands)
+			if(c.name.equals(cmdname))
+				return c;
+		return null;
+	}
 	
 	public static String[] getCommandLabels() {
-		return commands.keySet().toArray(new String[0]);
+		String[] out = new String[commands.size()];
+		int i=0;
+		for(Command c : commands)
+			out[i++] = c.name;
+		
+		return out;
 	}
 	
 	/**
 	 * Calls the unload method on all initialized commands and clears the commands map.
 	 */
 	public static void unloadAll() {
-		for(Command cmd : commands.values())
+		for(Command cmd : commands)
 			cmd.unload();
 		commands.clear();
 	}
-	 
-	protected Command(String cmdname) { commands.put(cmdname, this); }
+	
+	private final String name;
+	
+	protected Command(String cmdname) {
+		this.name = cmdname;
+		addCommand(this);
+	}
 	
 	public abstract boolean hasPermissions(MessageReceivedEvent event, String... args);
 	protected abstract String help();

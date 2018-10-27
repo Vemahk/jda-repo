@@ -23,8 +23,8 @@ public class Help extends Command{
 			return true;
 		}
 		
-		if(Command.isCommand(args[0]))
-			Command.getCommand(args[0]).getHelp(event);
+		Command cmd = Command.getCommand(args[0]);
+		if(cmd != null) cmd.getHelp(event);
 		else Respond.async(event, "Command not recognized.\n" + getFormattedCommandList());
 		
 		return true;
