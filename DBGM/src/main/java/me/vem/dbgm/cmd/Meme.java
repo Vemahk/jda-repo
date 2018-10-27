@@ -52,11 +52,13 @@ public class Meme extends SecureCommand implements Configurable{
 			if(args.length >= 2)
 				try { page = Integer.parseInt(args[1]); }catch(NumberFormatException e) {}
 			
+			final int fPage = page;
 			if(lastList == null) respondPage(event, page);
 			else {
 				long diff = System.currentTimeMillis() / 1000 - lastList.getCreationTime().toEpochSecond();
 				if(diff <= 60) //It's been less than 60 seconds since the last list was posted.
-					lastList.editMessage(getPage(page)).queue();
+					lastList.editMessage(getPage(page)).queue((msg) -> {},
+						(error) -> respondPage(event, fPage));
 				else respondPage(event, page);
 			}
 			
@@ -80,6 +82,8 @@ public class Meme extends SecureCommand implements Configurable{
 	}
 	
 	private void respondPage(MessageReceivedEvent event, int page) {
+		if(lastList != null)
+			lastList.delete().queue((msg) -> {}, (err) -> {});
 		lastList = Respond.sync(event, getPage(page));
 	}
 
@@ -135,7 +139,10 @@ public class Meme extends SecureCommand implements Configurable{
 	}
 
 	@Override protected String help() {
-		return "Usage: meme <memename> or meme list [pagenum]";
+		return "Usage:\n```\n"
+			 + "meme <memename> -- responds with the saved meme.\n"
+			 + "meme list [pagenum=1] -- Lists a given page of memes.\n"
+			 + "```";
 	}
 	@Override
 	protected void unload() {

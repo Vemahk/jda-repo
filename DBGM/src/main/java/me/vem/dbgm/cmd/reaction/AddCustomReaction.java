@@ -3,7 +3,6 @@ package me.vem.dbgm.cmd.reaction;
 import java.util.Arrays;
 import java.util.List;
 
-import me.vem.dbgm.ReactionListener;
 import me.vem.dbgm.cmd.Permissions;
 import me.vem.dbgm.cmd.SecureCommand;
 import me.vem.jdab.utils.Respond;
@@ -46,8 +45,12 @@ public class AddCustomReaction extends SecureCommand{
 
 	@Override
 	protected String help() {
-		return "Usage:\n"
-			 + "acr `[trigger]` `[response]` //Formatting with \\`the grave key\\`";
+		return "acr stands for Add Custom Reaction.\n"
+			 + "A Custom Reaction is an automatic bot response to a specific message.\n"
+			 + "Note: Custom Reactions are case-sensitive and per-guild.\n\n"
+			 + "Usage:\n```\n"
+			 + "acr `[trigger]` `[response]` -- Adds a custom reaction to a particular trigger\n"
+			 + "```";
 	}
 
 	@Override

@@ -9,6 +9,8 @@ import me.vem.dbgm.cmd.Permissions;
 import me.vem.dbgm.cmd.Purge;
 import me.vem.dbgm.cmd.reaction.AddCustomReaction;
 import me.vem.dbgm.cmd.reaction.DeleteCustomReaction;
+import me.vem.dbgm.cmd.reaction.ListCustomReactions;
+import me.vem.dbgm.cmd.reaction.ReactionListener;
 import me.vem.jdab.DiscordBot;
 import me.vem.jdab.utils.Console;
 import me.vem.jdab.utils.Logger;
@@ -16,7 +18,7 @@ import me.vem.jdab.utils.Version;
 
 /**
  * Discord Bot General Manager
- * @author Vemahk
+ * @author Samuel (a.k.a. Vemahk)
  * @JDAVersion 3.7.1_421
  */
 public class DBGM {
@@ -37,5 +39,6 @@ public class DBGM {
 		
 		AddCustomReaction.initialize();
 		DeleteCustomReaction.initialize();
+		ListCustomReactions.initialize();
 	}
 }

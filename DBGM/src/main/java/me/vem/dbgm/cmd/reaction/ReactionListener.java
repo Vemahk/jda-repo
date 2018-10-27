@@ -1,4 +1,4 @@
-package me.vem.dbgm;
+package me.vem.dbgm.cmd.reaction;
 
 import java.io.File;
 import java.io.IOException;
@@ -71,6 +71,19 @@ public class ReactionListener implements EventListener, Configurable{
 		return data.remove(trigger) != null;
 	}
 
+	public String[] triggerList(Guild guild) {
+		Map<String, String> data = database.get(guild.getIdLong());
+		if(data == null) return new String[0];
+		
+		String[] out = new String[data.size()];
+		
+		int i=0;
+		for(String trigger : data.keySet())
+			out[i++] = trigger;
+		
+		return out;
+	}
+	
 	@Override
 	public void save() {
 		try {

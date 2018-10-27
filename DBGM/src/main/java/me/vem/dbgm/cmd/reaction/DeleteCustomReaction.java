@@ -3,7 +3,6 @@ package me.vem.dbgm.cmd.reaction;
 import java.util.Arrays;
 import java.util.List;
 
-import me.vem.dbgm.ReactionListener;
 import me.vem.dbgm.cmd.Permissions;
 import me.vem.dbgm.cmd.SecureCommand;
 import me.vem.jdab.utils.Respond;
@@ -42,8 +41,12 @@ public class DeleteCustomReaction extends SecureCommand{
 
 	@Override
 	protected String help() {
-		return "Usage:\n"
-			 + "dcr `[trigger]` -- format with \\`the grave key\\`";
+		return "dcr stands for Delete Custom Reaction.\n"
+			 + "A Custom Reaction is an automatic bot response to a specific message.\n"
+			 + "Note: Custom Reactions are case-sensitive and per-guild.\n\n"
+			 + "Usage:\n```\n"
+			 + "dcr `[trigger]` -- Removes a custom reaction by its trigger.\n"
+			 + "```";
 	}
 
 	@Override protected void unload() { instance = null; }
