@@ -9,7 +9,6 @@ import me.vem.role.cmd.Help;
 import me.vem.role.cmd.Prefix;
 import me.vem.role.cmd.Rankup;
 import me.vem.role.utils.Console;
-import me.vem.role.utils.IgnoredReference;
 import me.vem.role.utils.Logger;
 import me.vem.role.utils.Version;
 import net.dv8tion.jda.core.AccountType;
