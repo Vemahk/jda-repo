@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 
 import me.vem.jdab.cmd.Command;
+import me.vem.jdab.cmd.Help;
 import me.vem.jdab.cmd.Prefix;
 import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.Respond;
@@ -37,13 +38,7 @@ public class MessageListener extends ListenerAdapter{
 		String rawContent = msg.getContentRaw();
 		
 		if(rawContent.equals(self.getAsMention())) {
-			StringBuilder resp = new StringBuilder("List of known commands:\n```\n");
-			for(String cmd : Command.getCommandLabels())
-				resp.append(cmd + '\n');
-			resp.append("```");
-			
-			Respond.async(event, resp.toString());
-			
+			Help.getInstance().run(event);
 			return;
 		}
 		

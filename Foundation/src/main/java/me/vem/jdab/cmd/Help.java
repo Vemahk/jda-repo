@@ -19,7 +19,11 @@ public class Help extends Command{
 		if(!super.run(event, args)) return false;
 		
 		if(args.length == 0) {
-			Respond.async(event, getFormattedCommandList());
+			//WHAT'S THIS?! CALLBACK HELL?!
+			event.getAuthor().openPrivateChannel().queue(
+				(channel) -> channel.sendMessage(getFormattedCommandList()).queue(
+					(msg) -> Respond.timeout(event, 5000, "Sent you a pm with the help menu")),
+				(error) -> Respond.async(event, getFormattedCommandList()));
 			return true;
 		}
 		
