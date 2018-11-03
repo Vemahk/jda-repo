@@ -4,7 +4,7 @@ import me.vem.jdab.cmd.Command;
 import me.vem.jdab.utils.Respond;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 public class ListCustomReactions extends Command{
 
@@ -17,7 +17,7 @@ public class ListCustomReactions extends Command{
 	
 	private ListCustomReactions() { super("lcr"); }
 
-	@Override public boolean run(MessageReceivedEvent event, String... args) {
+	@Override public boolean run(GuildMessageReceivedEvent event, String... args) {
 		if(!super.run(event, args))
 			return false;
 		
@@ -26,13 +26,10 @@ public class ListCustomReactions extends Command{
 			try {
 				page = Integer.parseInt(args[0]);
 			}catch(NumberFormatException e) {
-				getHelp(event);
-				return false;
+				return !getHelp(event.getChannel());
 			}
-		}else if(args.length > 1) {
-			getHelp(event);
-			return false;
-		}
+		}else if(args.length > 1)
+			return !getHelp(event.getChannel());
 		
 		final int fPage = page; //For the lambda.
 		if(lastList == null) respondPage(event, page);
@@ -49,10 +46,10 @@ public class ListCustomReactions extends Command{
 	}
 	
 	private Message lastList = null;
-	private void respondPage(MessageReceivedEvent event, int page) {
+	private void respondPage(GuildMessageReceivedEvent event, int page) {
 		if(lastList != null)
 			lastList.delete().queue((msg) -> {}, (err) -> {});
-		lastList = Respond.sync(event, getPage(event.getGuild(), page));
+		lastList = Respond.sync(event.getChannel(), getPage(event.getGuild(), page));
 	}
 
 	private String getPage(Guild guild, int page) {
@@ -70,7 +67,7 @@ public class ListCustomReactions extends Command{
 	}
 	
 	@Override
-	public boolean hasPermissions(MessageReceivedEvent event, String... args) {
+	public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
 		return true;
 	}
 

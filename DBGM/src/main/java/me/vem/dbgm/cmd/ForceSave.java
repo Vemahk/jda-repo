@@ -7,7 +7,7 @@ import me.vem.jdab.DiscordBot;
 import me.vem.jdab.cmd.Command;
 import me.vem.jdab.cmd.Configurable;
 import me.vem.jdab.utils.Respond;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 public class ForceSave extends SecureCommand{
 
@@ -21,7 +21,7 @@ public class ForceSave extends SecureCommand{
 	private ForceSave() { super("forcesave"); }
 
 	@Override
-	public boolean run(MessageReceivedEvent event, String... args) {
+	public boolean run(GuildMessageReceivedEvent event, String... args) {
 		if(!super.run(event, args)) return false;
 		
 		for(String cmdLabel : Command.getCommandLabels()) {
@@ -39,13 +39,13 @@ public class ForceSave extends SecureCommand{
 				((Configurable)o).save();
 		
 		event.getMessage().delete().queue();
-		Respond.timeout(event.getTextChannel(), 3000, "Databases Saved");
+		Respond.timeout(event.getChannel(), 3000, "Databases Saved");
 		
 		return true;
 	}
 	
 	@Override
-	public boolean hasPermissions(MessageReceivedEvent event, String... args) {
+	public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
 		return Permissions.getInstance().hasPermissionsFor(event.getMember(), "forcesave");
 	}
 

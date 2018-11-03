@@ -6,7 +6,7 @@ import java.util.List;
 import me.vem.dbgm.cmd.Permissions;
 import me.vem.dbgm.cmd.SecureCommand;
 import me.vem.jdab.utils.Respond;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 public class AddCustomReaction extends SecureCommand{
 
@@ -20,18 +20,18 @@ public class AddCustomReaction extends SecureCommand{
 	private AddCustomReaction() { super("acr"); }
 
 	@Override
-	public boolean run(MessageReceivedEvent event, String... args) {
+	public boolean run(GuildMessageReceivedEvent event, String... args) {
 		if(!super.run(event, args)) return false;
 		
 		if(args.length != 2) {
-			getHelp(event);
+			getHelp(event.getChannel());
 			return false;
 		}
 		
 		if(ReactionListener.getInstance().addReaction(event.getGuild(), args[0], args[1])) {
-			Respond.async(event, "Reaction added.");
+			Respond.async(event.getChannel(), "Reaction added.");
 		}else {
-			Respond.async(event, "Reaction was not added... Does it already exist?");
+			Respond.async(event.getChannel(), "Reaction was not added... Does it already exist?");
 			return false;
 		}
 		
@@ -39,7 +39,7 @@ public class AddCustomReaction extends SecureCommand{
 	}
 	
 	@Override
-	public boolean hasPermissions(MessageReceivedEvent event, String... args) {
+	public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
 		return Permissions.getInstance().hasPermissionsFor(event.getMember(), "acr");
 	}
 

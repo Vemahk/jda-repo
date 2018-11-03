@@ -11,7 +11,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageHistory;
 import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 public class Purge extends SecureCommand{
 
@@ -25,11 +25,11 @@ public class Purge extends SecureCommand{
 	private Purge() { super("purge"); }
 	
 	@Override
-	public boolean run(MessageReceivedEvent event, String... args) {
+	public boolean run(GuildMessageReceivedEvent event, String... args) {
 		if(!super.run(event, args)) return false;
 		
 		if(args.length == 0) { //Purge 100 anyone.
-			purge(event.getTextChannel(), 101, null); //101 includes the purge message.
+			purge(event.getChannel(), 101, null); //101 includes the purge message.
 			return true;
 		}
 		
@@ -38,26 +38,26 @@ public class Purge extends SecureCommand{
 		if(!args[0].equalsIgnoreCase("regex")) { //NORMAL PURGE BEGIN
 			if(args.length == 1) {
 				if(args[0].equals("help")) {
-					super.getHelp(event);
+					super.getHelp(event.getChannel());
 					return true;
 				}
 				
 				if(msg.getMentionedMembers().size() == 1) { //Just in case some sneaky sob mentiones two people and deletes that space...
 					Member mem = msg.getMentionedMembers().get(0);
-					purge(event.getTextChannel(), 100, mem);
+					purge(event.getChannel(), 100, mem);
 				}else {
 					try {
 						int i = Integer.parseInt(args[0]);
-						purge(event.getTextChannel(), i+1, null); //i+1 to include purge message.
+						purge(event.getChannel(), i+1, null); //i+1 to include purge message.
 					}catch(NumberFormatException e) {
-						Respond.async(event, "Error parsing expected number. Run 'purge help' for help.");
+						Respond.async(event.getChannel(), "Error parsing expected number. Run 'purge help' for help.");
 					}
 				}
 			}
 			
 			if(args.length == 2) {
 				if(msg.getMentionedMembers().size() != 1) { 
-					Respond.async(event, "Please mention (@) exactly one person whose messages you plan to purge.");
+					Respond.async(event.getChannel(), "Please mention (@) exactly one person whose messages you plan to purge.");
 					return false;
 				}
 				
@@ -65,18 +65,16 @@ public class Purge extends SecureCommand{
 				
 				try {
 					int i = Integer.parseInt(args[1]);
-					purge(event.getTextChannel(), i, mem);
+					purge(event.getChannel(), i, mem);
 				}catch(NumberFormatException e) {
-					Respond.async(event, "Error parsing expected number. Run 'purge help' for help.");
+					Respond.async(event.getChannel(), "Error parsing expected number. Run 'purge help' for help.");
 				}
 			}
 
 			return true;
 		}else { //NORMAL PURGE END; REGEX BEGIN
-			if(args.length < 2 || args.length > 4) {
-				super.getHelp(event);
-				return false;
-			}
+			if(args.length < 2 || args.length > 4) 
+				return !getHelp(event.getChannel());
 			
 			int n = 100;
 			Member mem = null;
@@ -88,27 +86,27 @@ public class Purge extends SecureCommand{
 					try {
 						n = Integer.parseInt(args[3]);
 					}catch(NumberFormatException e) {
-						Respond.asyncf(event, "Cannot parse expected integer...%nValidate: %s", debugParsedStringArr(args));
+						Respond.asyncf(event.getChannel(), "Cannot parse expected integer...%nValidate: %s", debugParsedStringArr(args));
 						return false;
 					}
 				}
 				
 			}else if(msg.getMentionedChannels().size() > 1) {
-				Respond.async(event, "You can only delete messages from one person at a time.");
+				Respond.async(event.getChannel(), "You can only delete messages from one person at a time.");
 				return false;
 			}else { //No mentions
 				if(args.length >= 3) {
 					try {
 						n = Integer.parseInt(args[2]);
 					}catch(NumberFormatException e) {
-						Respond.asyncf(event, "Cannot parse expected integer...%nValidate: %s", debugParsedStringArr(args));
+						Respond.asyncf(event.getChannel(), "Cannot parse expected integer...%nValidate: %s", debugParsedStringArr(args));
 						return false;
 					}
 				}
 			}
 			
 			//Logger.debugf("%d | %s | %s | %s", n, mem, args[1], Arrays.toString(args));
-			this.purgeRegex(event.getTextChannel(), n, mem, args[1]);
+			this.purgeRegex(event.getChannel(), n, mem, args[1]);
 		}//REGEX END
 		return true;
 	}
@@ -169,7 +167,7 @@ public class Purge extends SecureCommand{
 	}
 	
 	@Override
-	public boolean hasPermissions(MessageReceivedEvent event, String... args) {
+	public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
 		return Permissions.getInstance().hasPermissionsFor(event.getMember(), "purge");
 	}
 

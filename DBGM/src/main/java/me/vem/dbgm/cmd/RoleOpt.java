@@ -17,7 +17,7 @@ import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.Respond;
 import me.vem.jdab.utils.Utilities;
 import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 public class RoleOpt extends SecureCommand implements Configurable{
 
@@ -40,12 +40,12 @@ public class RoleOpt extends SecureCommand implements Configurable{
 		load();
 	}
 
-	@Override public boolean run(MessageReceivedEvent event, String... args) {
+	@Override public boolean run(GuildMessageReceivedEvent event, String... args) {
 		if(!super.run(event, args))
 			return false;
 		
 		if(args.length == 0)
-			return getHelp(event);
+			return getHelp(event.getChannel());
 
 		Map<String, Long> guildDatabase = database.get(event.getGuild().getIdLong());
 		if(guildDatabase == null)
@@ -53,7 +53,7 @@ public class RoleOpt extends SecureCommand implements Configurable{
 		
 		if("list".equals(args[0])) {
 			if(guildDatabase.isEmpty()) {
-				Respond.async(event, "Your guild does not have any role aliases you can opt-in to.");
+				Respond.async(event.getChannel(), "Your guild does not have any role aliases you can opt-in to.");
 				return true;
 			}
 			
@@ -63,59 +63,59 @@ public class RoleOpt extends SecureCommand implements Configurable{
 				response.append(s).append(" -- ").append(r.getName()).append('\n');
 			}
 			
-			Respond.async(event, response.append("```").toString());
+			Respond.async(event.getChannel(), response.append("```").toString());
 		}else if("not".equals(args[0])) {
 			if(args.length < 2)
-				return !getHelp(event);
+				return !getHelp(event.getChannel());
 			
 			if(!guildDatabase.containsKey(args[1])) {
-				Respond.async(event, "Your guild does not have that alias.");
+				Respond.async(event.getChannel(), "Your guild does not have that alias.");
 				return false;
 			}
 			
 			Role r = event.getGuild().getRoleById(guildDatabase.get(args[1]));
 			event.getGuild().getController().removeSingleRoleFromMember(event.getMember(), r).queue(
-					(success) -> Respond.asyncf(event, "Role `%s` removed.", r.getName()),
-					(failure) -> Respond.asyncf(event, "You did not have the role `%s`", r.getName()));
+					(success) -> Respond.asyncf(event.getChannel(), "Role `%s` removed.", r.getName()),
+					(failure) -> Respond.asyncf(event.getChannel(), "You did not have the role `%s`", r.getName()));
 		}else if("assign".equals(args[0])) {
 			if(args.length < 3) 
-				return !getHelp(event);
+				return !getHelp(event.getChannel());
 			
 			if(guildDatabase.containsKey(args[2])) {
 				Role roleForExistingAlias = event.getGuild().getRoleById(guildDatabase.get(args[2]));
-				Respond.asyncf(event, "There already exists an alias called `%s` for the role `%s`", args[2], roleForExistingAlias.getName());
+				Respond.asyncf(event.getChannel(), "There already exists an alias called `%s` for the role `%s`", args[2], roleForExistingAlias.getName());
 				return false;
 			}
 			
 			Role r = Utilities.getRoleFromMention(event.getGuild(), args[1]);
 			if(r == null) {
-				Respond.async(event, "Could not identify the role... Be sure to @mention the role group.");
+				Respond.async(event.getChannel(), "Could not identify the role... Be sure to @mention the role group.");
 				return false;
 			}
 			
 			guildDatabase.put(args[2], r.getIdLong());
-			Respond.asyncf(event, "`%s` added as an alias for `%s`!", args[2], r.getName());
+			Respond.asyncf(event.getChannel(), "`%s` added as an alias for `%s`!", args[2], r.getName());
 		}else if("unassign".equals(args[0])) {
 			if(args.length < 2)
-				return !getHelp(event);
+				return !getHelp(event.getChannel());
 			
 			if(!guildDatabase.containsKey(args[1])) {
-				Respond.asyncf(event, "`%s` is not a known role alias.", args[1]);
+				Respond.asyncf(event.getChannel(), "`%s` is not a known role alias.", args[1]);
 				return false;
 			}
 			
 			guildDatabase.remove(args[1]);
-			Respond.asyncf(event, "The alias `%s` was removed!", args[1]);
+			Respond.asyncf(event.getChannel(), "The alias `%s` was removed!", args[1]);
 		}else{
 			if(!guildDatabase.containsKey(args[0])) {
-				Respond.asyncf(event, "`%s` is not a known role alias.", args[0]);
+				Respond.asyncf(event.getChannel(), "`%s` is not a known role alias.", args[0]);
 				return false;
 			}
 			
 			Role r = event.getGuild().getRoleById(guildDatabase.get(args[0]));
 			event.getGuild().getController().addSingleRoleToMember(event.getMember(), r).queue(
-					(success) -> Respond.asyncf(event, "Role `%s` assigned!", r.getName()),
-					(failure) -> Respond.asyncf(event, "Could not assign role `%s`. Perhaps you already had it?", r.getName()));
+					(success) -> Respond.asyncf(event.getChannel(), "Role `%s` assigned!", r.getName()),
+					(failure) -> Respond.asyncf(event.getChannel(), "Could not assign role `%s`. Perhaps you already had it?", r.getName()));
 			
 		}
 		
@@ -123,7 +123,7 @@ public class RoleOpt extends SecureCommand implements Configurable{
 	}
 	
 	@Override
-	public boolean hasPermissions(MessageReceivedEvent event, String... args) {
+	public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
 		if(args.length > 0 && ("assign".equals(args[0]) || "unassign".equals(args[0])))
 			return Permissions.getInstance().hasPermissionsFor(event.getMember(), "iam.assign");
 		return true;

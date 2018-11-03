@@ -6,7 +6,7 @@ import java.util.List;
 import me.vem.dbgm.cmd.Permissions;
 import me.vem.dbgm.cmd.SecureCommand;
 import me.vem.jdab.utils.Respond;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 public class DeleteCustomReaction extends SecureCommand{
 
@@ -19,23 +19,23 @@ public class DeleteCustomReaction extends SecureCommand{
 	
 	private DeleteCustomReaction() { super("dcr"); }
 
-	@Override public boolean run(MessageReceivedEvent event, String... args) {
+	@Override public boolean run(GuildMessageReceivedEvent event, String... args) {
 		if(!super.run(event, args)) return false;
 		
 		if(args.length != 1) {
-			getHelp(event);
+			getHelp(event.getChannel());
 			return false;
 		}
 		
 		if(ReactionListener.getInstance().removeReaction(event.getGuild(), args[0]))
-			Respond.async(event, "Custom reaction removed!");
-		else Respond.async(event, "Custom reaction could not be removed. Did it exist?");
+			Respond.async(event.getChannel(), "Custom reaction removed!");
+		else Respond.async(event.getChannel(), "Custom reaction could not be removed. Did it exist?");
 		
 		return true;
 	}
 	
 	@Override
-	public boolean hasPermissions(MessageReceivedEvent event, String... args) {
+	public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
 		return Permissions.getInstance().hasPermissionsFor(event.getMember(), "dcr");
 	}
 

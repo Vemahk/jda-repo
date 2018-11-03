@@ -19,7 +19,7 @@ import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 public class Permissions extends Command implements Configurable{
 
@@ -42,11 +42,11 @@ public class Permissions extends Command implements Configurable{
 	private HashMap<Long, Data> database;
 	
 	@Override
-	public boolean run(MessageReceivedEvent event, String... args) {
+	public boolean run(GuildMessageReceivedEvent event, String... args) {
 		if(!super.run(event, args)) return false;
 		
 		if(args.length == 0) 
-			return getHelp(event);
+			return getHelp(event.getChannel());
 		
 		Data data = database.get(event.getGuild().getIdLong());
 		if(data == null)
@@ -54,51 +54,51 @@ public class Permissions extends Command implements Configurable{
 		
 		if("set".equals(args[0])) {
 			if(args.length != 3) 
-				return getHelp(event);
+				return getHelp(event.getChannel());
 			
 			int lvl = 0;
 			
 			try {
 				lvl = Integer.parseInt(args[2]);
 			}catch(NumberFormatException e) {
-				Respond.async(event, "Could not parse 3rd argument to int.");
+				Respond.async(event.getChannel(), "Could not parse 3rd argument to int.");
 				return false;
 			}
 			
 			if("default".equals(args[1])) {
 				data.setDefaultPermissionLevel(lvl);
-				Respond.asyncf(event, "Default permission set to %d.", lvl);
+				Respond.asyncf(event.getChannel(), "Default permission set to %d.", lvl);
 				return true;
 			}
 			
 			Member m = Utilities.getMemberFromMention(event.getGuild(), args[1]);
 			if(m != null) {
 				data.setMemberPermission(m, lvl);
-				Respond.asyncf(event, "%s's permission level set to %d", m.getEffectiveName(), lvl);
+				Respond.asyncf(event.getChannel(), "%s's permission level set to %d", m.getEffectiveName(), lvl);
 				return true;
 			}
 			
 			Role r = Utilities.getRoleFromMention(event.getGuild(), args[1]);
 			if(r != null) {
 				data.setRolePermission(r, lvl);
-				Respond.asyncf(event, "Role %s's permission level set to %d", r.getName(), lvl);
+				Respond.asyncf(event.getChannel(), "Role %s's permission level set to %d", r.getName(), lvl);
 				return true;
 			}
 			
-			return getHelp(event);
+			return getHelp(event.getChannel());
 		}else if("keys".equals(args[0])) {
 			if(args.length != 2)
-				return getHelp(event);
+				return getHelp(event.getChannel());
 			
 			Command c = Command.getCommand(args[1]);
 			
 			if(c == null) {
-				Respond.asyncf(event, "`%s` is not a valid command.", args[1]);
+				Respond.asyncf(event.getChannel(), "`%s` is not a valid command.", args[1]);
 				return false;
 			}
 			
 			if(!(c instanceof SecureCommand)) {
-				Respond.asyncf(event, "`%s` is not a SecureCommand. It doesn't have permission keys.", args[1]);
+				Respond.asyncf(event.getChannel(), "`%s` is not a SecureCommand. It doesn't have permission keys.", args[1]);
 				return false;
 			}
 			
@@ -107,54 +107,54 @@ public class Permissions extends Command implements Configurable{
 			for(String s : sc.getValidKeySet())
 				resp.append(s).append('\n');
 			
-			Respond.async(event, resp.append("```").toString());
+			Respond.async(event.getChannel(), resp.append("```").toString());
 			//end keys
 		}else if("require".equals(args[0])) {
 			if(args.length != 3)
-				return getHelp(event);
+				return getHelp(event.getChannel());
 			
 			int lvl = 0;
 			try {
 				lvl = Integer.parseInt(args[2]);
 			}catch(NumberFormatException e) {
-				Respond.async(event, "Could not parse 3rd argument to int.");
+				Respond.async(event.getChannel(), "Could not parse 3rd argument to int.");
 				return false;
 			}
 			
 			data.setRequirement(args[1], lvl);
-			Respond.asyncf(event, "Key `%s` now requires a permission level of %d", args[1], lvl);
+			Respond.asyncf(event.getChannel(), "Key `%s` now requires a permission level of %d", args[1], lvl);
 		}else if("unrequire".equals(args[0])) {
 			if(args.length != 2)
-				return getHelp(event);
+				return getHelp(event.getChannel());
 			
 			if(data.removeRequirement(args[1]))
-				Respond.asyncf(event, "Key `%s` no longer requires special permissions.", args[1]);
-			else Respond.asyncf(event, "Key `%s` was not required already.", args[1]);
+				Respond.asyncf(event.getChannel(), "Key `%s` no longer requires special permissions.", args[1]);
+			else Respond.asyncf(event.getChannel(), "Key `%s` was not required already.", args[1]);
 		}else if("check".equals(args[0])) {
 			if(args.length != 2)
-				return getHelp(event);
+				return getHelp(event.getChannel());
 			
-			Respond.asyncf(event, "Requirement for `%s`: %d", args[1], data.getKeyRequirement(args[1]));
+			Respond.asyncf(event.getChannel(), "Requirement for `%s`: %d", args[1], data.getKeyRequirement(args[1]));
 		}else{
 			
 			if("default".equals(args[0])) {
-				Respond.asyncf(event, "Default permission level: %d", data.getDefaultPermissionLevel());
+				Respond.asyncf(event.getChannel(), "Default permission level: %d", data.getDefaultPermissionLevel());
 				return true;
 			}
 			
 			Member m = Utilities.getMemberFromMention(event.getGuild(), args[0]);
 			if(m != null) {
-				Respond.asyncf(event, "%s's permission level: %d", m.getEffectiveName(), data.getMemberPermission(m));
+				Respond.asyncf(event.getChannel(), "%s's permission level: %d", m.getEffectiveName(), data.getMemberPermission(m));
 				return true;
 			}
 			
 			Role r = Utilities.getRoleFromMention(event.getGuild(), args[0]);
 			if(r != null) {
-				Respond.asyncf(event, "%s's permission level: %d", r.getName(), data.getRolePermission(r));
+				Respond.asyncf(event.getChannel(), "%s's permission level: %d", r.getName(), data.getRolePermission(r));
 				return true;
 			}
 			
-			return getHelp(event);
+			return getHelp(event.getChannel());
 		}
 		
 		return true;
@@ -173,7 +173,7 @@ public class Permissions extends Command implements Configurable{
 	}
 	
 	@Override
-	public boolean hasPermissions(MessageReceivedEvent event, String... args) {
+	public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
 		return event.getMember().hasPermission(Permission.ADMINISTRATOR);
 	}
 

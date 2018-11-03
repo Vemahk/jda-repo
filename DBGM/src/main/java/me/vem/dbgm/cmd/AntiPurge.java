@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import me.vem.jdab.utils.Respond;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 public class AntiPurge extends SecureCommand{
 
@@ -20,11 +20,11 @@ public class AntiPurge extends SecureCommand{
 	}
 	
 	@Override
-	public boolean run(MessageReceivedEvent event, String... args) {
+	public boolean run(GuildMessageReceivedEvent event, String... args) {
 		if(!super.run(event, args)) return false;
 		
 		if(args.length == 0) {
-			super.getHelp(event);
+			super.getHelp(event.getChannel());
 			return false;
 		}
 		
@@ -38,18 +38,18 @@ public class AntiPurge extends SecureCommand{
 		out.append("\n\n - ").append(event.getMember().getAsMention());
 		
 		if(out.length() >= 2000) {
-			Respond.async(event, "Cannot [AntiPurge] message: too long (exceeds 2,000 characters)");
+			Respond.async(event.getChannel(), "Cannot [AntiPurge] message: too long (exceeds 2,000 characters)");
 			return false;
 		}
 		
-		Respond.async(event, out.toString());
+		Respond.async(event.getChannel(), out.toString());
 		event.getMessage().delete().queue();
 
 		return true;
 	}
 
 	@Override
-	public boolean hasPermissions(MessageReceivedEvent event, String... args) {
+	public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
 		return Permissions.getInstance().hasPermissionsFor(event.getMember(), "antipurge");
 	}
 

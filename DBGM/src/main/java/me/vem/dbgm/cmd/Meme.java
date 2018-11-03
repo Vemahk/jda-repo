@@ -16,7 +16,7 @@ import me.vem.jdab.utils.ExtFileManager;
 import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.Respond;
 import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 public class Meme extends SecureCommand implements Configurable{
 
@@ -36,11 +36,11 @@ public class Meme extends SecureCommand implements Configurable{
 	}
 	
 	@Override
-	public boolean run(MessageReceivedEvent event, String... args) {
+	public boolean run(GuildMessageReceivedEvent event, String... args) {
 		if(!super.run(event, args)) return false;
 		
 		if(args.length == 0) {
-			Respond.async(event, help());
+			Respond.async(event.getChannel(), help());
 			return false;
 		}
 		
@@ -66,25 +66,25 @@ public class Meme extends SecureCommand implements Configurable{
 			
 		}else if(meme.equals("add")) {
 			if(args.length<3) {
-				Respond.asyncf(event, "Invalid usage.%n%s", help());
+				Respond.asyncf(event.getChannel(), "Invalid usage.%n%s", help());
 				return false;
 			}
 			
 			memes.put(args[1], args[2]);
-			Respond.asyncf(event, "Meme `%s` added", args[1]);
+			Respond.asyncf(event.getChannel(), "Meme `%s` added", args[1]);
 		}else if(memes.containsKey(meme)){
 			event.getMessage().delete().complete();
 			String out = memes.get(meme);
-			Respond.async(event, out);
-		}else Respond.async(event, "Unknown Meme. Ask an admin to add it.");
+			Respond.async(event.getChannel(), out);
+		}else Respond.async(event.getChannel(), "Unknown Meme. Ask an admin to add it.");
 		
 		return true;
 	}
 	
-	private void respondPage(MessageReceivedEvent event, int page) {
+	private void respondPage(GuildMessageReceivedEvent event, int page) {
 		if(lastList != null)
 			lastList.delete().queue((msg) -> {}, (err) -> {});
-		lastList = Respond.sync(event, getPage(page));
+		lastList = Respond.sync(event.getChannel(), getPage(page));
 	}
 
 	private String getPage(int page) {
@@ -102,7 +102,7 @@ public class Meme extends SecureCommand implements Configurable{
 		return rsp.append("```").toString();
 	}
 	
-	@Override public boolean hasPermissions(MessageReceivedEvent event, String... args) {
+	@Override public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
 		if(args.length > 0 && "add".equals(args[0]))
 			return Permissions.getInstance().hasPermissionsFor(event.getMember(), "meme.add");
 		return Permissions.getInstance().hasPermissionsFor(event.getMember(), "meme");
