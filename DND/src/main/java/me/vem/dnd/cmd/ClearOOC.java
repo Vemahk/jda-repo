@@ -22,7 +22,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 public class ClearOOC extends Command implements Configurable{
 	
@@ -40,25 +40,28 @@ public class ClearOOC extends Command implements Configurable{
 	}
 	
 	@Override
-	public boolean run(MessageReceivedEvent event, String... args) {
+	public boolean run(GuildMessageReceivedEvent event, String... args) {
 		Set<Long> guildSet = allowedRooms.get(event.getGuild().getIdLong());
 		if(guildSet == null) allowedRooms.put(event.getGuild().getIdLong(), guildSet = new HashSet<>());
+		
+		TextChannel channel = event.getChannel();
+		Message userMsg = event.getMessage();
 		
 		int check = 50;
 		if(args.length > 0) {
 			if(args[0].equals("allow")) {
-				if(!guildSet.add(event.getTextChannel().getIdLong())) {
-					Respond.timeout(event, 5000, "Chatroom was already allowed to begin with.");
+				if(!guildSet.add(channel.getIdLong())) {
+					Respond.timeout(channel, userMsg, 5000, "Chatroom was already allowed to begin with.");
 					return false;
 				}
-				Respond.timeout(event, 5000, "Chatroom allowed");
+				Respond.timeout(channel, userMsg, 5000, "Chatroom allowed");
 				return true;
 			}else if(args[0].equals("disallow")) {
-				if(!guildSet.remove(event.getTextChannel().getIdLong())) {
-					Respond.timeout(event, 5000, "Could not remove room. Reason: already not allowed.");
+				if(!guildSet.remove(channel.getIdLong())) {
+					Respond.timeout(channel, userMsg, 5000, "Could not remove room. Reason: already not allowed.");
 					return false;
 				}
-				Respond.timeout(event, 5000, "Chatroom disallowed.");
+				Respond.timeout(channel, userMsg, 5000, "Chatroom disallowed.");
 				return true;
 			}else{
 				try {
@@ -67,15 +70,15 @@ public class ClearOOC extends Command implements Configurable{
 			}
 		}
 		
-		if(!guildSet.contains(event.getTextChannel().getIdLong())) {
-			Respond.timeout(event, 5000, "ClearOOC is not allowed in this chatroom. Ask an admin for details.");
+		if(!guildSet.contains(channel.getIdLong())) {
+			Respond.timeout(channel, userMsg, 5000, "ClearOOC is not allowed in this chatroom. Ask an admin for details.");
 			return false;
 		}
 		
-		Respond.timeout(event, 5000, "Checking past "+check+" messages for OOC...");
+		Respond.timeout(channel, userMsg, 5000, "Checking past "+check+" messages for OOC...");
 		
 		HashSet<Message> set = new HashSet<>();
-		for(Message x : event.getTextChannel().getHistory().retrievePast(check).complete())
+		for(Message x : channel.getHistory().retrievePast(check).complete())
 			if(x.getContentRaw().matches("^\\s*\\(.*\\)\\s*$")) // <3 regex
 				set.add(x);
 		
@@ -86,7 +89,7 @@ public class ClearOOC extends Command implements Configurable{
 		
 		
 		if(delSet.size() >= 2)
-			event.getTextChannel().deleteMessages(delSet).complete();
+			channel.deleteMessages(delSet).complete();
 		else if(!delSet.isEmpty())
 			for(Message m : delSet) m.delete().complete();
 		
@@ -94,7 +97,7 @@ public class ClearOOC extends Command implements Configurable{
 	}
 	
 	@Override
-	public boolean hasPermissions(MessageReceivedEvent event, String... args) {
+	public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
 		Member mem = event.getMember();
 		
 		if(args.length > 0 && ("allow".equals(args[0]) || "disallow".equals(args[0])))

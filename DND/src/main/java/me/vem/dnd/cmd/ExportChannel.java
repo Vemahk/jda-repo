@@ -15,7 +15,7 @@ import net.dv8tion.jda.core.entities.Category;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.Message.Attachment;
 import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 public class ExportChannel extends Command {
 
@@ -30,10 +30,10 @@ public class ExportChannel extends Command {
 	private SimpleDateFormat dateTimeFormatter = new SimpleDateFormat("dd-MM-yyyy HH-mm-ss");
 	private SimpleDateFormat dateFormatter = new SimpleDateFormat("MMMM dd, yyyy");
 	
-	public boolean run(MessageReceivedEvent event, String... args) {
+	public boolean run(GuildMessageReceivedEvent event, String... args) {
 		if(!super.run(event, args)) return false;
 		
-		Message response = Respond.sync(event, "Creating channel export ...");
+		Message response = Respond.sync(event.getChannel(), "Creating channel export ...");
 		long start = System.currentTimeMillis();
 		
 		if(args.length == 1 && "all".equals(args[0])) {
@@ -48,10 +48,10 @@ public class ExportChannel extends Command {
 				String catname = (parent == null) ? "global_category" : parent.getName();
 				export(channel, event.getGuild().getName() + '/' + catname + '/');
 			}
-		}else export(event.getTextChannel(), "channel_export/");
+		}else export(event.getChannel(), "channel_export/");
 		
 		response.editMessage("Export completed\nRuntime: " + (System.currentTimeMillis() - start) +"ms").queue();
-		Respond.deleteMessages(event.getTextChannel(), 5000, response, event.getMessage());
+		Respond.deleteMessages(event.getChannel(), 5000, response, event.getMessage());
 		
 		return true;
 	}
@@ -91,7 +91,7 @@ public class ExportChannel extends Command {
 	}
 	
 	@Override
-	public boolean hasPermissions(MessageReceivedEvent event, String... args) {
+	public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
 		return event.getMember().hasPermission(Permission.ADMINISTRATOR);
 	}
 	

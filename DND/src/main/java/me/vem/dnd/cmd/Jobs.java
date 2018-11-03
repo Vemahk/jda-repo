@@ -17,7 +17,9 @@ import me.vem.jdab.utils.ExtFileManager;
 import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.Respond;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 public class Jobs extends Command implements Configurable{
 	
@@ -35,18 +37,21 @@ public class Jobs extends Command implements Configurable{
 	}
 
 	@Override
-	public boolean run(MessageReceivedEvent event, String... args) {
+	public boolean run(GuildMessageReceivedEvent event, String... args) {
 		if(!super.run(event, args)) return false;
 		
+		TextChannel channel = event.getChannel();
+		Message userMsg = event.getMessage();
+		
 		if(args.length == 0) {
-			Respond.timeout(event, 10000, help());
+			Respond.timeout(channel, userMsg, 10000, help());
 			return true;
 		}
 		
 		String city = args[0];
 		if(city.equals("add")) {
 			if(args.length < 4) {
-				Respond.timeout(event, 5000, help());
+				Respond.timeout(channel, userMsg, 5000, help());
 				return false;
 			}
 			
@@ -59,12 +64,12 @@ public class Jobs extends Command implements Configurable{
 			Job j = new Job(trueCity, desc, key);
 			addJob(trueCity, j);
 			
-			Respond.timeout(event, 5000, "Job added to "+trueCity+"!");
+			Respond.timeout(channel, userMsg, 5000, "Job added to "+trueCity+"!");
 			
 		}else if(city.equals("remove")) {
 			
 			if(args.length < 3) {
-				Respond.timeout(event, 5000, help());
+				Respond.timeout(channel, userMsg, 5000, help());
 				return false;
 			}
 			
@@ -81,18 +86,18 @@ public class Jobs extends Command implements Configurable{
 					}
 				}
 				
-				if(target==null) Respond.timeout(event, 5000, "Job not found by key "+key);
+				if(target==null) Respond.timeout(channel, userMsg, 5000, "Job not found by key "+key);
 				else{
 					jobs.remove(target);
 					if(jobs.size() == 0) jobsDatabase.remove(trueCity);
-					Respond.timeout(event, 5000, "Job '"+key+"' removed!");
+					Respond.timeout(channel, userMsg, 5000, "Job '"+key+"' removed!");
 				}
-			}else Respond.timeout(event, 5000, "No such city.");
+			}else Respond.timeout(channel, userMsg, 5000, "No such city.");
 		
 		}else if(city.equals("cities")){
 			String rsp = "";
 			for(String s : jobsDatabase.keySet()) rsp+=s+"\n";
-			Respond.timeout(event, 10000, "Known Cities:\n"+rsp);
+			Respond.timeout(channel, userMsg, 10000, "Known Cities:\n"+rsp);
 		}else{
 			city = casify(city);
 			
@@ -101,27 +106,27 @@ public class Jobs extends Command implements Configurable{
 					if(jobsDatabase.containsKey(city)) {
 						String rsp = "";
 						for(Job j : jobsDatabase.get(city)) rsp += j.getKey()+"\n";
-						Respond.timeout(event, 10000, city+" Job Keys: \n"+rsp);
+						Respond.timeout(channel, userMsg, 10000, city+" Job Keys: \n"+rsp);
 						return true;
 					}else{
-						Respond.timeout(event, 5000, "No such city.");
+						Respond.timeout(channel, userMsg, 5000, "No such city.");
 						return true;
 					}
 				}else{
-					Respond.timeout(event, 5000, "Only the GM can get the keys of the jobs.");
+					Respond.timeout(channel, userMsg, 5000, "Only the GM can get the keys of the jobs.");
 					return false;
 				}
 			
 			if(jobsDatabase.containsKey(city)) {
 				String rsp = "";
 				for(Job j : jobsDatabase.get(city)) rsp += j.getDesc() + "\n\n";
-				Respond.timeout(event, 60000, "Jobs at "+city+":\n"+rsp+"(Note: This message will be removed in 1 minute)");
-			}else Respond.timeout(event, 5000, city + " does not appear to have any job listings at this moment. Try again later when the GM isn't a lazy bum.");
+				Respond.timeout(channel, userMsg, 60000, "Jobs at "+city+":\n"+rsp+"(Note: This message will be removed in 1 minute)");
+			}else Respond.timeout(channel, userMsg, 5000, city + " does not appear to have any job listings at this moment. Try again later when the GM isn't a lazy bum.");
 		}
 		return true;
 	}
 
-	@Override public boolean hasPermissions(MessageReceivedEvent event, String... args) {
+	@Override public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
 		if(args.length > 0 && ("add".equals(args[0]) || "remove".equals(args[0])))
 			return event.getMember().hasPermission(Permission.ADMINISTRATOR);
 		return true;

@@ -16,7 +16,8 @@ import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.Respond;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 public class Meme extends Command implements Configurable{
 
@@ -35,11 +36,14 @@ public class Meme extends Command implements Configurable{
 	}
 	
 	@Override
-	public boolean run(MessageReceivedEvent event, String... args) {
+	public boolean run(GuildMessageReceivedEvent event, String... args) {
 		if(!super.run(event, args)) return false;
 		
+		TextChannel channel = event.getChannel();
+		Message userMsg = event.getMessage();
+		
 		if(args.length == 0) {
-			Respond.timeout(event, 5000, help());
+			Respond.timeout(channel, userMsg, 5000, help());
 			return false;
 		}
 		
@@ -63,24 +67,24 @@ public class Meme extends Command implements Configurable{
 			
 		}else if(meme.equals("add")) {
 			if(args.length<3) {
-				Respond.timeoutf(event, 5000, "Invalid usage.%n%s", help());
+				Respond.timeoutf(channel, userMsg, 5000, "Invalid usage.%n%s", help());
 				return false;
 			}
 			
 			memes.put(args[1], args[2]);
-			Respond.timeout(event, 5000, "Meme added. OuO");
+			Respond.timeout(channel, userMsg, 5000, "Meme added. OuO");
 		}else if(memes.containsKey(meme)){
 			event.getMessage().delete().complete();
 			String out = memes.get(meme);
-			if(ClearOOC.getInstance().roomEnabled(event.getGuild(), event.getTextChannel())) out = "("+out+")";
-			Respond.async(event, out);
-		}else Respond.timeout(event, 5000, "Unknown Meme. Ask an admin to add it.");
+			if(ClearOOC.getInstance().roomEnabled(event.getGuild(), event.getChannel())) out = "("+out+")";
+			Respond.async(channel, out);
+		}else Respond.timeout(channel, userMsg, 5000, "Unknown Meme. Ask an admin to add it.");
 		
 		return true;
 	}
 	
-	private void respondPage(MessageReceivedEvent event, int page) {
-		lastList = Respond.sync(event, getPage(page));
+	private void respondPage(GuildMessageReceivedEvent event, int page) {
+		lastList = Respond.sync(event.getChannel(), getPage(page));
 	}
 
 	private String getPage(int page) {
@@ -98,7 +102,7 @@ public class Meme extends Command implements Configurable{
 		return rsp.append("```").toString();
 	}
 	
-	@Override public boolean hasPermissions(MessageReceivedEvent event, String... args) {
+	@Override public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
 		if(args.length > 0 && "add".equals(args[0]))
 			return event.getMember().hasPermission(Permission.ADMINISTRATOR);
 		return true;
