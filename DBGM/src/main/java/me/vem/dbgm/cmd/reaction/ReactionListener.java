@@ -35,7 +35,14 @@ public class ReactionListener implements EventListener, Configurable{
 	 */
 	private Map<Long, Map<String, String>> database;
 	
-	private ReactionListener() { load(); }
+	private ReactionListener() {
+		load();
+		
+		//Reaction commands are initialized here because ReactionListener and them all work together.
+		AddCustomReaction.initialize();
+		DeleteCustomReaction.initialize();
+		ListCustomReactions.initialize();
+	}
 	
 	@Override public void onEvent(Event event) {
 		if (event instanceof GuildMessageReceivedEvent)
