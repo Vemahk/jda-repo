@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import me.vem.jdab.utils.Respond;
-import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class AntiPurge extends SecureCommand{

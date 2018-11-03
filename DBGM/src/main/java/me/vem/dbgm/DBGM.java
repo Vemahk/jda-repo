@@ -7,6 +7,7 @@ import me.vem.dbgm.cmd.ForceSave;
 import me.vem.dbgm.cmd.Meme;
 import me.vem.dbgm.cmd.Permissions;
 import me.vem.dbgm.cmd.Purge;
+import me.vem.dbgm.cmd.RoleOpt;
 import me.vem.dbgm.cmd.reaction.AddCustomReaction;
 import me.vem.dbgm.cmd.reaction.DeleteCustomReaction;
 import me.vem.dbgm.cmd.reaction.ListCustomReactions;
@@ -33,6 +34,7 @@ public class DBGM {
 		Permissions.initialize();
 		Purge.initialize();
 		AntiPurge.initialize();
+		RoleOpt.initialize();
 		Meme.initialize();
 		ExportChannel.initialize();
 		ForceSave.initialize();
