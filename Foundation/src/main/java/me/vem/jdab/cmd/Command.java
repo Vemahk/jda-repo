@@ -74,6 +74,8 @@ public abstract class Command {
 	 * The super implementation of this method only checks permissions. Override this method in all implementing classes.
 	 * @param event
 	 * @param args
+	 * @return Generally is meant to return whether the program did what the user intended it to do.<br>
+	 * For example: if the user calls the command correctly but lacks permissions, then it fails to do what the user intented, so it would return false.
 	 */
 	public boolean run(MessageReceivedEvent event, String... args) {
 		if(!hasPermissions(event, args)) {
@@ -87,6 +89,7 @@ public abstract class Command {
 	/**
 	 * Tells the bot to respond in the channel given in the event with the help for this command.
 	 * @param event
+	 * @return true, always. So you can return this statement in the run() method.
 	 */
 	public boolean getHelp(MessageReceivedEvent event) {
 		Respond.async(event, this.help());
