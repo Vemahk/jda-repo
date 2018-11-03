@@ -3,6 +3,9 @@ package me.vem.jdab;
 import java.util.Arrays;
 import java.util.LinkedList;
 
+import org.w3c.dom.events.Event;
+import org.w3c.dom.events.EventListener;
+
 import me.vem.jdab.cmd.Command;
 import me.vem.jdab.cmd.Help;
 import me.vem.jdab.cmd.Prefix;
@@ -11,10 +14,9 @@ import me.vem.jdab.utils.Respond;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
-public class MessageListener extends ListenerAdapter{
+public class MessageListener implements EventListener{
 
 	// I <3 Singletons
 	private static MessageListener instance;
@@ -27,7 +29,12 @@ public class MessageListener extends ListenerAdapter{
 	private MessageListener() {}
 	
 	@Override
-	public void onMessageReceived(MessageReceivedEvent event) {
+	public void handleEvent(Event e) {
+		if(e instanceof GuildMessageReceivedEvent)
+			onMessageReceived((GuildMessageReceivedEvent)e);
+	}
+	
+	public void onMessageReceived(GuildMessageReceivedEvent event) {
 		Message msg = event.getMessage();
 		User self = event.getJDA().getSelfUser();
 		if(msg.getAuthor().getIdLong() == self.getIdLong())
@@ -51,7 +58,7 @@ public class MessageListener extends ListenerAdapter{
 			
 			Command cmd = Command.getCommand(cmdname);
 			if(cmd == null) {
-				Respond.asyncf(event, "Command `%s` not recognized.", cmdname);
+				Respond.asyncf(event.getChannel(), "Command `%s` not recognized.", cmdname);
 			}else{
 				String[] args = parseArgs(guild, rawContent);
 				Logger.debugf("%s attempted to call %s with arguments %s.", event.getAuthor().getName(), cmdname, Arrays.toString(args));

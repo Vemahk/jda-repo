@@ -5,7 +5,8 @@ import java.util.List;
 
 import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.Respond;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 public abstract class Command {
 
@@ -59,7 +60,7 @@ public abstract class Command {
 		addCommand(this);
 	}
 	
-	public abstract boolean hasPermissions(MessageReceivedEvent event, String... args);
+	public abstract boolean hasPermissions(GuildMessageReceivedEvent event, String... args);
 	protected abstract String help();
 	
 	/**
@@ -77,9 +78,9 @@ public abstract class Command {
 	 * @return Generally is meant to return whether the program did what the user intended it to do.<br>
 	 * For example: if the user calls the command correctly but lacks permissions, then it fails to do what the user intented, so it would return false.
 	 */
-	public boolean run(MessageReceivedEvent event, String... args) {
+	public boolean run(GuildMessageReceivedEvent event, String... args) {
 		if(!hasPermissions(event, args)) {
-			Respond.async(event, "You do not have the permissions to run this command.");
+			Respond.async(event.getChannel(), "You do not have the permissions to run this command.");
 			return false;
 		}
 		
@@ -91,8 +92,8 @@ public abstract class Command {
 	 * @param event
 	 * @return true, always. So you can return this statement in the run() method.
 	 */
-	public boolean getHelp(MessageReceivedEvent event) {
-		Respond.async(event, this.help());
+	public boolean getHelp(TextChannel channel) {
+		Respond.async(channel, this.help());
 		return true;
 	}
 	

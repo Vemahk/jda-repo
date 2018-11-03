@@ -13,7 +13,7 @@ import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.Respond;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 public class Prefix extends Command implements Configurable{
 	
@@ -42,27 +42,27 @@ public class Prefix extends Command implements Configurable{
 	}
 
 	@Override
-	public boolean run(MessageReceivedEvent event, String... args) {
+	public boolean run(GuildMessageReceivedEvent event, String... args) {
 		if(!super.run(event, args)) return false;
 		
 		if(args.length > 1) {
-			super.getHelp(event);
+			super.getHelp(event.getChannel());
 			return true;
 		}
 		
 		if(args.length == 0) {
-			Respond.asyncf(event, "Guild's Current Prefix: `%s`", getPrefix(event.getGuild()));
+			Respond.asyncf(event.getChannel(), "Guild's Current Prefix: `%s`", getPrefix(event.getGuild()));
 			return true;
 		}
 		
 		for(char c : args[0].toCharArray())
 			if(Character.isWhitespace(c)) {
-				Respond.async(event, "Prefix cannot contain whitespace");
+				Respond.async(event.getChannel(), "Prefix cannot contain whitespace");
 				return false;
 			}
 		
 		setPrefix(event.getGuild(), args[0]);
-		Respond.asyncf(event, "Guild's prefix set to `%s`", args[0]);
+		Respond.asyncf(event.getChannel(), "Guild's prefix set to `%s`", args[0]);
 		
 		return true;
 	}
@@ -78,7 +78,7 @@ public class Prefix extends Command implements Configurable{
 	}
 	
 	@Override
-	public boolean hasPermissions(MessageReceivedEvent event, String... args) {
+	public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
 		return event.getMember().hasPermission(Permission.ADMINISTRATOR);
 	}
 

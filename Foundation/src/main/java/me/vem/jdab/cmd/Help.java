@@ -1,7 +1,7 @@
 package me.vem.jdab.cmd;
 
 import me.vem.jdab.utils.Respond;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 public class Help extends Command{
 
@@ -15,21 +15,21 @@ public class Help extends Command{
 	private Help() { super("help"); }
 
 	@Override
-	public boolean run(MessageReceivedEvent event, String... args) {
+	public boolean run(GuildMessageReceivedEvent event, String... args) {
 		if(!super.run(event, args)) return false;
 		
 		if(args.length == 0) {
 			//WHAT'S THIS?! CALLBACK HELL?!
 			event.getAuthor().openPrivateChannel().queue(
 				(channel) -> channel.sendMessage(getFormattedCommandList()).queue(
-					(msg) -> Respond.timeout(event, 5000, "Sent you a pm with the help menu")),
-				(error) -> Respond.async(event, getFormattedCommandList()));
+					(msg) -> Respond.timeout(event.getChannel(), event.getMessage(), 5000, "Sent you a pm with the help menu")),
+				(error) -> Respond.async(event.getChannel(), getFormattedCommandList()));
 			return true;
 		}
 		
 		Command cmd = Command.getCommand(args[0]);
-		if(cmd != null) cmd.getHelp(event);
-		else Respond.async(event, "Command not recognized.\n" + getFormattedCommandList());
+		if(cmd != null) cmd.getHelp(event.getChannel());
+		else Respond.async(event.getChannel(), "Command not recognized.\n" + getFormattedCommandList());
 		
 		return true;
 	}
@@ -42,7 +42,7 @@ public class Help extends Command{
 	}
 
 	@Override
-	public boolean hasPermissions(MessageReceivedEvent event, String... args) {
+	public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
 		return true; //Everyone can use this command.
 	}
 	

@@ -6,7 +6,6 @@ import java.util.TimerTask;
 
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class Respond {
 
@@ -33,16 +32,6 @@ public class Respond {
 	}
 	
 	/**
-	 * Synchornous bot response.
-	 * @param event
-	 * @param msg
-	 * @return the message object retrieved.
-	 */
-	public static Message sync(MessageReceivedEvent event, String msg) {
-		return sync(event.getTextChannel(), msg);
-	}
-	
-	/**
 	 * Synchronous bot response with printf formatting.
 	 * @param channel
 	 * @param format
@@ -51,17 +40,6 @@ public class Respond {
 	 */
 	public static Message syncf(TextChannel channel, String format, Object... args) {
 		return sync(channel, String.format(format, args));
-	}
-	
-	/**
-	 * Synchronous bot response with printf formatting.
-	 * @param event
-	 * @param format
-	 * @param args
-	 * @return the message object retrieved.
-	 */
-	public static Message syncf(MessageReceivedEvent event, String format, Object... args) {
-		return syncf(event.getTextChannel(), format, args);
 	}
 	
 	/**
@@ -74,15 +52,6 @@ public class Respond {
 	}
 	
 	/**
-	 * Asynchronous response.
-	 * @param event
-	 * @param msg
-	 */
-	public static void async(MessageReceivedEvent event, String msg) {
-		async(event.getTextChannel(), msg);
-	}
-	
-	/**
 	 * Asynchronous, formatted response. Uses printf formatting.
 	 * @param channel
 	 * @param format
@@ -90,28 +59,6 @@ public class Respond {
 	 */
 	public static void asyncf(TextChannel channel, String format, Object... args) {
 		async(channel, String.format(format, args));
-	}
-	
-	/**
-	 * Asynchronous, formatted response. Uses printf formatting.
-	 * @param event
-	 * @param format
-	 * @param args
-	 */
-	public static void asyncf(MessageReceivedEvent event, String format, Object... args) {
-		asyncf(event.getTextChannel(), format, args);
-	}
-	
-	/**
-	 * Synchronous response. Deletes the bot's message *AND* the user's command call.
-	 * @param event
-	 * @param delay Time to delay in milliseconds.
-	 * @param msg
-	 */
-	public static void timeout(MessageReceivedEvent event, long delay, String msg) {
-		Message m = sync(event, msg);
-		if(delay > 0)
-			deleteMessages(event.getTextChannel(), delay, m, event.getMessage());
 	}
 	
 	/**
@@ -126,14 +73,16 @@ public class Respond {
 	}
 	
 	/**
-	 * Synchronous response using printf formatting. Deletes the bot's message *AND* the user's command call.
-	 * @param event
-	 * @param delay Time to delay in milliseconds.
-	 * @param format
-	 * @param args
+	 * Synchronous response. Deletes the bot's message and the passed {@code userMsg} after {@code delay} milliseconds.
+	 * @param channel The text channel to respond within.
+	 * @param userMsg The user's message to delete
+	 * @param delay The delay, in milliseconds, the bot should wait before deleting the messages.
+	 * @param msg The text the bot should respond with.
 	 */
-	public static void timeoutf(MessageReceivedEvent event, long delay, String format, Object... args) {
-		timeout(event, delay, String.format(format, args));
+	public static void timeout(TextChannel channel, Message userMsg, long delay, String msg) {
+		Message m = sync(channel, msg);
+		if(delay > 0)
+			deleteMessages(channel, delay, m, userMsg);
 	}
 	
 	/**
@@ -145,6 +94,18 @@ public class Respond {
 	 */
 	public static void timeoutf(TextChannel channel, long delay, String format, Object... args) {
 		timeout(channel, delay, String.format(format, args));
+	}
+	
+	/**
+	 * Synchronous response with printf formatting. Deletes the bot's message and the passed {@code userMsg} after {@code delay} milliseconds.
+	 * @param channel The text channel to respond within.
+	 * @param userMsg The user's message to delete
+	 * @param delay The delay, in milliseconds, the bot should wait before deleting the messages.
+	 * @param format The printf format to display.
+	 * @param args The objects to fill the printf formatting.
+	 */
+	public static void timeoutf(TextChannel channel, Message userMsg, long delay, String format, Object... args) {
+		timeout(channel, userMsg, delay, String.format(format, args));
 	}
 	
 	private static class Task extends TimerTask {
