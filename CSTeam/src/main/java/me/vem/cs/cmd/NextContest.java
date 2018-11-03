@@ -4,7 +4,7 @@ import java.util.Calendar;
 
 import me.vem.jdab.cmd.Command;
 import me.vem.jdab.utils.Respond;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 /**
  * Prints out the next contest, determined by date, and its information.
@@ -22,19 +22,19 @@ public class NextContest extends Command{
 	private NextContest() { super("nextcontest"); }
 
 	@Override
-	public boolean run(MessageReceivedEvent event, String... args) {
+	public boolean run(GuildMessageReceivedEvent event, String... args) {
 		if(!super.run(event, args)) return false;
 		
 		if(Contests.getInstance().getNumberOfContests() == 0) {
-			Respond.async(event, "There are no contests listed currently... That doesn't sound quite right.");
+			Respond.async(event.getChannel(), "There are no contests listed currently... That doesn't sound quite right.");
 			return true;
 		}
 		
 		Contest nextContest = getNextContest();
 		
 		if(nextContest != null)
-			Respond.async(event, "Next contest:\n"+nextContest.formatOut());
-		else Respond.async(event, "There is no contest listed for after today. Try again later?");
+			Respond.async(event.getChannel(), "Next contest:\n"+nextContest.formatOut());
+		else Respond.async(event.getChannel(), "There is no contest listed for after today. Try again later?");
 		
 		return true;
 	}
@@ -53,7 +53,7 @@ public class NextContest extends Command{
 	}
 
 	@Override
-	public boolean hasPermissions(MessageReceivedEvent event, String... args) {
+	public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
 		return true; //Everyone can use this.
 	}
 

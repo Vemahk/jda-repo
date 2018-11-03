@@ -12,10 +12,11 @@ import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.Respond;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import net.dv8tion.jda.core.events.Event;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.core.hooks.EventListener;
 
-public class FilteredMessageListener extends ListenerAdapter{
+public class FilteredMessageListener implements EventListener{
 
 	private static FilteredMessageListener instance;
 	public static FilteredMessageListener getInstance() {
@@ -29,7 +30,12 @@ public class FilteredMessageListener extends ListenerAdapter{
 	}
 	
 	@Override
-	public void onMessageReceived(MessageReceivedEvent event) {
+	public void onEvent(Event event) {
+		if(event instanceof GuildMessageReceivedEvent)
+			onMessageReceived((GuildMessageReceivedEvent) event);
+	}
+	
+	public void onMessageReceived(GuildMessageReceivedEvent event) {
 		Message msg = event.getMessage();
 		User self = event.getJDA().getSelfUser();
 		if(msg.getAuthor().getIdLong() == self.getIdLong())
@@ -42,7 +48,7 @@ public class FilteredMessageListener extends ListenerAdapter{
 		for(String badword : screenedWords)
 			if(tlc.matches("^.*\\W"+badword+"\\W.*$") || tlc.matches("^"+badword+"$") || tlc.matches("^"+badword+"\\W.*$") || tlc.matches("^.*\\W"+badword+"$")) {
 				event.getMessage().delete().complete();
-				Respond.async(event, "https://i.imgur.com/Q5jVVPw.png");
+				Respond.async(event.getChannel(), "https://i.imgur.com/Q5jVVPw.png");
 				notifyBadword(event, badword);
 				break;
 			}
@@ -53,7 +59,7 @@ public class FilteredMessageListener extends ListenerAdapter{
 	 * @param badword
 	 * @param event
 	 */
-	private void notifyBadword(MessageReceivedEvent event, String badword) {
+	private void notifyBadword(GuildMessageReceivedEvent event, String badword) {
 		SwearLog.getInstance().notifyAdmins(badword, event);
 	}
 	

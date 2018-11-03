@@ -14,7 +14,7 @@ import me.vem.jdab.cmd.Configurable;
 import me.vem.jdab.utils.ExtFileManager;
 import me.vem.jdab.utils.Respond;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 /**
  * This command allows for the creation/editing of contests. Removing is currently not a functionality.
@@ -40,13 +40,12 @@ public class Contests extends Command implements Configurable{
 	}
 	
 	@Override
-	public boolean run(MessageReceivedEvent event, String... args) {
+	public boolean run(GuildMessageReceivedEvent event, String... args) {
 		if(!super.run(event, args)) return false;
 		
-		if(args.length == 0) {
-			getHelp(event);
-			return true;
-		} else if(args.length==1) {
+		if(args.length == 0) 
+			return getHelp(event.getChannel());
+		else if(args.length==1) {
 			//The real help menu.
 			String vars = "\n```- date [required]\n"
 					+ "- name [required]\n"
@@ -55,10 +54,10 @@ public class Contests extends Command implements Configurable{
 					+ "- location\n"
 					+ "- locationAddress```\n";
 			if(args[0].equals("add"))
-				Respond.async(event, "Recognized variables:" + vars
+				Respond.async(event.getChannel(), "Recognized variables:" + vars
 									  + "Example: contests add date=\\`Oct 14, 2017\\` name=\\`ffb\\` expectedLeaveTime=\\`7:30AM\\` expectedReturnTime=\\`1:00PM\\` location=\\`Frisco Libery High School\\` locationAddress=\\`15250 Rolater Rd, Frisco, TX 75035\\`");
 			else if(args[0].equals("edit"))
-				Respond.async(event, "List of all known contests:\n"+getNameList()	
+				Respond.async(event.getChannel(), "List of all known contests:\n"+getNameList()	
 										+"\nRecognized variables:\n"+vars);
 			return true;
 		}
@@ -68,7 +67,7 @@ public class Contests extends Command implements Configurable{
 			String date = getVar(args, "date");
 			
 			if(name == null || date == null) {
-				Respond.async(event, "Missing required fields: 'date' and/or 'name'.");
+				Respond.async(event.getChannel(), "Missing required fields: 'date' and/or 'name'.");
 				return false;
 			}
 			
@@ -82,7 +81,7 @@ public class Contests extends Command implements Configurable{
 			
 			Contest c = getContestFromString(cName);
 			if(c == null) {
-				Respond.async(event, "Unknown contest, '"+cName+"'. List of all known contests:\n"+getNameList());
+				Respond.async(event.getChannel(), "Unknown contest, '"+cName+"'. List of all known contests:\n"+getNameList());
 				return false;
 			}
 			
@@ -96,7 +95,7 @@ public class Contests extends Command implements Configurable{
 			contests.remove(c);
 			contests.add(c);
 			
-			Respond.async(event, "Changes made:\n"+c.formatOut());
+			Respond.async(event.getChannel(), "Changes made:\n"+c.formatOut());
 		}
 		
 		return true;
@@ -136,7 +135,7 @@ public class Contests extends Command implements Configurable{
 	}
 
 	@Override
-	public boolean hasPermissions(MessageReceivedEvent event, String... args) {
+	public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
 		return event.getMember().hasPermission(Permission.ADMINISTRATOR);
 	}
 

@@ -14,10 +14,7 @@ import me.vem.jdab.utils.ExtFileManager;
 import me.vem.jdab.utils.Respond;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.MessageChannel;
-import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.entities.impl.UserImpl;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 public class SwearLog extends Command implements Configurable{
 
@@ -36,11 +33,11 @@ public class SwearLog extends Command implements Configurable{
 	}
 	
 	@Override
-	public boolean run(MessageReceivedEvent event, String... args) {
+	public boolean run(GuildMessageReceivedEvent event, String... args) {
 		if(!super.run(event, args)) return false;
 		
 		if(args.length==0) {//No arguments
-			getHelp(event);
+			getHelp(event.getChannel());
 			return true;
 		}else if(args.length == 1) { //1 argument
 			if(args[0].equals("add")) //Add self
@@ -48,22 +45,19 @@ public class SwearLog extends Command implements Configurable{
 			else if(args[0].equals("remove"))
 				removeMember(event, event.getMember());
 		}else if(args.length != 2){//>2 arguments; invalid
-			getHelp(event);
-			return true;
+			return getHelp(event.getChannel());
 		}else {//2 Arguments
 			boolean isAdd = "add".equals(args[0]);
 			boolean isRem = "remove".equals(args[0]);
-			if(!(isAdd || isRem)) {
-				getHelp(event);
-				return false;
-			}
+			if(!(isAdd || isRem))
+				return getHelp(event.getChannel());
 			
 			List<Member> mentions = event.getMessage().getMentionedMembers();
 			if(mentions.size() == 0) { //No mentions
-				Respond.async(event, "Second argument must be a mention.");
+				Respond.async(event.getChannel(), "Second argument must be a mention.");
 				return false;
 			}else if(mentions.size() > 1) {// Multiple mentions
-				Respond.async(event, "Cannot interpret multiple mentions. Please only mention 1 user.");
+				Respond.async(event.getChannel(), "Cannot interpret multiple mentions. Please only mention 1 user.");
 				return false;
 			}
 			
@@ -74,16 +68,16 @@ public class SwearLog extends Command implements Configurable{
 		return true;
 	}
 	
-	private void addMember(MessageReceivedEvent event, Member m) {
+	private void addMember(GuildMessageReceivedEvent event, Member m) {
 		if(userDatabase.add(m.getUser().getIdLong()))
-			Respond.asyncf(event, "Added `%s` to the list of swear notifications.", m.getNickname());
-		else Respond.asyncf(event, "`%s` already is a receiver of swear notifications.", m.getNickname());
+			Respond.asyncf(event.getChannel(), "Added `%s` to the list of swear notifications.", m.getNickname());
+		else Respond.asyncf(event.getChannel(), "`%s` already is a receiver of swear notifications.", m.getNickname());
 	}
 	
-	private void removeMember(MessageReceivedEvent event, Member m) {
+	private void removeMember(GuildMessageReceivedEvent event, Member m) {
 		if(userDatabase.remove(m.getUser().getIdLong()))
-			Respond.asyncf(event, "Remove `%s` from the list of swear notifications.", m.getNickname());
-		else Respond.asyncf(event, "`%s` was not found to be a receiver of swear notifications.", m.getNickname());
+			Respond.asyncf(event.getChannel(), "Remove `%s` from the list of swear notifications.", m.getNickname());
+		else Respond.asyncf(event.getChannel(), "`%s` was not found to be a receiver of swear notifications.", m.getNickname());
 	}
 	
 	/**
@@ -91,19 +85,15 @@ public class SwearLog extends Command implements Configurable{
 	 * @param badword
 	 * @param event
 	 */
-	public void notifyAdmins(String badword, MessageReceivedEvent event) {
-		for(long l : userDatabase) {
-			User u = event.getJDA().getUserById(l);
-			if(!u.hasPrivateChannel()) u.openPrivateChannel().complete();
-			MessageChannel mc = ((UserImpl)u).getPrivateChannel();
-			
-			mc.sendMessage(String.format("`%s` said the badword `%s`!",
-					event.getMember().getNickname(), badword)).queue();
-		}
+	public void notifyAdmins(String badword, GuildMessageReceivedEvent event) {
+		for(long l : userDatabase)
+			event.getJDA().getUserById(l).openPrivateChannel().queue(
+				channel -> channel.sendMessage(String.format("`%s` said the badword `%s`!", event.getMember().getNickname(), badword)).queue()
+			);
 	}
 	
 	@Override
-	public boolean hasPermissions(MessageReceivedEvent event, String... args) {
+	public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
 		return event.getMember().hasPermission(Permission.ADMINISTRATOR);
 	}
 
