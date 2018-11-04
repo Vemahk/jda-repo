@@ -16,12 +16,13 @@ public class SortedLinkedSet<T extends Comparable<T>> implements Set<T>{
 		Node<T> cur = head;
 		
 		int lastComp = 0;
-		while(cur != null && (lastComp = element.compareTo(cur.getData())) < 0)
+		while(cur != null && (lastComp = element.compareTo(cur.getData())) > 0)
 			cur = cur.getNext();
+		
 		
 		if(lastComp == 0 && cur != null)
 			return false;
-
+		
 		Node<T> node = new Node<>(element);
 		if(cur == null) { //Then push_back
 			if(head == null)
@@ -33,9 +34,10 @@ public class SortedLinkedSet<T extends Comparable<T>> implements Set<T>{
 			
 			tail = node;
 		} else { //Then add before
-			if(cur.hasPrev())
+			if(cur.hasPrev()) {
 				node.setPrev(cur.getPrev());
-			else head = node;
+				cur.getPrev().setNext(node);
+			}else head = node;
 			
 			node.setNext(cur);
 			cur.setPrev(node);
@@ -85,9 +87,9 @@ public class SortedLinkedSet<T extends Comparable<T>> implements Set<T>{
 			}
 
 			@Override public T next() {
-				Node<T> out = next;
+				T out = next.getData();
 				next = next.getNext();
-				return out.getData();
+				return out;
 			}
 		};
 	}
@@ -147,6 +149,18 @@ public class SortedLinkedSet<T extends Comparable<T>> implements Set<T>{
 			a[i++] = (Type) data;
 		
 		return a;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder out = new StringBuilder("[");
+		Iterator<T> iter = this.iterator();
+		while(iter.hasNext()) {
+			out.append(iter.next().toString());
+			if(iter.hasNext())
+				out.append(", ");
+		}
+		return out.append(']').toString();
 	}
 }
 
