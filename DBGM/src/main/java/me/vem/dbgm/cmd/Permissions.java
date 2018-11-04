@@ -37,9 +37,9 @@ public class Permissions extends Command implements Configurable{
 	
 	/**
 	 * Long: the id of the guild.
-	 * PermissionData: the the storage of all the roles.
+	 * Data: the the storage of all the roles.
 	 */
-	private HashMap<Long, Data> database;
+	private Map<Long, Data> database;
 	
 	@Override
 	public boolean run(GuildMessageReceivedEvent event, String... args) {
