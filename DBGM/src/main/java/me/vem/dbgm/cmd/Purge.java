@@ -1,14 +1,12 @@
 package me.vem.dbgm.cmd;
 
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import org.jetbrains.annotations.NotNull;
 
-import me.vem.jdab.utils.Logger;
+import me.vem.jdab.struct.SelfPurgeList;
 import me.vem.jdab.utils.Utilities;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
@@ -39,8 +37,6 @@ public class Purge extends SecureCommand{
 		//Try the last arg for a valid number	
 		try { n = Integer.parseInt(args[args.length-1]); } catch(NumberFormatException e) {}
 		
-		Logger.debugf("Deleting the past %d messages...", n);
-		
 		//Try the last two args for a user mention.
 		Member mem = Utilities.getMemberFromMention(event.getGuild(), args[args.length-1]);
 		if(mem == null && args.length >= 2)
@@ -65,7 +61,7 @@ public class Purge extends SecureCommand{
 	}
 	
 	private void purge(TextChannel channel, int lastn, @NotNull String regex, Member... members) {
-		SelfPurgeList rem = new SelfPurgeList(channel);
+		SelfAPPurgeList rem = new SelfAPPurgeList(channel);
 		
 		Pattern pattern = regex.isEmpty() ? null : Pattern.compile(regex);
 		for(Message msg : channel.getIterableHistory().cache(false)) {
@@ -111,22 +107,12 @@ public class Purge extends SecureCommand{
 	}
 }
 
-class SelfPurgeList implements Collection<Message>, Iterable<Message>{
-
-	private Message[] list;
-	private int len;
+class SelfAPPurgeList extends SelfPurgeList{
 	
-	private TextChannel linkedChannel;
-	
-	public SelfPurgeList(TextChannel tc){
-		list = new Message[100];
-		len = 0;
-		linkedChannel = tc;
-	}
+	public SelfAPPurgeList(TextChannel tc) { super(tc); }
 
-	private static final int msptw = 1000 * 60 * 60 * 24 * 7 * 2; //msptw -> milliseconds per two weeks.
-	@Override public boolean add(Message msg) {
-		
+	@Override
+	public boolean add(Message msg) {
 		/********************************************************************************\
 		|* AntiPurge -- Hardcoded.														*|
 		|* These messages cannot be purged, no matter what. Note that only messages		*|
@@ -135,104 +121,9 @@ class SelfPurgeList implements Collection<Message>, Iterable<Message>{
 		|* message if the command is called by a allowable user. See the AntiPurge		*|
 		|* command for more details. 													*|
 		\********************************************************************************/
-		if(msg.getContentDisplay().startsWith("[AntiPurge]") && msg.getAuthor().getIdLong() == msg.getJDA().getSelfUser().getIdLong())
+		if(msg.getAuthor().equals(msg.getJDA().getSelfUser()) && msg.getContentDisplay().startsWith("[AntiPurge]"))
 			return false;
 		
-		//This chunk is essentially to prevent deleting messages older than two weeks.
-		long dt = System.currentTimeMillis() - msg.getCreationTime().toEpochSecond() * 1000;
-		if(dt - msptw >= -1000)
-			return false;
-		
-		if(len >= 100)
-			clear();
-		list[len++] = msg;
-		return true;
+		return super.add(msg);
 	}
-
-	@Override
-	public boolean addAll(Collection<? extends Message> c) {
-		for(Message m : c)
-			add(m);
-		return true;
-	}
-
-	@Override
-	public void clear() {
-		if(len > 1)
-			linkedChannel.deleteMessages(this).queue();
-		if(len == 1)
-			linkedChannel.deleteMessageById(list[0].getIdLong()).queue();
-		else {
-			len = 0;
-			return;
-		}
-		
-		for(int i=0;i<len;i++)
-			list[i] = null;
-		len = 0;
-	}
-
-	@Override
-	public boolean contains(Object o) {
-		if(!(o instanceof Message))
-			return false;
-		
-		for(int i=0;i<len;i++)
-			if(list[i] == o)
-				return true;
-		return false;
-	}
-
-	@Override
-	public boolean containsAll(Collection<?> c) {
-		for(Object m : c)
-			if(!contains(m))
-				return false;
-		return true;
-	}
-
-	@Override
-	public boolean isEmpty() { return len == 0; }
-
-	@Override
-	public Iterator<Message> iterator() {
-		Iterator<Message> out = new Iterator<Message>() {
-			private int next = 0;
-			@Override
-			public boolean hasNext() { return next < len; }
-			@Override
-			public Message next() { return list[next++]; }
-		};
-		return out;
-	}
-
-	/**
-	 * Unwritten as this is a purge list. Anything added is meant to be destroyed.
-	 */
-	@Override
-	public boolean remove(Object o) { return false; }
-
-	/**
-	 * Unwritten as this is a purge list. Anything added is meant to be destroyed.
-	 */
-	@Override
-	public boolean removeAll(Collection<?> c) { return false; }
-
-	/**
-	 * Unwritten as this is a purge list. Anything added is meant to be destroyed.
-	 */
-	@Override
-	public boolean retainAll(Collection<?> c) { return false; }
-
-	@Override
-	public int size() { return len; }
-
-	@Override
-	public Object[] toArray() { return list; } 
-
-	/**
-	 * Left empty due to this list not being a generic list.
-	 */
-	@Override
-	public <T> T[] toArray(T[] a) { return null; }
 }

@@ -2,9 +2,9 @@ package me.vem.jdab;
 
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.Queue;
 
 import me.vem.jdab.cmd.Command;
-import me.vem.jdab.cmd.Help;
 import me.vem.jdab.cmd.Prefix;
 import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.Respond;
@@ -13,6 +13,7 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.EventListener;
 
 public class MessageListener implements EventListener{
@@ -30,10 +31,21 @@ public class MessageListener implements EventListener{
 	@Override
 	public void onEvent(Event event) {
 		if(event instanceof GuildMessageReceivedEvent)
-			onMessageReceived((GuildMessageReceivedEvent)event);
+			onGuildMessageReceived((GuildMessageReceivedEvent)event);
+		if(event instanceof PrivateMessageReceivedEvent)
+			onPrivateMessageReceived((PrivateMessageReceivedEvent) event);
 	}
 	
-	public void onMessageReceived(GuildMessageReceivedEvent event) {
+	private void onPrivateMessageReceived(PrivateMessageReceivedEvent event) {
+		if(event.getMessage().getContentDisplay().equals("cleanup"))
+			event.getChannel().getIterableHistory().cache(false).forEachAsync(msg -> {
+				if(msg.getAuthor().equals(event.getJDA().getSelfUser()))
+					msg.delete().queue();
+				return true;
+			});
+	}
+	
+	private void onGuildMessageReceived(GuildMessageReceivedEvent event) {
 		Message msg = event.getMessage();
 		User self = event.getJDA().getSelfUser();
 		if(msg.getAuthor().getIdLong() == self.getIdLong())
@@ -43,51 +55,38 @@ public class MessageListener implements EventListener{
 		
 		String rawContent = msg.getContentRaw();
 		
-		if(rawContent.equals(self.getAsMention())) {
-			Help.getInstance().run(event);
+		boolean selfMention = rawContent.startsWith(self.getAsMention());
+		boolean prefixPresent = rawContent.startsWith(Prefix.get(guild));
+		
+		if(!(selfMention || prefixPresent))
 			return;
-		}
 		
 		//Classic Commands
-		if(rawContent.startsWith(Prefix.get(guild))
-				|| rawContent.startsWith(self.getAsMention())) {
-			String cmdname = getCommandNameFromRaw(guild, rawContent);
-			if(cmdname.length() == 0)
-				return;
-			
-			Command cmd = Command.getCommand(cmdname);
-			if(cmd == null) {
-				Respond.asyncf(event.getChannel(), "Command `%s` not recognized.", cmdname);
-			}else{
-				String[] args = parseArgs(guild, rawContent);
-				Logger.debugf("%s attempted to call %s with arguments %s.", event.getAuthor().getName(), cmdname, Arrays.toString(args));
-				cmd.run(event, args);
-			}
+		Queue<String> parsed = parse(rawContent);
+		String cmdname = "help";
+		
+		if(parsed.peek().equals(self.getAsMention())) {
+			parsed.poll();
+			if(!parsed.isEmpty())
+				cmdname = parsed.poll();
+		}else cmdname = parsed.poll().substring(Prefix.get(guild).length());
+		
+		Command cmd = Command.getCommand(cmdname);
+		if(cmd == null) {
+			Respond.asyncf(event.getChannel(), "Command `%s` not recognized.", cmdname);
+		}else{
+			String[] args = new String[parsed.size()];
+			for(int i=0; !parsed.isEmpty() ;i++)
+				args[i] = parsed.poll();
+			Logger.debugf("%s attempted to call %s with arguments %s.", event.getAuthor().getName(), cmdname, Arrays.toString(args));
+			cmd.run(event, args);
 		}
 	}
 	
-	private String getCommandNameFromRaw(Guild guild, String raw) {
-		int start;
-		if(raw.startsWith(Prefix.get(guild)))
-			start = Prefix.get(guild).length();
-		else start = raw.indexOf(' ') + 1;
-		
-		int end = raw.indexOf(' ', start);
-		if(end < 0) end = raw.length();
-		
-		return raw.substring(start, end);
-	}
-	
-	private String[] parseArgs(Guild guild, String raw) {
+	private Queue<String> parse(String raw) {
 		LinkedList<String> argsTmp = new LinkedList<>();
 		
-		int head = raw.indexOf(' ') + 1;
-		
-		if(!raw.startsWith(Prefix.get(guild)))
-			head = raw.indexOf(' ', head) + 1; 
-		
-		if(head == 0) //No significant space found, i.e. no arguments. 
-			return new String[0];
+		int head = 0;
 		
 		StringBuilder buf = new StringBuilder();
 		while(head < raw.length()) {
@@ -111,9 +110,6 @@ public class MessageListener implements EventListener{
 		if(buf.length() > 0) 
 			argsTmp.add(buf.toString());
 		
-		return argsTmp.toArray(new String[0]);
+		return argsTmp;
 	}
-
-	
-	
 }
