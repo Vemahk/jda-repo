@@ -1,15 +1,17 @@
 package me.vem.dbgm.cmd;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Pattern;
 
-import me.vem.jdab.utils.Respond;
+import org.jetbrains.annotations.NotNull;
+
+import me.vem.jdab.utils.Logger;
+import me.vem.jdab.utils.Utilities;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageHistory;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
@@ -29,141 +31,60 @@ public class Purge extends SecureCommand{
 		if(!super.run(event, args)) return false;
 		
 		if(args.length == 0) { //Purge 100 anyone.
-			purge(event.getChannel(), 101, null); //101 includes the purge message.
+			purge(event.getChannel(), 101); //101 includes the purge message.
 			return true;
 		}
 		
-		Message msg = event.getMessage();
+		int n = 100;
+		//Try the last arg for a valid number	
+		try { n = Integer.parseInt(args[args.length-1]); } catch(NumberFormatException e) {}
 		
-		if(!args[0].equalsIgnoreCase("regex")) { //NORMAL PURGE BEGIN
-			if(args.length == 1) {
-				if(args[0].equals("help")) {
-					super.getHelp(event.getChannel());
-					return true;
-				}
-				
-				if(msg.getMentionedMembers().size() == 1) { //Just in case some sneaky sob mentiones two people and deletes that space...
-					Member mem = msg.getMentionedMembers().get(0);
-					purge(event.getChannel(), 100, mem);
-				}else {
-					try {
-						int i = Integer.parseInt(args[0]);
-						purge(event.getChannel(), i+1, null); //i+1 to include purge message.
-					}catch(NumberFormatException e) {
-						Respond.async(event.getChannel(), "Error parsing expected number. Run 'purge help' for help.");
-					}
-				}
-			}
-			
-			if(args.length == 2) {
-				if(msg.getMentionedMembers().size() != 1) { 
-					Respond.async(event.getChannel(), "Please mention (@) exactly one person whose messages you plan to purge.");
-					return false;
-				}
-				
-				Member mem = msg.getMentionedMembers().get(0);
-				
-				try {
-					int i = Integer.parseInt(args[1]);
-					purge(event.getChannel(), i, mem);
-				}catch(NumberFormatException e) {
-					Respond.async(event.getChannel(), "Error parsing expected number. Run 'purge help' for help.");
-				}
-			}
-
-			return true;
-		}else { //NORMAL PURGE END; REGEX BEGIN
-			if(args.length < 2 || args.length > 4) 
+		Logger.debugf("Deleting the past %d messages...", n);
+		
+		//Try the last two args for a user mention.
+		Member mem = Utilities.getMemberFromMention(event.getGuild(), args[args.length-1]);
+		if(mem == null && args.length >= 2)
+			mem = Utilities.getMemberFromMention(event.getGuild(), args[args.length-2]);
+		
+		if(!"regex".equalsIgnoreCase(args[0]))
+			if(mem == null)
+				purge(event.getChannel(), n);
+			else purge(event.getChannel(), n, mem);
+		else {
+			if(args.length == 1 || args.length > 4) 
 				return !getHelp(event.getChannel());
-			
-			int n = 100;
-			Member mem = null;
-			
-			if(msg.getMentionedMembers().size() == 1) {
-				mem = msg.getMentionedMembers().get(0);
-				
-				if(args.length == 4) {
-					try {
-						n = Integer.parseInt(args[3]);
-					}catch(NumberFormatException e) {
-						Respond.asyncf(event.getChannel(), "Cannot parse expected integer...%nValidate: %s", debugParsedStringArr(args));
-						return false;
-					}
-				}
-				
-			}else if(msg.getMentionedChannels().size() > 1) {
-				Respond.async(event.getChannel(), "You can only delete messages from one person at a time.");
-				return false;
-			}else { //No mentions
-				if(args.length >= 3) {
-					try {
-						n = Integer.parseInt(args[2]);
-					}catch(NumberFormatException e) {
-						Respond.asyncf(event.getChannel(), "Cannot parse expected integer...%nValidate: %s", debugParsedStringArr(args));
-						return false;
-					}
-				}
-			}
-			
-			//Logger.debugf("%d | %s | %s | %s", n, mem, args[1], Arrays.toString(args));
-			this.purgeRegex(event.getChannel(), n, mem, args[1]);
-		}//REGEX END
+			if(mem == null)
+				purge(event.getChannel(), n, args[1]);
+			else purge(event.getChannel(), n, args[1], mem);
+		}
 		return true;
 	}
-	
-	public String debugParsedStringArr(String[] args) {
-		StringBuilder nargs = new StringBuilder();
-		for(String s : args)
-			nargs.append("`" + s + "` ");
-		return nargs.toString();
-	}
 
-	private void purge(TextChannel tc, int lastn, Member mem) {
-		List<Message> check = fullHistory(tc, lastn);
-		
-		SelfPurgeList rem = new SelfPurgeList(tc);
-		
-		for(Message mes : check)
-			if(mes == null) break;
-			else if(mem == null || mes.getMember() == mem)
-				rem.add(mes);
-		
-		rem.clear();
+	private void purge(TextChannel channel, int lastn, Member... members) {
+		purge(channel, lastn, "", members);
 	}
 	
-	private void purgeRegex(TextChannel tc, int lastn, Member mem, String reg) {
-		List<Message> check = fullHistory(tc, lastn);
+	private void purge(TextChannel channel, int lastn, @NotNull String regex, Member... members) {
+		SelfPurgeList rem = new SelfPurgeList(channel);
 		
-		SelfPurgeList rem = new SelfPurgeList(tc);
-		
-		for(Message mes : check)
-			if(mes == null) break;
-			else if(mem == null || mes.getMember() == mem)
-				if(mes.getContentDisplay().matches(reg))
-					rem.add(mes);
-		
-		rem.clear();
-	}
-	
-	private List<Message> fullHistory(TextChannel tc, int n){
-		if(n == 0) return new ArrayList<>();
-		
-		Message[] out = new Message[n];
-		int i = 0;
-		Message next = tc.getMessageById(tc.getLatestMessageIdLong()).complete();
-		out[i++] = next;
-		
-		while(i < n) {
-			MessageHistory mh = tc.getHistoryBefore(next, n-i > 100 ? 100 : n-i).complete();
-			if(mh.size() == 0) break;
+		Pattern pattern = regex.isEmpty() ? null : Pattern.compile(regex);
+		for(Message msg : channel.getIterableHistory().cache(false)) {
+			if(--lastn < 0) break;
 			
-			for(Message m : mh.getRetrievedHistory())
-				out[i++] = m;
+			//Skip if it does not pass the regex.
+			boolean regexPass = pattern == null || pattern.matcher(msg.getContentDisplay()).matches();
+			if(!regexPass) continue;
 			
-			next = out[i-1];
+			if(members.length > 0) {
+				for(Member mem : members)
+					if(msg.getMember() == mem) {
+						rem.add(msg);
+						break;
+					}
+			}else rem.add(msg);
 		}
 		
-		return Arrays.asList(out);
+		rem.clear();
 	}
 	
 	@Override
@@ -173,18 +94,12 @@ public class Purge extends SecureCommand{
 
 	@Override
 	public String help() {
-		
-		StringBuffer help = new StringBuffer();
-		help.append("Valid usages: ```\n");
-		
-		help.append("purge [@user] [num (def 100)]\n\t- Purges the last [num] messages of any specified person, or of everyone if no person is metnioned.\n\n");
-		help.append("purge regex \"<regex>\" [@user] [num (def 100)]\n"
-				+ "\t- Purges messages matching the given regex of a specified (or any) person. Searches the last [num] messages. Regex follows JAVA's format.\n"
-				+ "\t- Example: purge regex \".\\d{1,4}\\S+ blah\" 50 --> Would scan the last 50 messages for something that matched that regex crap.\n"
-				+ "\t- For regex information, refer here: https://regexr.com/");
-		
-		help.append("```");
-		return help.toString();
+		return "Usage:```\n"
+			 + "purge [@user] [num=100]\n\t- Purges the last [num] messages of any specified person, or of everyone if no person is metnioned.\n\n"
+			 + "purge regex `<regex>` [@user] [num=100]\n"
+			 + "\t- Purges messages matching the given regex of a specified (or any) person. Searches the last [num] messages. Regex follows JAVA's format.\n"
+			 + "\t- Example: purge regex `.\\d{1,4}\\S+ blah` 50 --> Would scan the last 50 messages for something that matched that regex crap.\n"
+			 + "\t- For regex information, refer here: https://regexr.com/\n```";
 	}
 	@Override
 	protected void unload() {
@@ -208,9 +123,9 @@ class SelfPurgeList implements Collection<Message>, Iterable<Message>{
 		len = 0;
 		linkedChannel = tc;
 	}
-	
-	@Override
-	public boolean add(Message e) {
+
+	private static final int msptw = 1000 * 60 * 60 * 24 * 7 * 2; //msptw -> milliseconds per two weeks.
+	@Override public boolean add(Message msg) {
 		
 		/********************************************************************************\
 		|* AntiPurge -- Hardcoded.														*|
@@ -220,12 +135,17 @@ class SelfPurgeList implements Collection<Message>, Iterable<Message>{
 		|* message if the command is called by a allowable user. See the AntiPurge		*|
 		|* command for more details. 													*|
 		\********************************************************************************/
-		if(e.getContentDisplay().startsWith("[AntiPurge]") && e.getAuthor().getIdLong() == e.getJDA().getSelfUser().getIdLong())
+		if(msg.getContentDisplay().startsWith("[AntiPurge]") && msg.getAuthor().getIdLong() == msg.getJDA().getSelfUser().getIdLong())
 			return false;
 		
-		if(len >= 100) 
+		//This chunk is essentially to prevent deleting messages older than two weeks.
+		long dt = System.currentTimeMillis() - msg.getCreationTime().toEpochSecond() * 1000;
+		if(dt - msptw >= -1000)
+			return false;
+		
+		if(len >= 100)
 			clear();
-		list[len++] = e;
+		list[len++] = msg;
 		return true;
 	}
 
