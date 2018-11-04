@@ -4,10 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.OffsetDateTime;
+import java.util.Collection;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -22,6 +26,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.Message.Attachment;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 public class ClearOOC extends Command implements Configurable{
@@ -39,8 +44,8 @@ public class ClearOOC extends Command implements Configurable{
 		load();
 	}
 	
-	@Override
-	public boolean run(GuildMessageReceivedEvent event, String... args) {
+	private static final Pattern OOCRegex = Pattern.compile("^\\s*\\(.*\\)\\s*$");
+	@Override public boolean run(GuildMessageReceivedEvent event, String... args) {
 		Set<Long> guildSet = allowedRooms.get(event.getGuild().getIdLong());
 		if(guildSet == null) allowedRooms.put(event.getGuild().getIdLong(), guildSet = new HashSet<>());
 		
@@ -51,22 +56,22 @@ public class ClearOOC extends Command implements Configurable{
 		if(args.length > 0) {
 			if(args[0].equals("allow")) {
 				if(!guildSet.add(channel.getIdLong())) {
-					Respond.timeout(channel, userMsg, 5000, "Chatroom was already allowed to begin with.");
+					Respond.timeout(channel, userMsg, 5000, "Channel was already allowed to begin with.");
 					return false;
 				}
-				Respond.timeout(channel, userMsg, 5000, "Chatroom allowed");
+				Respond.timeout(channel, userMsg, 5000, "Channel allowed");
 				return true;
 			}else if(args[0].equals("disallow")) {
 				if(!guildSet.remove(channel.getIdLong())) {
-					Respond.timeout(channel, userMsg, 5000, "Could not remove room. Reason: already not allowed.");
+					Respond.timeout(channel, userMsg, 5000, "Channel was not allowed to begin with.");
 					return false;
 				}
-				Respond.timeout(channel, userMsg, 5000, "Chatroom disallowed.");
+				Respond.timeout(channel, userMsg, 5000, "Channel disallowed.");
 				return true;
 			}else{
 				try {
 					check = Integer.parseInt(args[0]);
-				}catch(Exception e) { check = 50; } //If parsing fails, default 50
+				}catch(Exception e) {} //Parse failed: do nothing.
 			}
 		}
 		
@@ -75,23 +80,18 @@ public class ClearOOC extends Command implements Configurable{
 			return false;
 		}
 		
-		Respond.timeout(channel, userMsg, 5000, "Checking past "+check+" messages for OOC...");
+		Respond.timeoutf(channel, userMsg, 5000, "Checking past %d messages for OOC...", check);
 		
-		HashSet<Message> set = new HashSet<>();
-		for(Message x : channel.getHistory().retrievePast(check).complete())
-			if(x.getContentRaw().matches("^\\s*\\(.*\\)\\s*$")) // <3 regex
-				set.add(x);
+		SelfPurgeList list = new SelfPurgeList(event.getChannel());
 		
-		HashSet<Message> delSet = new HashSet<>();
-		for(Message m : set) 
-			if(m.getCreationTime().isAfter(OffsetDateTime.now().minusDays(14)))
-				delSet.add(m);
+		int i=0;
+		for(Message m : channel.getIterableHistory().cache(false)) {
+			if(check > 0 && i++ >= check) break;
+			if(OOCRegex.matcher(m.getContentRaw()).matches())
+				list.add(m);
+		}
 		
-		
-		if(delSet.size() >= 2)
-			channel.deleteMessages(delSet).complete();
-		else if(!delSet.isEmpty())
-			for(Message m : delSet) m.delete().complete();
+		list.clear();
 		
 		return true;
 	}
@@ -140,12 +140,125 @@ public class ClearOOC extends Command implements Configurable{
 	}
 	
 	@Override protected String help() {
-		return "Usage; clearooc [amount=50]";
+		return "Usage:\n```\n"
+			 + "clearooc [amount=50] -- clears the last 'amount' entries that match OOC.\n"
+			 + "\t(if 'amount' is 0, then it will check all the messages in the channel)\n"
+			 + "```";
 	}
 	@Override
 	protected void unload() {
 		save();
 		instance = null;
 	}
+}
+
+class SelfPurgeList implements Collection<Message>, Iterable<Message>{
+
+	private Message[] list;
+	private int len;
 	
+	private TextChannel linkedChannel;
+	
+	public SelfPurgeList(TextChannel tc){
+		list = new Message[100];
+		len = 0;
+		linkedChannel = tc;
+	}
+	
+	private static final int msptw = 1000 * 60 * 60 * 24 * 7 * 2; //msptw -> milliseconds per two weeks.
+	@Override public boolean add(Message e) {
+		
+		long dt = System.currentTimeMillis() - e.getCreationTime().toEpochSecond() * 1000;
+		if(dt - msptw >= -1000) //If it's two weeks or older (with a grace of a second, for paranoia reasons).
+			return false;
+		
+		if(len >= 100) 
+			clear();
+		list[len++] = e;
+		return true;
+	}
+
+	@Override
+	public boolean addAll(Collection<? extends Message> c) {
+		for(Message m : c)
+			add(m);
+		return true;
+	}
+
+	@Override
+	public void clear() {
+		if(len > 1)
+			linkedChannel.deleteMessages(this).queue();
+		if(len == 1)
+			linkedChannel.deleteMessageById(list[0].getIdLong()).queue();
+		else {
+			len = 0;
+			return;
+		}
+		
+		for(int i=0;i<len;i++)
+			list[i] = null;
+		len = 0;
+	}
+
+	@Override
+	public boolean contains(Object o) {
+		if(!(o instanceof Message))
+			return false;
+		
+		for(int i=0;i<len;i++)
+			if(list[i] == o)
+				return true;
+		return false;
+	}
+
+	@Override
+	public boolean containsAll(Collection<?> c) {
+		for(Object m : c)
+			if(!contains(m))
+				return false;
+		return true;
+	}
+
+	@Override
+	public boolean isEmpty() { return len == 0; }
+
+	@Override
+	public Iterator<Message> iterator() {
+		return new Iterator<Message>() {
+			private int next = 0;
+			@Override public boolean hasNext() { return next < len; }
+			@Override public Message next() { return list[next++]; }
+		};
+	}
+
+	/**
+	 * Unwritten as this is a purge list. Anything added is meant to be destroyed.
+	 */
+	@Override
+	public boolean remove(Object o) { return false; }
+
+	/**
+	 * Unwritten as this is a purge list. Anything added is meant to be destroyed.
+	 */
+	@Override
+	public boolean removeAll(Collection<?> c) { return false; }
+
+	/**
+	 * Unwritten as this is a purge list. Anything added is meant to be destroyed.
+	 */
+	@Override
+	public boolean retainAll(Collection<?> c) { return false; }
+
+	@Override
+	public int size() { return len; }
+
+	@Override
+	public Object[] toArray() { return list; } 
+
+	/**
+	 * Left empty due to this list not being a generic list.
+	 */
+	@Override
+	public <T> T[] toArray(T[] a) { return null; }
 }
