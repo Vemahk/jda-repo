@@ -3,11 +3,13 @@ package me.vem.jdab;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.regex.Pattern;
 
 import me.vem.jdab.cmd.Command;
 import me.vem.jdab.cmd.Prefix;
 import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.Respond;
+import me.vem.jdab.utils.Utilities;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
@@ -45,6 +47,7 @@ public class MessageListener implements EventListener{
 			});
 	}
 	
+	private Pattern botMention = null;
 	private void onGuildMessageReceived(GuildMessageReceivedEvent event) {
 		Message msg = event.getMessage();
 		User self = event.getJDA().getSelfUser();
@@ -55,7 +58,10 @@ public class MessageListener implements EventListener{
 		
 		String rawContent = msg.getContentRaw();
 		
-		boolean selfMention = rawContent.startsWith(self.getAsMention());
+		if(botMention == null)
+			botMention = Pattern.compile("<@\\!?"+self.getIdLong()+">.*");
+		
+		boolean selfMention = botMention.matcher(rawContent).matches();
 		boolean prefixPresent = rawContent.startsWith(Prefix.get(guild));
 		
 		if(!(selfMention || prefixPresent))
@@ -65,7 +71,7 @@ public class MessageListener implements EventListener{
 		Queue<String> parsed = parse(rawContent);
 		String cmdname = "help";
 		
-		if(parsed.peek().equals(self.getAsMention())) {
+		if(self.equals(Utilities.getUserFromMention(parsed.peek()))) {
 			parsed.poll();
 			if(!parsed.isEmpty())
 				cmdname = parsed.poll();

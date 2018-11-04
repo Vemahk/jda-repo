@@ -11,10 +11,11 @@ import net.dv8tion.jda.core.entities.User;
 
 public class Utilities {
 
-	private static Pattern memberMentionPattern = Pattern.compile("<?@?(\\d+)>?");
+	private static Pattern memberMentionPattern = Pattern.compile("<?@?\\!?(\\d+)>?");
 	private static Pattern roleMentionPattern = Pattern.compile("<?@?&?(\\d+)>?");
 	
 	/**
+	 * For more information, see: {@link https://discordapp.com/developers/docs/reference#message-formatting}
 	 * @param mention (e.g. <@##############>)
 	 * @return null if the mention is not in the correct format.<br>
 	 * null if the user is not found.<br>
@@ -29,6 +30,7 @@ public class Utilities {
 	}
 	
 	/**
+	 * For more information, see: {@link https://discordapp.com/developers/docs/reference#message-formatting}
 	 * @param guild The guild associated with the user's membership.
 	 * @param mention (e.g. <@##############>)
 	 * @return null if the mention is not in the correct format.<br>
@@ -42,6 +44,7 @@ public class Utilities {
 	}
 	
 	/**
+	 * For more information, see: {@link https://discordapp.com/developers/docs/reference#message-formatting}
 	 * @param guild The guild associated with this role.
 	 * @param mention (e.g. <@&#############>)
 	 * @return null if the mention is not in the correct format.<br>

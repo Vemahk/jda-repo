@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+//TODO FINISH
 public class LinkedMap<K, V> implements Map<K, V>{
 
 	private Node<Entry<K, V>> head;
