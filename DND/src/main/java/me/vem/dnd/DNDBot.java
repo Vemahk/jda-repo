@@ -1,4 +1,7 @@
 package me.vem.dnd;
+
+import static me.vem.dnd.IgnoredReference.botToken;
+
 import java.io.IOException;
 
 import me.vem.dnd.cmd.ClearOOC;
@@ -17,7 +20,7 @@ public class DNDBot {
 		Version.initialize(0, 0, 0, 1, "DND Bot");
 		Console.buildConsole();
 		
-		DiscordBot.initialize(IgnoredReference.botToken);
+		DiscordBot.initialize(botToken);
 		
 		ClearOOC.initialize();
 		ExportChannel.initialize();
