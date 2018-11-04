@@ -22,7 +22,7 @@ public class Help extends Command{
 			//WHAT'S THIS?! CALLBACK HELL?!
 			event.getAuthor().openPrivateChannel().queue(
 				(channel) -> channel.sendMessage(getFormattedCommandList()).queue(
-					(msg) -> Respond.timeout(event.getChannel(), event.getMessage(), 5000, "Sent you a pm with the help menu")),
+					(msg) -> event.getMessage().delete().queue()),
 				(error) -> Respond.async(event.getChannel(), getFormattedCommandList()));
 			return true;
 		}

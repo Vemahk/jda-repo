@@ -3,9 +3,6 @@ package me.vem.jdab;
 import java.util.Arrays;
 import java.util.LinkedList;
 
-import org.w3c.dom.events.Event;
-import org.w3c.dom.events.EventListener;
-
 import me.vem.jdab.cmd.Command;
 import me.vem.jdab.cmd.Help;
 import me.vem.jdab.cmd.Prefix;
@@ -14,7 +11,9 @@ import me.vem.jdab.utils.Respond;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.core.hooks.EventListener;
 
 public class MessageListener implements EventListener{
 
@@ -29,9 +28,9 @@ public class MessageListener implements EventListener{
 	private MessageListener() {}
 	
 	@Override
-	public void handleEvent(Event e) {
-		if(e instanceof GuildMessageReceivedEvent)
-			onMessageReceived((GuildMessageReceivedEvent)e);
+	public void onEvent(Event event) {
+		if(event instanceof GuildMessageReceivedEvent)
+			onMessageReceived((GuildMessageReceivedEvent)event);
 	}
 	
 	public void onMessageReceived(GuildMessageReceivedEvent event) {
@@ -114,5 +113,7 @@ public class MessageListener implements EventListener{
 		
 		return argsTmp.toArray(new String[0]);
 	}
+
+	
 	
 }
