@@ -10,6 +10,7 @@ import me.vem.dbgm.cmd.Permissions;
 import me.vem.dbgm.cmd.Purge;
 import me.vem.dbgm.cmd.RoleOpt;
 import me.vem.dbgm.cmd.reaction.ReactionListener;
+import me.vem.dbgm.cmd.stream.PresenceListener;
 import me.vem.jdab.DiscordBot;
 import me.vem.jdab.utils.Console;
 import me.vem.jdab.utils.Logger;
@@ -27,12 +28,15 @@ public class DBGM {
 		Console.buildConsole();
 		
 		DiscordBot.initialize(botToken);
-
+		
 		//Permissions is critical to the function of several other commands, so it must be initialized first.
 		Permissions.initialize();
 
 		//ReactionListener must be initialized after Permissions because it in turn inits its relevant commands, some of which require Permissions.
 		DiscordBot.getInstance().addEventListener(ReactionListener.getInstance());
+		
+		//PresenseListener, like ReactionListener, must be initialized after Permissions because it inits StreamTrack, which is a SecureCommand.
+		DiscordBot.getInstance().addEventListener(PresenceListener.getInstance());
 		
 		//Normal Commands
 		Purge.initialize();

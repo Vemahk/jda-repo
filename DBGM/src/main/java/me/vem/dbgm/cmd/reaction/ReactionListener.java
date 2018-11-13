@@ -46,10 +46,10 @@ public class ReactionListener implements EventListener, Configurable{
 	
 	@Override public void onEvent(Event event) {
 		if (event instanceof GuildMessageReceivedEvent)
-            onMessageReceived((GuildMessageReceivedEvent) event);
+            onGuildMessageReceived((GuildMessageReceivedEvent) event);
 	}
 	
-	public void onMessageReceived(GuildMessageReceivedEvent event) {
+	public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
 		String content = event.getMessage().getContentRaw();
 		Map<String, String> data = database.get(event.getGuild().getIdLong());
 		if(data == null) return;
@@ -82,13 +82,7 @@ public class ReactionListener implements EventListener, Configurable{
 		Map<String, String> data = database.get(guild.getIdLong());
 		if(data == null) return new String[0];
 		
-		String[] out = new String[data.size()];
-		
-		int i=0;
-		for(String trigger : data.keySet())
-			out[i++] = trigger;
-		
-		return out;
+		return data.keySet().toArray(new String[data.size()]);
 	}
 	
 	@Override
