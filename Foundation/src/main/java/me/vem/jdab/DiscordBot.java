@@ -43,8 +43,9 @@ public class DiscordBot {
 		Prefix.initialize();
 	}
 	
-	public void addEventListener(EventListener listener) {
+	public DiscordBot addEventListener(EventListener listener) {
 		jda.addEventListener(listener);
+		return this;
 	}
 	
 	public JDA getJDA() {
