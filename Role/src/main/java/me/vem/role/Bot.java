@@ -1,5 +1,7 @@
 package me.vem.role;
 
+import static me.vem.role.IgnoredReference.botToken;
+
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -43,7 +45,7 @@ public class Bot {
 		try {
 			(jda = new JDABuilder(AccountType.BOT)
 					.addEventListener(MessageListener.getInstance())
-					.setToken(IgnoredReference.botToken)
+					.setToken(botToken)
 					.build().awaitReady())
 					.setAutoReconnect(true);
 			jda.getPresence().setGame(null);
