@@ -23,7 +23,7 @@ import me.vem.jdab.utils.Version;
  */
 public class DBGM {
 	public static void main(String[] args) {
-		Version.initialize(0, 0, 1, 3, "DBGM Bot");
+		Version.initialize(0, 0, 1, 4, "DBGM Bot");
 		Logger.infof("Hello World! From %s", Version.getVersion());
 		Console.buildConsole();
 		
