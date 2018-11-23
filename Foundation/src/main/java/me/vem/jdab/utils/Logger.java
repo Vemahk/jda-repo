@@ -1,5 +1,8 @@
 package me.vem.jdab.utils;
 
+import static me.vem.jdab.utils.PrintThread.err;
+import static me.vem.jdab.utils.PrintThread.out;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -10,8 +13,8 @@ public class Logger {
 	private static void log(Severity sev, Object o){
 		String outStr = String.format("[%s][%s] %s", getFormattedTime(), sev, o);
 		if(sev == Severity.ERROR)
-			 System.err.println(outStr);
-		else System.out.println(outStr);
+			 err.println(outStr);
+		else out.println(outStr);
 	}
 	
 	private static void logf(Severity sev, String f, Object... objs) { log(sev, String.format(f, objs)); }

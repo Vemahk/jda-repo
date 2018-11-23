@@ -31,6 +31,7 @@ public class Console {
 
 	private static JFrame console;
 	private static JTextArea consoleOutput;
+	private static PrintStream out;
 
 	private static TrayIcon tray;
 
@@ -105,25 +106,6 @@ public class Console {
 		console = null;
 	}
 	
-	private static PrintStream stdoutOld;
-	private static PrintStream stderrOld;
-	
-	/**
-	 * Restores System.out & System.err to their original state in the case that they are changed by buildTextArea().
-	 */
-	public static void restoreSTDPrintStreams() {
-		if(stdoutOld != null) {
-			System.setOut(stdoutOld);
-			Logger.info("STDOUT Restored");
-			stdoutOld = null;
-		}
-		if(stderrOld != null) {
-			System.setErr(stderrOld);
-			Logger.info("STDERR Restored");
-			stderrOld = null;
-		}
-	}
-	
 	/**
 	 * Loads the text area object and redirection System.out and System.err to print to the text area.
 	 */
@@ -132,21 +114,15 @@ public class Console {
 		consoleOutput = new JTextArea();
 		consoleOutput.setEditable(false);
 		
-		PrintStream out = new PrintStream(new OutputStream() {
+		out = new PrintStream(new OutputStream() {
 			@Override public void write(int i) throws IOException {
 				char c = (char)i;
 				consoleOutput.append(String.valueOf(c));
 				if(c == '\n') consoleOutput.update(consoleOutput.getGraphics());
 			}
 		});
-		
-		System.out.println("Switching stdout & stderr to the Console Window...");
-		
-		stdoutOld = System.out;
-		stderrOld = System.err;
-		
-		System.setOut(out);
-		System.setErr(out);
+		PrintThread.addSTDOut(out);
+		PrintThread.addSTDErr(out);
 	}
 	
 	/**
@@ -186,13 +162,13 @@ public class Console {
 	}
 	
 	public static void shutdown() {
-		restoreSTDPrintStreams();
-		
 		if(hasConsole())
 			console.dispose();
 		destroyTray();
 		
 		console = null;
+		PrintThread.removeSTDOut(out);
+		PrintThread.removeSTDErr(out);
 		consoleOutput = null;
 	}
 }
