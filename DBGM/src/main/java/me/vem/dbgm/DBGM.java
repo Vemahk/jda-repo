@@ -11,6 +11,7 @@ import me.vem.dbgm.cmd.Purge;
 import me.vem.dbgm.cmd.RoleOpt;
 import me.vem.dbgm.cmd.reaction.ReactionListener;
 import me.vem.dbgm.cmd.stream.PresenceListener;
+import me.vem.dbgm.requ.Request;
 import me.vem.jdab.DiscordBot;
 import me.vem.jdab.utils.Console;
 import me.vem.jdab.utils.Logger;
@@ -24,10 +25,12 @@ import me.vem.jdab.utils.Version;
 public class DBGM {
 	public static void main(String[] args) {
 		Version.initialize(0, 0, 1, 4, "DBGM Bot");
-		Logger.infof("Hello World! From %s", Version.getVersion());
 		Console.buildConsole();
 		
+		Logger.infof("Hello World! From %s", Version.getVersion());
+		
 		DiscordBot.initialize(botToken);
+		DiscordBot.getInstance().setPreShutdown(() -> Request.shutdown());
 		
 		//Permissions is critical to the function of several other commands, so it must be initialized first.
 		Permissions.initialize();
