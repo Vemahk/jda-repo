@@ -4,6 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import me.vem.jdab.DiscordBot;
+import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
@@ -15,6 +16,7 @@ public class Utilities {
 	private static Pattern memberMentionPattern = Pattern.compile("<@\\!?(\\d+)>");
 	private static Pattern roleMentionPattern = Pattern.compile("<@&(\\d+)>");
 	private static Pattern channelMentionPattern = Pattern.compile("<#(\\d+)>");
+	private static Pattern emotePattern = Pattern.compile("<a?:(.+?):(\\d+)>");
 	
 	/**
 	 * For more information, see: {@link https://discordapp.com/developers/docs/reference#message-formatting}
@@ -75,5 +77,24 @@ public class Utilities {
 			return null;
 		
 		return guild.getTextChannelById(matcher.group(1));
+	}
+	
+	/**
+	 * For more information, see: {@link https://discordapp.com/developers/docs/reference#message-formatting} <br>
+	 * Note: Discord utilizes Unicode 9.0 for a lot of its in-built emoji's. Because of this,
+	 * some default emoji's will not be read in this mention type, but rather in their UTF-32 form.
+	 * This causes some fun times trying to read them.
+	 * @param guild The guild the mention took place in.
+	 * @param mention The mention (e.g. <:emote_name:000000000000000>)
+	 * @return null if the mention is not in the correct format. <br>
+	 * null if the emote is not valid.<br>
+	 * The emote represented by the mention if the mention is valid and it exists within the provided guild.
+	 */
+	public static Emote getEmoteFromMention(Guild guild, String mention) {
+		Matcher matcher = emotePattern.matcher(mention);
+		if(!matcher.matches())
+			return null;
+		
+		return guild.getEmoteById(matcher.group(2));
 	}
 }
