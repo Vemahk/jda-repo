@@ -8,6 +8,7 @@ import me.vem.dnd.cmd.ClearOOC;
 import me.vem.dnd.cmd.ExportChannel;
 import me.vem.dnd.cmd.Jobs;
 import me.vem.dnd.cmd.Meme;
+import me.vem.dnd.cmd.Vote;
 import me.vem.jdab.DiscordBot;
 import me.vem.jdab.utils.Console;
 import me.vem.jdab.utils.Logger;
@@ -26,5 +27,7 @@ public class DNDBot {
 		ExportChannel.initialize();
 		Jobs.initialize();
 		Meme.initialize();
+		
+		Vote.initialize();
 	}
 }
