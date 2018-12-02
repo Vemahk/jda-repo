@@ -37,6 +37,8 @@ public class PrintThread extends Thread{
 			instance.stderrs.add(System.err);
 			System.setErr(err);
 			//System.err.println("PrintThread taking command of System.err");
+			
+			instance.start();
 		}
 	}
 	
@@ -68,7 +70,6 @@ public class PrintThread extends Thread{
 		errQ = new ByteQueue(1 << 16);
 		
 		this.setDaemon(true);
-		start();
 	}
 	
 	@Override public void run() {
