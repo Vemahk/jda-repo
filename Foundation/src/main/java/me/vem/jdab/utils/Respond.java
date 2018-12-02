@@ -4,7 +4,9 @@ import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
 
 public class Respond {
@@ -106,6 +108,69 @@ public class Respond {
 	 */
 	public static void timeoutf(TextChannel channel, Message userMsg, long delay, String format, Object... args) {
 		timeout(channel, userMsg, delay, String.format(format, args));
+	}
+	
+	////////////
+	/* EMBEDS */
+	////////////
+	
+	/**
+	 * Responds asynchronously with a {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed} built from the given builder.
+	 * @param channel The channel to send the message into.
+	 * @param builder The builder representing the embed.
+	 */
+	public static void async(TextChannel channel, EmbedBuilder builder) {
+		async(channel, builder.build());
+	}
+	
+	/**
+	 * Responds asynchronously with a given {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}.
+	 * @param channel The channel to send the message into.
+	 * @param embed The embed object.
+	 */
+	public static void async(TextChannel channel, MessageEmbed embed) {
+		channel.sendMessage(embed).queue();
+	}
+	
+	/**
+	 * Responds synchronously with a {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed} built from the given builder.
+	 * @param channel The channel to send the message into.
+	 * @param builder The builder representing the embed.
+	 * @return The message that the bot sends.
+	 */
+	public static Message sync(TextChannel channel, EmbedBuilder builder) {
+		return sync(channel, builder.build());
+	}
+	
+	/**
+	 * Responds synchronously with the given {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}.
+	 * @param channel The channel to send the message into.
+	 * @param embed The embed object.
+	 * @return The message that the bot sends.
+	 */
+	public static Message sync(TextChannel channel, MessageEmbed embed) {
+		return channel.sendMessage(embed).complete();
+	}
+	
+	/**
+	 * Responds synchronously with the given a {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed} built from the given builder. Deletes the message after {@code delay} milliseconds.
+	 * @param channel The channel to send the message into.
+	 * @param builder The builder representing the embed.
+	 * @param delay The time, in milliseconds, before the message is deleted.
+	 */
+	public static void timeout(TextChannel channel, EmbedBuilder builder, long delay) {
+		timeout(channel, builder.build(), delay);
+	}
+	
+	/**
+	 * Responds synchronously with a given {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}. Deletes the message after {@code delay} milliseconds.
+	 * @param channel The channel to send the message into.
+	 * @param embed The embed object.
+	 * @param delay The time, in milliseconds, before the message is deleted.
+	 */
+	public static void timeout(TextChannel channel, MessageEmbed embed, long delay) {
+		Message m = sync(channel, embed);
+		if(delay > 0) deleteMessage(delay, m);
 	}
 	
 	private static class Task extends TimerTask {
