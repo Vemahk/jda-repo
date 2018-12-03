@@ -37,7 +37,7 @@ public class SwearLog extends Command implements Configurable{
 		if(!super.run(event, args)) return false;
 		
 		if(args.length==0) {//No arguments
-			getHelp(event.getChannel());
+			sendHelp(event.getChannel());
 			return true;
 		}else if(args.length == 1) { //1 argument
 			if(args[0].equals("add")) //Add self
@@ -45,12 +45,12 @@ public class SwearLog extends Command implements Configurable{
 			else if(args[0].equals("remove"))
 				removeMember(event, event.getMember());
 		}else if(args.length != 2){//>2 arguments; invalid
-			return getHelp(event.getChannel());
+			return sendHelp(event.getChannel());
 		}else {//2 Arguments
 			boolean isAdd = "add".equals(args[0]);
 			boolean isRem = "remove".equals(args[0]);
 			if(!(isAdd || isRem))
-				return getHelp(event.getChannel());
+				return sendHelp(event.getChannel());
 			
 			List<Member> mentions = event.getMessage().getMentionedMembers();
 			if(mentions.size() == 0) { //No mentions

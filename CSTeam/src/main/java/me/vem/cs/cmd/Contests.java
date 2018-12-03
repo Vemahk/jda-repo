@@ -44,7 +44,7 @@ public class Contests extends Command implements Configurable{
 		if(!super.run(event, args)) return false;
 		
 		if(args.length == 0) 
-			return getHelp(event.getChannel());
+			return sendHelp(event.getChannel());
 		else if(args.length==1) {
 			//The real help menu.
 			String vars = "\n```- date [required]\n"
