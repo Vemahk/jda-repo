@@ -48,7 +48,7 @@ public class Purge extends SecureCommand{
 			else purge(event.getChannel(), n, mem);
 		else {
 			if(args.length == 1 || args.length > 4) 
-				return !getHelp(event.getChannel());
+				return !sendHelp(event.getChannel());
 			if(mem == null)
 				purge(event.getChannel(), n, args[1]);
 			else purge(event.getChannel(), n, args[1], mem);

@@ -24,7 +24,7 @@ public class AddCustomReaction extends SecureCommand{
 		if(!super.run(event, args)) return false;
 		
 		if(args.length != 2) {
-			getHelp(event.getChannel());
+			sendHelp(event.getChannel());
 			return false;
 		}
 		

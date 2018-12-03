@@ -29,28 +29,28 @@ public class StreamTrack extends SecureCommand{
 		if(!super.run(event, args)) return false;
 		
 		if(args.length == 0)
-			return getHelp(event.getChannel());
+			return sendHelp(event.getChannel());
 		
 		PresenceListener listener = PresenceListener.getInstance();
 		
 		if("add".equals(args[0])) {
 			if(args.length == 1)
-				return !getHelp(event.getChannel());
+				return !sendHelp(event.getChannel());
 			
 			Member mentioned = Utilities.getMemberFromMention(event.getGuild(), args[1]);
 			if(mentioned == null)
-				return !getHelp(event.getChannel());
+				return !sendHelp(event.getChannel());
 			
 			if(listener.getData(event.getGuild()).track(mentioned.getUser()))
 				Respond.asyncf(event.getChannel(), "%s is now being tracked for twitch streaming.", mentioned.getEffectiveName());
 			else Respond.asyncf(event.getChannel(), "%s was already being tracked for twitch streaming.", mentioned.getEffectiveName());
 		}else if("remove".equals(args[0])) {
 			if(args.length == 1)
-				return !getHelp(event.getChannel());
+				return !sendHelp(event.getChannel());
 			
 			Member mentioned = Utilities.getMemberFromMention(event.getGuild(), args[1]);
 			if(mentioned == null)
-				return !getHelp(event.getChannel());
+				return !sendHelp(event.getChannel());
 			
 			if(listener.getData(event.getGuild()).untrack(mentioned.getUser()))
 				Respond.asyncf(event.getChannel(), "%s removed", mentioned.getEffectiveName());
@@ -62,7 +62,7 @@ public class StreamTrack extends SecureCommand{
 			}else {
 				TextChannel target = Utilities.getTextChannelFromMention(event.getGuild(), args[1]);
 				if(target == null)
-					return !getHelp(event.getChannel());
+					return !sendHelp(event.getChannel());
 				
 				listener.getData(event.getGuild()).setResponseChannel(target);
 				Respond.asyncf(event.getChannel(), "Streamers will now be mentioned in the %s channel!", args[1]);
@@ -74,7 +74,7 @@ public class StreamTrack extends SecureCommand{
 				listener.getData(event.getGuild()).setMessage(args[1]);
 				Respond.asyncf(event.getChannel(), "Set the bot's response to: `%s`", args[1]);
 			}
-		}else return getHelp(event.getChannel());
+		}else return sendHelp(event.getChannel());
 		
 		return true;
 	}

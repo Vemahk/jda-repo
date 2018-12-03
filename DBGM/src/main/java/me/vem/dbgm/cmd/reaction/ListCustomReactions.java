@@ -26,10 +26,10 @@ public class ListCustomReactions extends Command{
 			try {
 				page = Integer.parseInt(args[0]);
 			}catch(NumberFormatException e) {
-				return !getHelp(event.getChannel());
+				return !sendHelp(event.getChannel());
 			}
 		}else if(args.length > 1)
-			return !getHelp(event.getChannel());
+			return !sendHelp(event.getChannel());
 		
 		final int fPage = page; //For the lambda.
 		if(lastList == null) respondPage(event, page);

@@ -23,7 +23,7 @@ public class DeleteCustomReaction extends SecureCommand{
 		if(!super.run(event, args)) return false;
 		
 		if(args.length != 1) {
-			getHelp(event.getChannel());
+			sendHelp(event.getChannel());
 			return false;
 		}
 		

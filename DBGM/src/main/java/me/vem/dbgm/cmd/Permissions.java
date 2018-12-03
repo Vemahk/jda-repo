@@ -46,7 +46,7 @@ public class Permissions extends Command implements Configurable{
 		if(!super.run(event, args)) return false;
 		
 		if(args.length == 0) 
-			return getHelp(event.getChannel());
+			return sendHelp(event.getChannel());
 		
 		Data data = database.get(event.getGuild().getIdLong());
 		if(data == null)
@@ -54,7 +54,7 @@ public class Permissions extends Command implements Configurable{
 		
 		if("set".equals(args[0])) {
 			if(args.length != 3) 
-				return getHelp(event.getChannel());
+				return sendHelp(event.getChannel());
 			
 			int lvl = 0;
 			
@@ -85,10 +85,10 @@ public class Permissions extends Command implements Configurable{
 				return true;
 			}
 			
-			return getHelp(event.getChannel());
+			return sendHelp(event.getChannel());
 		}else if("keys".equals(args[0])) {
 			if(args.length != 2)
-				return getHelp(event.getChannel());
+				return sendHelp(event.getChannel());
 			
 			Command c = Command.getCommand(args[1]);
 			
@@ -111,7 +111,7 @@ public class Permissions extends Command implements Configurable{
 			//end keys
 		}else if("require".equals(args[0])) {
 			if(args.length != 3)
-				return getHelp(event.getChannel());
+				return sendHelp(event.getChannel());
 			
 			int lvl = 0;
 			try {
@@ -125,14 +125,14 @@ public class Permissions extends Command implements Configurable{
 			Respond.asyncf(event.getChannel(), "Key `%s` now requires a permission level of %d", args[1], lvl);
 		}else if("unrequire".equals(args[0])) {
 			if(args.length != 2)
-				return getHelp(event.getChannel());
+				return sendHelp(event.getChannel());
 			
 			if(data.removeRequirement(args[1]))
 				Respond.asyncf(event.getChannel(), "Key `%s` no longer requires special permissions.", args[1]);
 			else Respond.asyncf(event.getChannel(), "Key `%s` was not required already.", args[1]);
 		}else if("check".equals(args[0])) {
 			if(args.length != 2)
-				return getHelp(event.getChannel());
+				return sendHelp(event.getChannel());
 			
 			Respond.asyncf(event.getChannel(), "Requirement for `%s`: %d", args[1], data.getKeyRequirement(args[1]));
 		}else{
@@ -154,7 +154,7 @@ public class Permissions extends Command implements Configurable{
 				return true;
 			}
 			
-			return getHelp(event.getChannel());
+			return sendHelp(event.getChannel());
 		}
 		
 		return true;

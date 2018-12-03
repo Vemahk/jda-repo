@@ -24,7 +24,7 @@ public class AntiPurge extends SecureCommand{
 		if(!super.run(event, args)) return false;
 		
 		if(args.length == 0) {
-			super.getHelp(event.getChannel());
+			super.sendHelp(event.getChannel());
 			return false;
 		}
 		
