@@ -46,7 +46,7 @@ public class Prefix extends Command implements Configurable{
 		if(!super.run(event, args)) return false;
 		
 		if(args.length > 1) {
-			super.getHelp(event.getChannel());
+			super.sendHelp(event.getChannel());
 			return true;
 		}
 		

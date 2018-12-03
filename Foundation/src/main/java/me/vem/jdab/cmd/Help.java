@@ -28,7 +28,7 @@ public class Help extends Command{
 		}
 		
 		Command cmd = Command.getCommand(args[0]);
-		if(cmd != null) cmd.getHelp(event.getChannel());
+		if(cmd != null) cmd.sendHelp(event.getChannel());
 		else Respond.async(event.getChannel(), "Command not recognized.\n" + getFormattedCommandList());
 		
 		return true;

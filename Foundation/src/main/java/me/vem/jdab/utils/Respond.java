@@ -2,7 +2,6 @@ package me.vem.jdab.utils;
 
 import java.util.Arrays;
 import java.util.Timer;
-import java.util.TimerTask;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Message;
@@ -171,11 +170,5 @@ public class Respond {
 	public static void timeout(TextChannel channel, MessageEmbed embed, long delay) {
 		Message m = sync(channel, embed);
 		if(delay > 0) deleteMessage(delay, m);
-	}
-	
-	private static class Task extends TimerTask {
-		private Runnable func;
-		public Task(Runnable r) { this.func = r; }
-		@Override public void run() { func.run(); }
 	}
 }

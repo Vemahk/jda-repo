@@ -1,10 +1,12 @@
 package me.vem.jdab.cmd;
 
+import java.awt.Color;
 import java.util.LinkedList;
 import java.util.List;
 
 import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.Respond;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
@@ -53,6 +55,12 @@ public abstract class Command {
 		commands.clear();
 	}
 	
+	public static void saveAll() {
+		for(Command cmd : commands)
+			if(cmd instanceof Configurable)
+				((Configurable)cmd).save();
+	}
+	
 	private final String name;
 	
 	protected Command(String cmdname) {
@@ -60,8 +68,34 @@ public abstract class Command {
 		addCommand(this);
 	}
 	
+	/**
+	 * Purpose of this command is to allow/reject users from using this particular command.
+	 * The args passed to this command are designed to be the same as the args passed to the run function. 
+	 * This allows developers to build sub-commands into their commands that can have different levels
+	 * of permissions.
+	 * @param event
+	 * @param args The command arguments.
+	 * @return true if the member given in the event has sufficient permissions to run this command/sub-command. False otherwise.
+	 */
 	public abstract boolean hasPermissions(GuildMessageReceivedEvent event, String... args);
-	protected abstract String help();
+	
+	/**
+	 * This command is, by default, unimplemented to let developers choose which of the two helps,
+	 * if either, they want to use. The downside, of course, is if you forget to implement it...
+	 * @return The string form of help for this command.
+	 */
+	protected String help() {
+		return "Help for this command has not been written. Contact the developer.";
+	}
+	
+	/**
+	 * This command is, by default, unimplemented to let developers choose which of the two helps,
+	 * if either, they want to use.
+	 * @return The MessageEmbed form of help for this command.
+	 */
+	protected EmbedBuilder embededHelp() {
+		return null;
+	}
 	
 	/**
 	 * Required postcondition: The command can be reloaded after this method is called.
@@ -92,9 +126,17 @@ public abstract class Command {
 	 * @param event
 	 * @return true, always. So you can return this statement in the run() method.
 	 */
-	public boolean getHelp(TextChannel channel) {
+	public boolean sendHelp(TextChannel channel) {
 		Respond.async(channel, this.help());
 		return true;
 	}
 	
+	public boolean sendEmbededHelp(TextChannel channel, boolean successful) {
+		EmbedBuilder builder = this.embededHelp();
+		
+		if(successful) builder.setColor(Color.GREEN);
+		else builder.setColor(Color.RED);
+		
+		return successful;
+	}
 }
