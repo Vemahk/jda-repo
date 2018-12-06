@@ -61,4 +61,9 @@ public class AddCustomReaction extends SecureCommand{
 	@Override public List<String> getValidKeySet() {
 		return Arrays.asList("acr");
 	}
+	
+	@Override
+	public String getDescription() {
+		return "'acr' is an initialization of Add Custom Reaction.\nA custom reaction is a particular phrase that the bot will reply to with a specific message.";
+	}
 }

@@ -118,4 +118,9 @@ public class StreamTrack extends SecureCommand{
 	@Override protected void unload() {
 		instance = null;
 	}
+
+	@Override
+	public String getDescription() {
+		return "Monitors specific users for if their Discord Presense switches to \"Streaming...\", under which case it will send a message to a particular channel.";
+	}
 }

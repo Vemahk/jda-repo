@@ -105,6 +105,10 @@ public class Purge extends SecureCommand{
 	public List<String> getValidKeySet() {
 		return Arrays.asList("purge");
 	}
+	@Override
+	public String getDescription() {
+		return "Deletes a number of messages from a specific user/from any user/that matches a regex.";
+	}
 }
 
 class SelfAPPurgeList extends SelfPurgeList{

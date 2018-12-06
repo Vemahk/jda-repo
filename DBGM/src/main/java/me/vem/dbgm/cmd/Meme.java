@@ -150,5 +150,8 @@ public class Meme extends SecureCommand implements Configurable{
 		instance = null;
 	}
 	
-	
+	@Override
+	public String getDescription() {
+		return "Stores a list of links to good memes.";
+	}
 }

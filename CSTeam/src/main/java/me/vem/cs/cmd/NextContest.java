@@ -66,5 +66,9 @@ public class NextContest extends Command{
 	protected void unload() {
 		instance = null;
 	}
+	@Override
+	public String getDescription() {
+		return "Prints the time, date, and location of the next known contest.";
+	}
 }
 

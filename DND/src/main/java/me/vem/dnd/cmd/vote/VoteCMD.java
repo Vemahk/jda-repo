@@ -154,7 +154,7 @@ public class VoteCMD extends Command implements EventListener{
 	@Override
 	protected String help() {
 		return "Usage:\n```\n"
-			 + "vote create <time> <:emote1:> <`desc1`> <:emote2:> <`desc2`> ... (etc) \n"
+			 + "vote create <time> <:emote1:> <`desc1`> <:emote2:> <`desc2`> ... (etc)\n"
 			 + "\t- 'time' is in units of seconds.\n"
 			 + "\t- Creates a vote mapping emotes to certain items to vote for.\n"
 			 + "\t- There must be at least two items to vote for."

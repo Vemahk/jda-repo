@@ -174,6 +174,10 @@ public class Contests extends Command implements Configurable{
 		save();
 		instance = null;
 	}
+	@Override
+	public String getDescription() {
+		return "Stores contest information.";
+	}
 }
 
 /**

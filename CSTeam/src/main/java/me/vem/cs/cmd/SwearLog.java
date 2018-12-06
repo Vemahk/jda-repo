@@ -130,5 +130,9 @@ public class SwearLog extends Command implements Configurable{
 		save();
 		instance = null;
 	}
+	@Override
+	public String getDescription() {
+		return "Monitors users' messages for a word from a given list and blocks any message that contains such words.";
+	}
 
 }

@@ -65,7 +65,8 @@ public class ForceSave extends SecureCommand{
 	public List<String> getValidKeySet() {
 		return Arrays.asList("forcesave");
 	}
-
-	
-	
+	@Override
+	public String getDescription() {
+		return "Forces the bot to save all of its databases.";
+	}
 }

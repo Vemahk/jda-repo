@@ -102,4 +102,8 @@ public class ExportChannel extends Command {
 	protected void unload() {
 		instance = null;
 	}
+	@Override
+	public String getDescription() {
+		return "Allows admins to export an entire channel's history to a file.";
+	}
 }

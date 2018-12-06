@@ -320,4 +320,9 @@ public class Permissions extends Command implements Configurable{
 			return keyReq.remove(key) != null;
 		}
 	}
+
+	@Override
+	public String getDescription() {
+		return "Handles users' and roles' permissions to allow/disallow people/groups from using certain commands.";
+	}
 }

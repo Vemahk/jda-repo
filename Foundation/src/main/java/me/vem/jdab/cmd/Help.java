@@ -54,4 +54,8 @@ public class Help extends Command{
 	protected void unload() {
 		instance = null;
 	}
+	@Override
+	public String getDescription() {
+		return "Prints a list of known commands, or tries and get the help for a specific command.";
+	}
 }

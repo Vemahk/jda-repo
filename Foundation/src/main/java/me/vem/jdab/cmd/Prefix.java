@@ -122,4 +122,8 @@ public class Prefix extends Command implements Configurable{
 		save();
 		instance = null;
 	}
+	@Override
+	public String getDescription() {
+		return "Sets the prefix to the command that this bot monitors for in your guild.";
+	}
 }

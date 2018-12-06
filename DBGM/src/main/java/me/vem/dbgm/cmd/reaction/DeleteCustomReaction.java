@@ -55,4 +55,9 @@ public class DeleteCustomReaction extends SecureCommand{
 	public List<String> getValidKeySet() {
 		return Arrays.asList("dcr");
 	}
+	
+	@Override
+	public String getDescription() {
+		return "'dcr' is an initialization of Delete Custom Reaction.\nA custom reaction is a particular phrase that the bot will reply to with a specific message.";
+	}
 }

@@ -69,4 +69,8 @@ public class AntiPurge extends SecureCommand{
 	public List<String> getValidKeySet() {
 		return Arrays.asList("antipurge");
 	}
+	@Override
+	public String getDescription() {
+		return "Copies the user's message and responds with that message designed in a way so as to not be purged by the Purge command.";
+	}
 }

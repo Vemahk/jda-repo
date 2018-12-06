@@ -83,4 +83,8 @@ public class ListCustomReactions extends Command{
 		instance = null;
 	}
 
+	@Override
+	public String getDescription() {
+		return "'lcr' is an initialization of List Custom Reactions.\nA custom reaction is a particular phrase that the bot will reply to with a specific message.";
+	}
 }

@@ -173,4 +173,8 @@ public class RoleOpt extends SecureCommand implements Configurable{
 		Gson gson = ExtFileManager.getGsonPretty();
 		database = gson.fromJson(content, new TypeToken<LinkedHashMap<Long, LinkedHashMap<String, Long>>>(){}.getType());
 	}
+	@Override
+	public String getDescription() {
+		return "Allows users to opt-in to certain roles that admins designate.";
+	}
 }

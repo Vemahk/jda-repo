@@ -80,6 +80,11 @@ public abstract class Command {
 	public abstract boolean hasPermissions(GuildMessageReceivedEvent event, String... args);
 	
 	/**
+	 * @return A string describing the function of the command.
+	 */
+	public abstract String getDescription();
+	
+	/**
 	 * This command is, by default, unimplemented to let developers choose which of the two helps,
 	 * if either, they want to use. The downside, of course, is if you forget to implement it...
 	 * @return The string form of help for this command.
