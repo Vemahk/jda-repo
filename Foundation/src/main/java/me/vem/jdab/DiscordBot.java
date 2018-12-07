@@ -40,6 +40,7 @@ public class DiscordBot {
 		}
 
 		Help.initialize();
+		jda.addEventListener(Help.getInstance());
 		Prefix.initialize();
 	}
 	

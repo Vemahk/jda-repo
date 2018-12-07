@@ -7,11 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 
-import org.jetbrains.annotations.NotNull;
-
 import com.vdurmont.emoji.EmojiManager;
 
 import me.vem.jdab.cmd.Command;
+import me.vem.jdab.utils.Emoji;
 import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.Respond;
 import me.vem.jdab.utils.Task;
@@ -20,7 +19,6 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageReaction.ReactionEmote;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
@@ -171,83 +169,7 @@ public class VoteCMD extends Command implements EventListener{
 		instance = null;
 	}
 	
-	private static class Emoji{
-		private Emote emote;
-		private String utf;
-		
-		/**
-		 * @param e The custom emote
-		 * @throws IllegalArgumentException if passed a null emote.
-		 */
-		public Emoji(@NotNull Emote e) {
-			if(e == null)
-				throw new IllegalArgumentException("Passed Emote is null.");
-			emote = e;
-		}
-		
-		/**
-		 * @param utf The UTF-32 representation of an emoji
-		 * @throws IllegalArgumentException if the passed string does not represent a UTF-32 Emoji.
-		 */
-		public Emoji(String utf) {
-			if(!EmojiManager.isEmoji(utf))
-				throw new IllegalArgumentException("Passed string must be a UTF-32 Emoji");
-			
-			this.utf = utf;
-		}
-		
-		public Emoji(ReactionEmote re) {
-			if(re.isEmote())
-				emote = re.getEmote();
-			else utf = re.getName();
-		}
-		
-		public boolean isEmote() {
-			return emote != null;
-		}
-		
-		public Emote getEmote() {
-			return emote;
-		}
-		
-		@Override
-		public String toString() {
-			if(emote != null)
-				return emote.getAsMention();
-			return utf;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((emote == null) ? 0 : emote.hashCode());
-			result = prime * result + ((utf == null) ? 0 : utf.hashCode());
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			Emoji other = (Emoji) obj;
-			if (emote == null) {
-				if (other.emote != null)
-					return false;
-			} else if (!emote.equals(other.emote))
-				return false;
-			if (utf == null) {
-				if (other.utf != null)
-					return false;
-			} else if (!utf.equals(other.utf))
-				return false;
-			return true;
-		}
-	}
+	
 	
 	private static class Vote{
 		private Message msg;

@@ -1,6 +1,7 @@
 package me.vem.jdab.cmd;
 
 import java.awt.Color;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -28,7 +29,7 @@ public abstract class Command {
 	}
 	
 	public static Command getCommand(String cmdname) {
-		if(cmdname == null || cmdname.length() == 0)
+		if(cmdname == null || cmdname.isEmpty())
 			return null;
 		
 		for(Command c : commands)
@@ -44,6 +45,10 @@ public abstract class Command {
 			out[i++] = c.name;
 		
 		return out;
+	}
+	
+	public static Iterator<Command> getIter(){
+		return commands.iterator();
 	}
 	
 	/**
@@ -69,17 +74,6 @@ public abstract class Command {
 	}
 	
 	/**
-	 * Purpose of this command is to allow/reject users from using this particular command.
-	 * The args passed to this command are designed to be the same as the args passed to the run function. 
-	 * This allows developers to build sub-commands into their commands that can have different levels
-	 * of permissions.
-	 * @param event
-	 * @param args The command arguments.
-	 * @return true if the member given in the event has sufficient permissions to run this command/sub-command. False otherwise.
-	 */
-	public abstract boolean hasPermissions(GuildMessageReceivedEvent event, String... args);
-	
-	/**
 	 * @return A string describing the function of the command.
 	 */
 	public abstract String getDescription();
@@ -92,13 +86,15 @@ public abstract class Command {
 	public abstract String[] usages();
 	
 	/**
-	 * This command is, by default, unimplemented to let developers choose which of the two helps,
-	 * if either, they want to use.
-	 * @return The MessageEmbed form of help for this command.
+	 * Purpose of this command is to allow/reject users from using this particular command.
+	 * The args passed to this command are designed to be the same as the args passed to the run function. 
+	 * This allows developers to build sub-commands into their commands that can have different levels
+	 * of permissions.
+	 * @param event
+	 * @param args The command arguments.
+	 * @return true if the member given in the event has sufficient permissions to run this command/sub-command. False otherwise.
 	 */
-	protected EmbedBuilder embededHelp() {
-		return null;
-	}
+	public abstract boolean hasPermissions(GuildMessageReceivedEvent event, String... args);
 	
 	/**
 	 * Required postcondition: The command can be reloaded after this method is called.
@@ -132,19 +128,21 @@ public abstract class Command {
 	public boolean sendHelp(TextChannel channel, boolean successful) {
 		EmbedBuilder builder = new EmbedBuilder();
 		
-		if(successful) builder.setColor(Color.GREEN);
-		else builder.setColor(Color.RED);
-		
 		StringBuilder usage = new StringBuilder();
 		for(String s : this.usages())
 			usage.append(s).append('\n');
 		
-		builder.setTitle("Command Help")
+		builder.setColor(successful ? Color.GREEN : Color.RED)
+				.setTitle("Command Help")
 				.setDescription(this.name)
 				.addField("Description:", this.getDescription(), false)
 				.addField("Usages:", usage.toString(), false);
 		
 		Respond.async(channel, builder.build());
 		return successful;
+	}
+	
+	protected String getName() {
+		return name;
 	}
 }
