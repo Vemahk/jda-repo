@@ -89,9 +89,7 @@ public abstract class Command {
 	 * if either, they want to use. The downside, of course, is if you forget to implement it...
 	 * @return The string form of help for this command.
 	 */
-	protected String help() {
-		return "Help for this command has not been written. Contact the developer.";
-	}
+	public abstract String[] usages();
 	
 	/**
 	 * This command is, by default, unimplemented to let developers choose which of the two helps,
@@ -131,17 +129,22 @@ public abstract class Command {
 	 * @param event
 	 * @return true, always. So you can return this statement in the run() method.
 	 */
-	public boolean sendHelp(TextChannel channel) {
-		Respond.async(channel, this.help());
-		return true;
-	}
-	
-	public boolean sendEmbededHelp(TextChannel channel, boolean successful) {
-		EmbedBuilder builder = this.embededHelp();
+	public boolean sendHelp(TextChannel channel, boolean successful) {
+		EmbedBuilder builder = new EmbedBuilder();
 		
 		if(successful) builder.setColor(Color.GREEN);
 		else builder.setColor(Color.RED);
 		
+		StringBuilder usage = new StringBuilder();
+		for(String s : this.usages())
+			usage.append(s).append('\n');
+		
+		builder.setTitle("Command Help")
+				.setDescription(this.name)
+				.addField("Description:", this.getDescription(), false)
+				.addField("Usages:", usage.toString(), false);
+		
+		Respond.async(channel, builder.build());
 		return successful;
 	}
 }

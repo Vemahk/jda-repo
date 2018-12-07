@@ -37,20 +37,19 @@ public class SwearLog extends Command implements Configurable{
 		if(!super.run(event, args)) return false;
 		
 		if(args.length==0) {//No arguments
-			sendHelp(event.getChannel());
-			return true;
+			return sendHelp(event.getChannel(), true);
 		}else if(args.length == 1) { //1 argument
 			if(args[0].equals("add")) //Add self
 				addMember(event, event.getMember());
 			else if(args[0].equals("remove"))
 				removeMember(event, event.getMember());
 		}else if(args.length != 2){//>2 arguments; invalid
-			return sendHelp(event.getChannel());
+			return sendHelp(event.getChannel(), true);
 		}else {//2 Arguments
 			boolean isAdd = "add".equals(args[0]);
 			boolean isRem = "remove".equals(args[0]);
 			if(!(isAdd || isRem))
-				return sendHelp(event.getChannel());
+				return sendHelp(event.getChannel(), true);
 			
 			List<Member> mentions = event.getMessage().getMentionedMembers();
 			if(mentions.size() == 0) { //No mentions
@@ -98,8 +97,12 @@ public class SwearLog extends Command implements Configurable{
 	}
 
 	@Override
-	public String help() {
-		return "Usage: `swearlog add [@user]`";
+	public String[] usages() {
+		return new String[] {
+			"`swearlog add [@user]",
+			" - Adds a given user to a list who receives swear notifications, or",
+			" - Adds the user who ran the command to said list if no user is mentioned."
+		};
 	}
 	
 	@Override

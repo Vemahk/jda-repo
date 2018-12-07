@@ -45,10 +45,8 @@ public class Prefix extends Command implements Configurable{
 	public boolean run(GuildMessageReceivedEvent event, String... args) {
 		if(!super.run(event, args)) return false;
 		
-		if(args.length > 1) {
-			super.sendHelp(event.getChannel());
-			return true;
-		}
+		if(args.length > 1)
+			return super.sendHelp(event.getChannel(), true);
 		
 		if(args.length == 0) {
 			Respond.asyncf(event.getChannel(), "Guild's Current Prefix: `%s`", getPrefix(event.getGuild()));
@@ -83,10 +81,12 @@ public class Prefix extends Command implements Configurable{
 	}
 
 	@Override
-	protected String help() {
-		return "Usage: `prefix [newprefix]`\n"
-			 + "The bot will respond with the guild's current prefix if no argument is given.\n"
-			 + "The bot will set the guild's prefix to the given argument otherwise.";
+	public String[] usages() {
+		return new String[] {
+			"`prefix [newprefix]`",
+			" - Responds with the guild's current prefix if no argument is given, or",
+			" - Sets the guild's prefix to the given argument."
+		};
 	}
 	
 	@Override

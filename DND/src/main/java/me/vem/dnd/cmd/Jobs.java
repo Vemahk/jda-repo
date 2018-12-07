@@ -47,7 +47,7 @@ public class Jobs extends Command implements Configurable{
 		Guild guild = event.getGuild();
 		
 		if(args.length == 0)
-			return getHelp(channel, userMsg, 10000);
+			return sendHelp(channel, true);
 		
 		Map<String, List<Job>> gDatabase = database.get(guild.getIdLong());
 		if(gDatabase == null)
@@ -62,7 +62,7 @@ public class Jobs extends Command implements Configurable{
 			}else Respond.timeout(channel, userMsg, 5000, "Your guild does not have any cities with job listings.");
 		}else if("jobkeys".equals(args[0])) {
 			if(args.length < 2)
-				return !getHelp(channel, userMsg, 10000);
+				return sendHelp(channel, false);
 			
 			args[1] = casify(args[1]);
 			
@@ -78,7 +78,7 @@ public class Jobs extends Command implements Configurable{
 			Respond.timeout(channel, userMsg, 10000, response.append("```").toString());
 		}else if("add".equals(args[0])){
 			if(args.length < 4)
-				return !getHelp(channel, userMsg, 10000);
+				return sendHelp(channel, false);
 			
 			args[1] = casify(args[1]);
 			List<Job> jobs = gDatabase.get(args[1]);
@@ -96,7 +96,7 @@ public class Jobs extends Command implements Configurable{
 			Respond.timeoutf(channel, userMsg, 5000, "Job `%s` added to the city `%s`", args[2], args[1]);
 		}else if("remove".equals(args[0])){
 			if(args.length < 3)
-				return !getHelp(channel, userMsg, 10000);
+				return sendHelp(channel, false);
 			
 			args[1] = casify(args[1]);
 			
@@ -139,19 +139,14 @@ public class Jobs extends Command implements Configurable{
 		return true;
 	}
 
-	@Override protected String help() {
-		return "Usage:\n```\n"
-			 + "jobs <city> -- Prints the list of jobs in that city.\n"
-			 + "jobs cities -- Prints a list of cities.\n"
-			 + "jobs jobkeys <city> -- Prints the keys of the jobs in that city.\n"
-			 + "jobs add <city> <job-key> <description> -- Adds a job to a city.\n"
-			 + "jobs remove <city> <job-key> -- Removes a job from a city.\n"
-			 + "```";
-	}
-	
-	public boolean getHelp(TextChannel channel, Message userMsg, long delay) {
-		Respond.timeout(channel, userMsg, delay, help());
-		return true;
+	@Override public String[] usages() {
+		return new String[] {
+			"`jobs <city>` -- Prints the list of jobs in that city.",
+			"`jobs cities` -- Prints a list of cities.",
+			"`jobs jobkeys <city>` -- Prints the keys of the jobs in that city.",
+			"`jobs add <city> <job-key> <description>` -- Adds a job to a city.",
+			"`jobs remove <city> <job-key>` -- Removes a job from a city."
+		};
 	}
 	
 	@Override public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {

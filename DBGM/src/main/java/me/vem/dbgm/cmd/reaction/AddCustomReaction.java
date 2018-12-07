@@ -23,10 +23,8 @@ public class AddCustomReaction extends SecureCommand{
 	public boolean run(GuildMessageReceivedEvent event, String... args) {
 		if(!super.run(event, args)) return false;
 		
-		if(args.length != 2) {
-			sendHelp(event.getChannel());
-			return false;
-		}
+		if(args.length != 2)
+			return sendHelp(event.getChannel(), false);
 		
 		if(ReactionListener.getInstance().addReaction(event.getGuild(), args[0], args[1])) {
 			Respond.async(event.getChannel(), "Reaction added.");
@@ -44,13 +42,10 @@ public class AddCustomReaction extends SecureCommand{
 	}
 
 	@Override
-	protected String help() {
-		return "acr stands for Add Custom Reaction.\n"
-			 + "A Custom Reaction is an automatic bot response to a specific message.\n"
-			 + "Note: Custom Reactions are case-sensitive and per-guild.\n\n"
-			 + "Usage:\n```\n"
-			 + "acr `[trigger]` `[response]` -- Adds a custom reaction to a particular trigger\n"
-			 + "```";
+	public String[] usages() {
+		return new String[] {
+			"``acr `[trigger]` `[response]` `` -- Adds a custom reaction with a specific trigger."
+		};
 	}
 
 	@Override

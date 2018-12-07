@@ -55,17 +55,17 @@ public class VoteCMD extends Command implements EventListener{
 			return false;
 		
 		if(args.length < 6)
-			return sendHelp(event.getChannel());
+			return sendHelp(event.getChannel(), true);
 		
 		if(!"create".equalsIgnoreCase(args[0]))
-			return !sendHelp(event.getChannel());
+			return sendHelp(event.getChannel(), false);
 		
 		int seconds;
 		try {
 			seconds = Integer.parseInt(args[1]);
 		} catch (NumberFormatException e) {
 			Logger.err("Vote: could not parse number.");
-			return !sendHelp(event.getChannel());
+			return sendHelp(event.getChannel(), false);
 		}
 		
 		Map<Emoji, String> items = new LinkedHashMap<>();
@@ -81,7 +81,7 @@ public class VoteCMD extends Command implements EventListener{
 			
 			if(e == null) {
 				Logger.errf("Vote: could not read emote '%s'.", args[i]);
-				return !sendHelp(event.getChannel());
+				return sendHelp(event.getChannel(), false);
 			}
 			
 			if(items.containsKey(e)) {
@@ -152,13 +152,13 @@ public class VoteCMD extends Command implements EventListener{
 	}
 
 	@Override
-	protected String help() {
-		return "Usage:\n```\n"
-			 + "vote create <time> <:emote1:> <`desc1`> <:emote2:> <`desc2`> ... (etc)\n"
-			 + "\t- 'time' is in units of seconds.\n"
-			 + "\t- Creates a vote mapping emotes to certain items to vote for.\n"
-			 + "\t- There must be at least two items to vote for."
-			 + "```";
+	public String[] usages() {
+		return new String[] {
+			"`vote create <time> <:emote1:> <`desc1`> <:emote2:> <`desc2`> ... (etc)`",
+			" - `time` is in units of seconds.",
+			" - Creates a vote mapping emotes to certain items to vote for.",
+			" - There must be at least two items to vote for."
+		};
 	}
 
 	@Override

@@ -95,9 +95,14 @@ public class ExportChannel extends Command {
 		return event.getMember().hasPermission(Permission.ADMINISTRATOR);
 	}
 	
-	@Override protected String help() {
-		return "Usage: none at the moment.";
+	@Override public String[] usages() {
+		return new String[] {
+			"`exportchannel` -- Exports this channel to a file.",
+			"`exportchannel all` -- Exports the entire guild to a folder.",
+			"`exportchannel [#channel] [#channel2] ...` -- Exports the mentioned channels to files."
+		};
 	}
+	
 	@Override
 	protected void unload() {
 		instance = null;
@@ -105,6 +110,6 @@ public class ExportChannel extends Command {
 	
 	@Override
 	public String getDescription() {
-		return "Exports channel to a text file.";
+		return "Allows admins to export an entire channel's history to a file.";
 	}
 }

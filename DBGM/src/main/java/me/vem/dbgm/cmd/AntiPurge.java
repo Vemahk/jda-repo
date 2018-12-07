@@ -23,10 +23,8 @@ public class AntiPurge extends SecureCommand{
 	public boolean run(GuildMessageReceivedEvent event, String... args) {
 		if(!super.run(event, args)) return false;
 		
-		if(args.length == 0) {
-			super.sendHelp(event.getChannel());
-			return false;
-		}
+		if(args.length == 0)
+			super.sendHelp(event.getChannel(), false);
 		
 		StringBuilder out = new StringBuilder();
 		
@@ -54,10 +52,10 @@ public class AntiPurge extends SecureCommand{
 	}
 
 	@Override
-	public String help() {
-		return "Usage:\n```\n"
-			 + "antipurge <message>\n"
-			 + "```";
+	public String[] usages() {
+		return new String[] {
+			"`antipurge <message>`"
+		};
 	}
 
 	@Override

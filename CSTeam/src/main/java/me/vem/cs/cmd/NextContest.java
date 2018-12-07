@@ -58,8 +58,10 @@ public class NextContest extends Command{
 	}
 
 	@Override
-	public String help() {
-		return "Usage: `nextcontest`";
+	public String[] usages() {
+		return new String[] {
+			"`nextcontest`"
+		};
 	}
 	
 	@Override

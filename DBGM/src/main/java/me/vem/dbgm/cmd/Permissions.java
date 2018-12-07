@@ -46,7 +46,7 @@ public class Permissions extends Command implements Configurable{
 		if(!super.run(event, args)) return false;
 		
 		if(args.length == 0) 
-			return sendHelp(event.getChannel());
+			return sendHelp(event.getChannel(), true);
 		
 		Data data = database.get(event.getGuild().getIdLong());
 		if(data == null)
@@ -54,7 +54,7 @@ public class Permissions extends Command implements Configurable{
 		
 		if("set".equals(args[0])) {
 			if(args.length != 3) 
-				return sendHelp(event.getChannel());
+				return sendHelp(event.getChannel(), false);
 			
 			int lvl = 0;
 			
@@ -85,10 +85,10 @@ public class Permissions extends Command implements Configurable{
 				return true;
 			}
 			
-			return sendHelp(event.getChannel());
+			return sendHelp(event.getChannel(), false);
 		}else if("keys".equals(args[0])) {
 			if(args.length != 2)
-				return sendHelp(event.getChannel());
+				return sendHelp(event.getChannel(), false);
 			
 			Command c = Command.getCommand(args[1]);
 			
@@ -111,7 +111,7 @@ public class Permissions extends Command implements Configurable{
 			//end keys
 		}else if("require".equals(args[0])) {
 			if(args.length != 3)
-				return sendHelp(event.getChannel());
+				return sendHelp(event.getChannel(), false);
 			
 			int lvl = 0;
 			try {
@@ -125,14 +125,14 @@ public class Permissions extends Command implements Configurable{
 			Respond.asyncf(event.getChannel(), "Key `%s` now requires a permission level of %d", args[1], lvl);
 		}else if("unrequire".equals(args[0])) {
 			if(args.length != 2)
-				return sendHelp(event.getChannel());
+				return sendHelp(event.getChannel(), false);
 			
 			if(data.removeRequirement(args[1]))
 				Respond.asyncf(event.getChannel(), "Key `%s` no longer requires special permissions.", args[1]);
 			else Respond.asyncf(event.getChannel(), "Key `%s` was not required already.", args[1]);
 		}else if("check".equals(args[0])) {
 			if(args.length != 2)
-				return sendHelp(event.getChannel());
+				return sendHelp(event.getChannel(), false);
 			
 			Respond.asyncf(event.getChannel(), "Requirement for `%s`: %d", args[1], data.getKeyRequirement(args[1]));
 		}else{
@@ -154,7 +154,7 @@ public class Permissions extends Command implements Configurable{
 				return true;
 			}
 			
-			return sendHelp(event.getChannel());
+			return sendHelp(event.getChannel(), false);
 		}
 		
 		return true;
@@ -176,22 +176,22 @@ public class Permissions extends Command implements Configurable{
 	public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
 		return event.getMember().hasPermission(Permission.ADMINISTRATOR);
 	}
-
+	
 	@Override
-	public String help() {
-		return "Usage:\n```\n"
-			 + "permissions -- shows the user's current permission level\n"
-			 + "permissions <@user> -- returns the user's permission level.\n"
-			 + "permissions <@role> -- returns the role's permission level.\n"
-			 + "permissions default -- returns the default permission levle.\n"
-			 + "permissions set <@user> <level> -- sets the user's permission level.\n"
-			 + "permissions set <@role> <level> -- sets a role's default permission level.\n"
-			 + "permissions set default <level> -- sets the default permission level for everybody.\n"
-			 + "permissions keys <cmdname> -- gets a list of valid keys for the command.\n"
-			 + "permissions require <cmdkey> <level> -- sets the required permission level to run a command.\n"
-			 + "permissions unrequire <cmdkey> -- removes the need for any permission level.\n"
-			 + "permissions check <cmdkey> -- returns the current requirement for a command key.\n"
-			 + "```";
+	public String[] usages() {
+		return new String[] {
+			"`permissions` -- shows the user's current permission level",
+			"`permissions <@user>` -- returns the user's permission level.",
+			"`permissions <@role>` -- returns the role's permission level.",
+			"`permissions default` -- returns the default permission levle.",
+			"`permissions set <@user> <level>` -- sets the user's permission level.",
+			"`permissions set <@role> <level>` -- sets a role's default permission level.",
+			"`permissions set default <level>` -- sets the default permission level for everybody.",
+			"`permissions keys <cmdname>` -- gets a list of valid keys for the command.",
+			"`permissions require <cmdkey> <level>` -- sets the required permission level to run a command.",
+			"`permissions unrequire <cmdkey>` -- removes the need for any permission level.",
+			"`permissions check <cmdkey>` -- returns the current requirement for a command key."
+		};
 	}
 	
 	@Override public void save() {

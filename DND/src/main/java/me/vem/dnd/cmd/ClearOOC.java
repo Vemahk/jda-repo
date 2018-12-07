@@ -135,12 +135,14 @@ public class ClearOOC extends Command implements Configurable{
 		allowedRooms = gson.fromJson(content, new TypeToken<HashMap<Long, HashSet<Long>>>(){}.getType());
 	}
 	
-	@Override protected String help() {
-		return "Usage:\n```\n"
-			 + "clearooc [amount=50] -- clears the last 'amount' entries that match OOC.\n"
-			 + "\t(if 'amount' is 0, then it will check all the messages in the channel)\n"
-			 + "```";
+	@Override
+	public String[] usages() {
+		return new String[] {
+			"`clearocc [num=50]` -- clears the last `num` entries that match OOC format.",
+			" - If `num` is 0, then it will attempt to check all messages in the channel."
+		};
 	}
+	
 	@Override
 	protected void unload() {
 		save();

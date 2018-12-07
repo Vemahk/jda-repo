@@ -48,12 +48,11 @@ public class ForceSave extends SecureCommand{
 	public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
 		return Permissions.getInstance().hasPermissionsFor(event.getMember(), "forcesave");
 	}
-
-	@Override
-	protected String help() {
-		return "Usage:\n```\n"
-			 + "forcesave -- forces the save of all registered commands.\n"
-			 + "```";
+	
+	@Override public String[] usages() {
+		return new String[] {
+			"`forcesave` -- Forces the save of all registed commands."
+		};
 	}
 
 	@Override

@@ -39,10 +39,8 @@ public class Meme extends SecureCommand implements Configurable{
 	public boolean run(GuildMessageReceivedEvent event, String... args) {
 		if(!super.run(event, args)) return false;
 		
-		if(args.length == 0) {
-			Respond.async(event.getChannel(), help());
-			return false;
-		}
+		if(args.length == 0)
+			return sendHelp(event.getChannel(), true);
 		
 		String meme = args[0];
 		if(meme.equals("list")) {
@@ -65,10 +63,8 @@ public class Meme extends SecureCommand implements Configurable{
 			event.getMessage().delete().queue();
 			
 		}else if(meme.equals("add")) {
-			if(args.length<3) {
-				Respond.asyncf(event.getChannel(), "Invalid usage.%n%s", help());
-				return false;
-			}
+			if(args.length<3)
+				return sendHelp(event.getChannel(), false);
 			
 			memes.put(args[1], args[2]);
 			Respond.asyncf(event.getChannel(), "Meme `%s` added", args[1]);
@@ -137,13 +133,14 @@ public class Meme extends SecureCommand implements Configurable{
 		Gson gson = ExtFileManager.getGsonPretty();
 		memes = gson.fromJson(content, new TypeToken<LinkedHashMap<String, String>>(){}.getType());
 	}
-
-	@Override protected String help() {
-		return "Usage:\n```\n"
-			 + "meme <memename> -- responds with the saved meme.\n"
-			 + "meme list [pagenum=1] -- Lists a given page of memes.\n"
-			 + "```";
+	
+	@Override public String[] usages() {
+		return new String[] {
+			"`meme <memename>` -- Responds with the saved meme.",
+			"`meme list [pagenum=1]` -- Lists a given page of memes."
+		};
 	}
+	
 	@Override
 	protected void unload() {
 		save();

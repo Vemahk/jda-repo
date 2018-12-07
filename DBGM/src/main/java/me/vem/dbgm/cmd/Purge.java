@@ -48,7 +48,7 @@ public class Purge extends SecureCommand{
 			else purge(event.getChannel(), n, mem);
 		else {
 			if(args.length == 1 || args.length > 4) 
-				return !sendHelp(event.getChannel());
+				return sendHelp(event.getChannel(), false);
 			if(mem == null)
 				purge(event.getChannel(), n, args[1]);
 			else purge(event.getChannel(), n, args[1], mem);
@@ -87,16 +87,19 @@ public class Purge extends SecureCommand{
 	public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
 		return Permissions.getInstance().hasPermissionsFor(event.getMember(), "purge");
 	}
-
+	
 	@Override
-	public String help() {
-		return "Usage:```\n"
-			 + "purge [@user] [num=100]\n\t- Purges the last [num] messages of any specified person, or of everyone if no person is metnioned.\n\n"
-			 + "purge regex `<regex>` [@user] [num=100]\n"
-			 + "\t- Purges messages matching the given regex of a specified (or any) person. Searches the last [num] messages. Regex follows JAVA's format.\n"
-			 + "\t- Example: purge regex `.\\d{1,4}\\S+ blah` 50 --> Would scan the last 50 messages for something that matched that regex crap.\n"
-			 + "\t- For regex information, refer here: https://regexr.com/\n```";
+	public String[] usages() {
+		return new String[] {
+			"`purge [@user] [num=100]`",
+			" - Purges the last `num` messages of any specified person, or of every person if none is specified.",
+			"``purge regex `<regex>` [@user] [num=100]``",
+			" - Purges messages matching the given regex of a specific (or any) person. Searches the last `num` messages. Regex follow JAVA format.",
+			" - Example: purge regex `.\\d{1,4}\\S+ blah` 50 --> Would scan the last 50 messages for something that matched that regex crap.",
+			" - For regex information, refer here: https://regexr.com/"
+		};
 	}
+	
 	@Override
 	protected void unload() {
 		instance = null;

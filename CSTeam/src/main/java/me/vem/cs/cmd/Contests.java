@@ -44,7 +44,7 @@ public class Contests extends Command implements Configurable{
 		if(!super.run(event, args)) return false;
 		
 		if(args.length == 0) 
-			return sendHelp(event.getChannel());
+			return sendHelp(event.getChannel(), true);
 		else if(args.length==1) {
 			//The real help menu.
 			String vars = "\n```- date [required]\n"
@@ -140,10 +140,11 @@ public class Contests extends Command implements Configurable{
 	}
 
 	@Override
-	public String help() {
-		return "Usage:\n"
-			 + "`contests add <vars...>`\n"
-			 + "`contests edit <contestname> <vars...>`";
+	public String[] usages() {
+		return new String[] {
+			"`contests add <vars...>`",
+			"`contests edit <contestname> <vars...>"
+		};
 	}
 	
 	@Override

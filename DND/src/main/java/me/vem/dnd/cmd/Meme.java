@@ -42,10 +42,8 @@ public class Meme extends Command implements Configurable{
 		TextChannel channel = event.getChannel();
 		Message userMsg = event.getMessage();
 		
-		if(args.length == 0) {
-			Respond.timeout(channel, userMsg, 5000, help());
-			return false;
-		}
+		if(args.length == 0)
+			return sendHelp(channel, true);
 		
 		String meme = args[0];
 		if(meme.equals("list")) {
@@ -66,10 +64,8 @@ public class Meme extends Command implements Configurable{
 			event.getMessage().delete().queue();
 			
 		}else if(meme.equals("add")) {
-			if(args.length<3) {
-				Respond.timeoutf(channel, userMsg, 5000, "Invalid usage.%n%s", help());
-				return false;
-			}
+			if(args.length<3)
+				return sendHelp(channel, false);
 			
 			memes.put(args[1], args[2]);
 			Respond.timeout(channel, userMsg, 5000, "Meme added. OuO");
@@ -133,10 +129,14 @@ public class Meme extends Command implements Configurable{
 		Gson gson = ExtFileManager.getGsonPretty();
 		memes = gson.fromJson(content, new TypeToken<LinkedHashMap<String, String>>(){}.getType());
 	}
-
-	@Override protected String help() {
-		return "Usage: meme <memename> or meme list [pagenum]";
+	
+	@Override public String[] usages() {
+		return new String[] {
+			"`meme <memename>` -- Responds with the saved meme.",
+			"`meme list [pagenum=1]` -- Lists a given page of memes."
+		};
 	}
+	
 	@Override
 	protected void unload() {
 		save();

@@ -29,28 +29,28 @@ public class StreamTrack extends SecureCommand{
 		if(!super.run(event, args)) return false;
 		
 		if(args.length == 0)
-			return sendHelp(event.getChannel());
+			return sendHelp(event.getChannel(), true);
 		
 		PresenceListener listener = PresenceListener.getInstance();
 		
 		if("add".equals(args[0])) {
 			if(args.length == 1)
-				return !sendHelp(event.getChannel());
+				return sendHelp(event.getChannel(), false);
 			
 			Member mentioned = Utilities.getMemberFromMention(event.getGuild(), args[1]);
 			if(mentioned == null)
-				return !sendHelp(event.getChannel());
+				return sendHelp(event.getChannel(), false);
 			
 			if(listener.getData(event.getGuild()).track(mentioned.getUser()))
 				Respond.asyncf(event.getChannel(), "%s is now being tracked for twitch streaming.", mentioned.getEffectiveName());
 			else Respond.asyncf(event.getChannel(), "%s was already being tracked for twitch streaming.", mentioned.getEffectiveName());
 		}else if("remove".equals(args[0])) {
 			if(args.length == 1)
-				return !sendHelp(event.getChannel());
+				return sendHelp(event.getChannel(), false);
 			
 			Member mentioned = Utilities.getMemberFromMention(event.getGuild(), args[1]);
 			if(mentioned == null)
-				return !sendHelp(event.getChannel());
+				return sendHelp(event.getChannel(), false);
 			
 			if(listener.getData(event.getGuild()).untrack(mentioned.getUser()))
 				Respond.asyncf(event.getChannel(), "%s removed", mentioned.getEffectiveName());
@@ -62,7 +62,7 @@ public class StreamTrack extends SecureCommand{
 			}else {
 				TextChannel target = Utilities.getTextChannelFromMention(event.getGuild(), args[1]);
 				if(target == null)
-					return !sendHelp(event.getChannel());
+					return sendHelp(event.getChannel(), false);
 				
 				listener.getData(event.getGuild()).setResponseChannel(target);
 				Respond.asyncf(event.getChannel(), "Streamers will now be mentioned in the %s channel!", args[1]);
@@ -74,7 +74,7 @@ public class StreamTrack extends SecureCommand{
 				listener.getData(event.getGuild()).setMessage(args[1]);
 				Respond.asyncf(event.getChannel(), "Set the bot's response to: `%s`", args[1]);
 			}
-		}else return sendHelp(event.getChannel());
+		}else return sendHelp(event.getChannel(), true);
 		
 		return true;
 	}
@@ -104,15 +104,15 @@ public class StreamTrack extends SecureCommand{
 	}
 
 	@Override
-	protected String help() {
-		return "Usage:\n```\n"
-			 + "stream add <@user> -- Adds a mentioned user to the list of streamers.\n"
-			 + "stream remove <@user> -- Removes a mentioned user from the list of streamers.\n"
-			 + "stream channel [#channel] -- Sets this channel (or a mentioned one) to be the channel the bot mentions the streamer in.\n"
-			 + "stream response `<response message>` -- Sets the text the bot will send when a streamers starts to stream.\n"
-			 + "\t- %user% will be replaced with the streamer's mention.\n"
-			 + "\t- %url% will be replaced with the twitch url of the streamer.\n"
-			 + "```";
+	public String[] usages() {
+		return new String[] {
+			"`stream add <@user>` -- Adds a mentioned user to the list of streamers.",
+			"`stream remove <@user>` -- Removes a mentioned user from the list of streamers.",
+			"`stream channel [#channel]` -- Sets this channel (or a mentioned one) to be the channel the bot mention the streamer in.",
+			"`stream response \\`<response message>\\`` -- Sets the text the bot will send when a streamer starts to stream.",
+			" - `%user%` will be replaced with the streamer's mention.",
+			" - `%url%` will be replaced with the twitch url of the streamer."
+		};
 	}
 
 	@Override protected void unload() {

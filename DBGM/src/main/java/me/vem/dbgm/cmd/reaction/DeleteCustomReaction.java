@@ -22,10 +22,8 @@ public class DeleteCustomReaction extends SecureCommand{
 	@Override public boolean run(GuildMessageReceivedEvent event, String... args) {
 		if(!super.run(event, args)) return false;
 		
-		if(args.length != 1) {
-			sendHelp(event.getChannel());
-			return false;
-		}
+		if(args.length != 1)
+			return sendHelp(event.getChannel(), false);
 		
 		if(ReactionListener.getInstance().removeReaction(event.getGuild(), args[0]))
 			Respond.async(event.getChannel(), "Custom reaction removed!");
@@ -38,15 +36,12 @@ public class DeleteCustomReaction extends SecureCommand{
 	public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
 		return Permissions.getInstance().hasPermissionsFor(event.getMember(), "dcr");
 	}
-
+	
 	@Override
-	protected String help() {
-		return "dcr stands for Delete Custom Reaction.\n"
-			 + "A Custom Reaction is an automatic bot response to a specific message.\n"
-			 + "Note: Custom Reactions are case-sensitive and per-guild.\n\n"
-			 + "Usage:\n```\n"
-			 + "dcr `[trigger]` -- Removes a custom reaction by its trigger.\n"
-			 + "```";
+	public String[] usages() {
+		return new String[] {
+			"``dcr `[trigger]` `` -- Removes a custom reaction based upon its trigger."
+		};
 	}
 
 	@Override protected void unload() { instance = null; }

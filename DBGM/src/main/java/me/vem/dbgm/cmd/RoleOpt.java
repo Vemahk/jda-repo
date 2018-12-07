@@ -45,7 +45,7 @@ public class RoleOpt extends SecureCommand implements Configurable{
 			return false;
 		
 		if(args.length == 0)
-			return sendHelp(event.getChannel());
+			return sendHelp(event.getChannel(), true);
 
 		Map<String, Long> guildDatabase = database.get(event.getGuild().getIdLong());
 		if(guildDatabase == null)
@@ -66,7 +66,7 @@ public class RoleOpt extends SecureCommand implements Configurable{
 			Respond.async(event.getChannel(), response.append("```").toString());
 		}else if("not".equals(args[0])) {
 			if(args.length < 2)
-				return !sendHelp(event.getChannel());
+				return sendHelp(event.getChannel(), false);
 			
 			if(!guildDatabase.containsKey(args[1])) {
 				Respond.async(event.getChannel(), "Your guild does not have that alias.");
@@ -79,7 +79,7 @@ public class RoleOpt extends SecureCommand implements Configurable{
 					(failure) -> Respond.asyncf(event.getChannel(), "You did not have the role `%s`", r.getName()));
 		}else if("assign".equals(args[0])) {
 			if(args.length < 3) 
-				return !sendHelp(event.getChannel());
+				return sendHelp(event.getChannel(), false);
 			
 			if(guildDatabase.containsKey(args[2])) {
 				Role roleForExistingAlias = event.getGuild().getRoleById(guildDatabase.get(args[2]));
@@ -97,7 +97,7 @@ public class RoleOpt extends SecureCommand implements Configurable{
 			Respond.asyncf(event.getChannel(), "`%s` added as an alias for `%s`!", args[2], r.getName());
 		}else if("unassign".equals(args[0])) {
 			if(args.length < 2)
-				return !sendHelp(event.getChannel());
+				return sendHelp(event.getChannel(), false);
 			
 			if(!guildDatabase.containsKey(args[1])) {
 				Respond.asyncf(event.getChannel(), "`%s` is not a known role alias.", args[1]);
@@ -129,13 +129,14 @@ public class RoleOpt extends SecureCommand implements Configurable{
 		return true;
 	}
 
-	@Override protected String help() {
-		return "Usage:\n```\n"
-			 + "iam list -- gives a list of roles with their alias.\n"
-			 + "iam <rolealias> -- Opts you in to a role by its alias.\n"
-			 + "iam not <rolealias> -- Opts you out of a role by its alias.\n"
-			 + "iam assign <@role> <alias> -- assigns an alias to a role.\n"
-			 + "iam unassign <alias> -- unassigns an alias from a role.\n```";
+	@Override public String[] usages() {
+		return new String[] {
+			"`iam list` -- gives a list of roles with their alias.",
+			"`iam <rolealias>` -- Opts you in to a role by its alias.",
+			"`iam not <rolealias>` -- Opts you out of a role by its alias.",
+			"`iam assign <@role> <alias>` -- assigns an alias to a role.",
+			"`iam unassign <alias>` -- unassigns an alias from a role."
+		};
 	}
 
 	@Override protected void unload() {

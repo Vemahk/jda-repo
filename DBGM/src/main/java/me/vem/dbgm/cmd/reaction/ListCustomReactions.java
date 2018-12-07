@@ -26,10 +26,10 @@ public class ListCustomReactions extends Command{
 			try {
 				page = Integer.parseInt(args[0]);
 			}catch(NumberFormatException e) {
-				return !sendHelp(event.getChannel());
+				return sendHelp(event.getChannel(), false);
 			}
 		}else if(args.length > 1)
-			return !sendHelp(event.getChannel());
+			return sendHelp(event.getChannel(), false);
 		
 		final int fPage = page; //For the lambda.
 		if(lastList == null) respondPage(event, page);
@@ -70,12 +70,12 @@ public class ListCustomReactions extends Command{
 	public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
 		return true;
 	}
-
+	
 	@Override
-	protected String help() {
-		return "Usage:\n```\n"
-			 + "lcr [pagenum=1] -- Lists a given page of custom reactions.\n"
-			 + "```";
+	public String[] usages() {
+		return new String[] {
+			"`lcr [pagenum=1]` -- Lists a given page of custom reactions."
+		};
 	}
 
 	@Override

@@ -28,7 +28,7 @@ public class Help extends Command{
 		}
 		
 		Command cmd = Command.getCommand(args[0]);
-		if(cmd != null) cmd.sendHelp(event.getChannel());
+		if(cmd != null) cmd.sendHelp(event.getChannel(), true);
 		else Respond.async(event.getChannel(), "Command not recognized.\n" + getFormattedCommandList());
 		
 		return true;
@@ -47,8 +47,12 @@ public class Help extends Command{
 	}
 	
 	@Override
-	public String help() {
-		return "Usage: `help [command]`"; //Do not list this command. 
+	public String[] usages() {
+		return new String[] {
+			"`help [command]`",
+			" - Prints the help for the given command, or",
+			" - Prints a list of commands if no command is mentioned."
+		};
 	}
 	@Override
 	protected void unload() {
