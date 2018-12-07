@@ -79,6 +79,13 @@ public class ExtFileManager {
 		return target;
 	}
 	
+	public static File getFile(String dir, String fileName) {
+		File directory = new File(dir);
+		if(!directory.exists()) directory.mkdirs();
+		
+		return new File(directory, fileName);
+	}
+	
 	/**
 	 * Creates the PrintWriter for the given fileName in the config/ directory. 
 	 * 

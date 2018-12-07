@@ -77,7 +77,7 @@ public class Help extends Command implements EventListener{
 				break;
 			}
 			Command nxt = iter.next();
-			builder.addField(nxt.getName() + " - Description", nxt.getDescription(), false);
+			builder.addField(nxt.getName(), nxt.getDescription(), false);
 		}
 		
 		return builder.setColor(Color.GREEN);

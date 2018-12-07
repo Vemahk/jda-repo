@@ -1,5 +1,6 @@
 package me.vem.dbgm.cmd;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
@@ -9,12 +10,14 @@ import java.util.GregorianCalendar;
 
 import me.vem.jdab.cmd.Command;
 import me.vem.jdab.utils.ExtFileManager;
+import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.Respond;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Category;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.Message.Attachment;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 public class ExportChannel extends Command {
@@ -46,9 +49,9 @@ public class ExportChannel extends Command {
 			for(TextChannel channel : event.getMessage().getMentionedChannels()) {
 				Category parent = channel.getParent();
 				String catname = (parent == null) ? "global_category" : parent.getName();
-				export(channel, event.getGuild().getName() + '/' + catname + '/');
+				sendFile(event.getAuthor(), export(channel, event.getGuild().getName() + '/' + catname + '/'));
 			}
-		}else export(event.getChannel(), "channel_export/");
+		}else sendFile(event.getAuthor(), export(event.getChannel(), "channel_export/"));
 		
 		response.editMessage("Export completed\nRuntime: " + (System.currentTimeMillis() - start) +"ms").queue();
 		Respond.deleteMessages(event.getChannel(), 5000, response, event.getMessage());
@@ -57,13 +60,15 @@ public class ExportChannel extends Command {
 	}
 	
 	private GregorianCalendar day;
-	private void export(TextChannel channel, String dir) {
+	private File export(TextChannel channel, String dir) {
 		day = null;
 		String guildName = channel.getGuild().getName();
 		String channelName = channel.getName();
 		String date = dateTimeFormatter.format(Calendar.getInstance().getTime());
+
+		File file = ExtFileManager.getFile(dir, channelName + "-" + date + ".txt");
 		
-		try (PrintWriter writer = ExtFileManager.getConfigOutput(dir, channelName + " " + date)){
+		try (PrintWriter writer = new PrintWriter(file)){
 			
 			writer.printf("%s%n%s%n%s%n", guildName, channelName, date);
 
@@ -85,9 +90,21 @@ public class ExportChannel extends Command {
 			
 			writer.flush();
 			writer.close();
+			
+			return file;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		return null;
+	}
+	
+	private void sendFile(User u, File f) {
+		u.openPrivateChannel().queue((pc) -> {
+			pc.sendFile(f).queue();
+		}, (fail) -> {
+			Logger.errf("Failed to send channel export to %s (a.k.a. %s).", u.getName(), u.getAsMention());
+		});
 	}
 	
 	@Override
