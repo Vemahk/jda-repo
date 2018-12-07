@@ -146,4 +146,9 @@ public class ClearOOC extends Command implements Configurable{
 		save();
 		instance = null;
 	}
+	
+	@Override
+	public String getDescription() {
+		return "Clears messages surrounded by parentheses (i.e. out of character char).";
+	}
 }

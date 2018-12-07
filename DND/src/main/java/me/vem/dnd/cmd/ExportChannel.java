@@ -102,4 +102,9 @@ public class ExportChannel extends Command {
 	protected void unload() {
 		instance = null;
 	}
+	
+	@Override
+	public String getDescription() {
+		return "Exports channel to a text file.";
+	}
 }

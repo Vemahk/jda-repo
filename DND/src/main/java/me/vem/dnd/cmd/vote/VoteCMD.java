@@ -361,4 +361,9 @@ public class VoteCMD extends Command implements EventListener{
 			return builder.toString();
 		}
 	}
+
+	@Override
+	public String getDescription() {
+		return "Allows people to call for votes for topics using emoji's.";
+	}
 }

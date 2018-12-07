@@ -211,4 +211,8 @@ public class Jobs extends Command implements Configurable{
 		save();
 		instance = null;
 	}
+	@Override
+	public String getDescription() {
+		return "Allows for the posting of jobs to a 'job board' for players to read from on their own.";
+	}
 }

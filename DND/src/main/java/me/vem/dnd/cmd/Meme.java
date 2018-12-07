@@ -142,4 +142,8 @@ public class Meme extends Command implements Configurable{
 		save();
 		instance = null;
 	}
+	@Override
+	public String getDescription() {
+		return "Stores a list of links to good memes.";
+	}
 }
