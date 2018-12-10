@@ -105,8 +105,8 @@ public class Help extends Command implements EventListener{
 	@Override
 	protected void unload() {
 		destroyQueue.cancel();
-		for(Menu m : openMenues)
-			m.destroy();
+		while(!openMenues.isEmpty())
+			openMenues.get(0).destroy();
 		instance = null;
 	}
 	
