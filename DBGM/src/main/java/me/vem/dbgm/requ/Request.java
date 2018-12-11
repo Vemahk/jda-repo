@@ -3,8 +3,9 @@ package me.vem.dbgm.requ;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
+
+import me.vem.jdab.utils.Task;
 
 public final class Request {
 
@@ -107,11 +108,5 @@ public final class Request {
 	public void deny() {
 		failure.run();
 		deactivate();
-	}
-	
-	private static class Task extends TimerTask {
-		private Runnable func;
-		public Task(Runnable r) { this.func = r; }
-		@Override public void run() { func.run(); }
 	}
 }
