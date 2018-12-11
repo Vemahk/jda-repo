@@ -138,6 +138,7 @@ public class StreamTrack extends SecureCommand implements EventListener, Configu
 	}
 
 	@Override protected void unload() {
+		save();
 		DiscordBot.getInstance().getJDA().removeEventListener(this);
 		instance = null;
 	}
