@@ -1,6 +1,9 @@
 package me.vem.dbgm;
 
-import static me.vem.dbgm.IgnoredReference.botToken;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 
 import me.vem.dbgm.cmd.AntiPurge;
 import me.vem.dbgm.cmd.ExportChannel;
@@ -14,6 +17,7 @@ import me.vem.dbgm.cmd.reaction.ReactionListener;
 import me.vem.dbgm.requ.Request;
 import me.vem.jdab.DiscordBot;
 import me.vem.jdab.utils.Console;
+import me.vem.jdab.utils.ExtFileManager;
 import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.Version;
 
@@ -29,7 +33,8 @@ public class DBGM {
 		
 		Logger.infof("Hello World! From %s", Version.getVersion());
 		
-		DiscordBot.initialize(botToken);
+		String tokenFile = args.length > 0 ? fetchToken(args[0]) : "token.txt";
+		DiscordBot.initialize(fetchToken(tokenFile));
 		DiscordBot.getInstance().setPreShutdown(() -> Request.shutdown());
 		
 		//Permissions is critical to the function of several other commands, so it must be initialized first.
@@ -46,5 +51,18 @@ public class DBGM {
 		Meme.initialize();
 		ExportChannel.initialize();
 		ForceSave.initialize();
+	}
+	
+	public static String fetchToken(String file) {
+		FileReader fReader = ExtFileManager.getFileReader(new File(file));
+		if(fReader == null) return null;
+		try {
+			BufferedReader reader = new BufferedReader(fReader);
+			String out = reader.readLine();
+			reader.close();
+			return out;
+		} catch (IOException e) {
+			return null;
+		}
 	}
 }
