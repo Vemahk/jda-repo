@@ -6,7 +6,6 @@ import me.vem.jdab.cmd.Command;
 import me.vem.jdab.cmd.Configurable;
 import me.vem.jdab.cmd.Help;
 import me.vem.jdab.cmd.Prefix;
-import me.vem.jdab.utils.Console;
 import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.Respond;
 import net.dv8tion.jda.core.JDA;
@@ -22,8 +21,11 @@ public class DiscordBot {
 	private static DiscordBot instance;
 	public static DiscordBot getInstance() { return instance; }
 	public static void initialize(String token) {
-		if(instance == null)
-			instance = new DiscordBot(token);
+		if(instance == null) {
+			if(token == null || token.isEmpty()) 
+				throw new RuntimeException("Bot Token was null or empty. DiscordBot failed to load.");
+			else instance = new DiscordBot(token);
+		}
 	}
 	
 	private JDA jda;
@@ -65,9 +67,6 @@ public class DiscordBot {
 	public void shutdown() {
 		if(preShutdown != null)
 			preShutdown.run();
-		
-		//Close the console and all related threads.
-		Console.shutdown();
 		
 		Logger.info("Shutting down...");
 		

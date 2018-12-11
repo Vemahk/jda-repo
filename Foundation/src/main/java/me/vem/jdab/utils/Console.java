@@ -76,12 +76,7 @@ public class Console {
 		menuBar.add(menu);
 		
 		JMenuItem shutdown = new JMenuItem("Shutdown Bot");
-		shutdown.addActionListener(e -> {
-			if(JOptionPane.showConfirmDialog(console,
-					"Are you sure?", "Shutdown Bot", JOptionPane.YES_NO_OPTION,
-					JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION)
-				DiscordBot.getInstance().shutdown();
-		});
+		shutdown.addActionListener(e -> shutdown());
 		menu.add(shutdown);
 		
 		return menuBar;
@@ -95,15 +90,11 @@ public class Console {
 			return;
 
 		if (!SystemTray.isSupported() || tray == null) {
-				if(JOptionPane.showConfirmDialog(console,
-						"Bot function is dependent on this window.\nClosing it will shutdown the bot.\nAre you sure?",
-						"Shutdown Bot", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION)
-					DiscordBot.getInstance().shutdown();
-			return;
+			shutdown();
+		}else {
+			console.dispose();
+			console = null;
 		}
-		
-		console.dispose();
-		console = null;
 	}
 	
 	/**
@@ -161,14 +152,27 @@ public class Console {
 		tray = null;
 	}
 	
-	public static void shutdown() {
-		if(hasConsole())
-			console.dispose();
-		destroyTray();
+	public static boolean shutdown() {
+		int res = JOptionPane.showConfirmDialog(console,
+				"Are you sure?", "Shutdown Bot", JOptionPane.YES_NO_OPTION,
+				JOptionPane.QUESTION_MESSAGE);
 		
-		console = null;
-		PrintThread.removeSTDOut(out);
-		PrintThread.removeSTDErr(out);
-		consoleOutput = null;
+		if(res == JOptionPane.YES_OPTION){
+			DiscordBot bot = DiscordBot.getInstance();
+			if(bot != null)
+				bot.shutdown();
+			
+			if(hasConsole()) {
+				console.dispose();
+				console = null;
+			}
+			destroyTray();
+			
+			PrintThread.removeSTDOut(out);
+			PrintThread.removeSTDErr(out);
+			consoleOutput = null;
+			return true;
+		}
+		return false;
 	}
 }
