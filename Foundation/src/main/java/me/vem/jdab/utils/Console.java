@@ -171,6 +171,9 @@ public class Console {
 			PrintThread.removeSTDOut(out);
 			PrintThread.removeSTDErr(out);
 			consoleOutput = null;
+
+			Logger.info("Goodbye!");
+			PrintThread.kill();
 			return true;
 		}
 		return false;
