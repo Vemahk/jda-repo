@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>me.vem.dbgm</groupId>
 	<artifactId>DBGM</artifactId>
-	<version>0.0.1_7</version>
+	<version>0.0.1_8</version>
 
 	<dependencies>
 		<dependency>
