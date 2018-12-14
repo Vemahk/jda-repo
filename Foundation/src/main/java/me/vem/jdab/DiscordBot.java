@@ -6,6 +6,7 @@ import me.vem.jdab.cmd.Command;
 import me.vem.jdab.cmd.Configurable;
 import me.vem.jdab.cmd.Help;
 import me.vem.jdab.cmd.Prefix;
+import me.vem.jdab.struct.menu.MenuListener;
 import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.Respond;
 import net.dv8tion.jda.core.JDA;
@@ -41,8 +42,9 @@ public class DiscordBot {
 			e.printStackTrace();
 		}
 
+		jda.addEventListener(MenuListener.getInstance());
+		
 		Help.initialize();
-		jda.addEventListener(Help.getInstance());
 		Prefix.initialize();
 	}
 	
@@ -75,6 +77,8 @@ public class DiscordBot {
 		
 		//Call all registered commands' unload function.
 		Command.unloadAll();
+		
+		MenuListener.unload();
 		
 		//Save all configurable event listeners
 		for(Object o : jda.getRegisteredListeners())
