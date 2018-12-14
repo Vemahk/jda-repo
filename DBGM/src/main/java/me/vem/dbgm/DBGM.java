@@ -29,7 +29,7 @@ import me.vem.jdab.utils.Version;
 public class DBGM {
 	public static void main(String[] args) {
 		Logger.setupFileLogging();
-		Version.initialize(0, 0, 1, 7, "DBGM Bot");
+		Version.initialize(0, 0, 1, 7, "DBGM");
 		Console.buildConsole();
 		
 		Logger.infof("Hello World! From %s", Version.getVersion());
