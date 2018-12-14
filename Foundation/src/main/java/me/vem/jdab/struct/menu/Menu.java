@@ -14,6 +14,7 @@ public abstract class Menu {
 		
 		msg.addReaction(MenuListener.LEFT_ARROW.toString()).queue();
 		msg.addReaction(MenuListener.RIGHT_ARROW.toString()).queue();
+		msg.addReaction(MenuListener.CANCEL.toString()).queue();
 
 		MenuListener.getInstance().add(this);
 	}
@@ -64,6 +65,8 @@ public abstract class Menu {
 		page--;
 		update();
 	}
-
-	public void destroy() { msg.delete().queue(); }
+	
+	public void destroy() {
+		msg.delete().queue((success) -> {}, (failure) -> {});
+	}
 }

@@ -70,20 +70,31 @@ public class MenuListener implements EventListener{
 	
 	public static final Emoji LEFT_ARROW = new Emoji("\u2B05");
 	public static final Emoji RIGHT_ARROW = new Emoji("\u27A1");
+	public static final Emoji CANCEL = new Emoji("\u274C");
 	
 	private void addReaction(MessageReactionAddEvent event) {
 		if(event.getUser().equals(event.getJDA().getSelfUser()))
 			return;
 		
 		Emoji reaction = new Emoji(event.getReactionEmote());
-		if(!(reaction.equals(LEFT_ARROW) || reaction.equals(RIGHT_ARROW)))
-			return;
 		
-		for(Menu m : openMenues)
-			if(m.matches(event.getMessageIdLong()))
-				if(reaction.equals(LEFT_ARROW))
-					m.prevPage();
-				else m.nextPage();
+		if(reaction.equals(LEFT_ARROW) || reaction.equals(RIGHT_ARROW)){
+			for(Menu menu : openMenues)
+				if(menu.matches(event.getMessageIdLong()))
+					if(reaction.equals(LEFT_ARROW))
+						menu.prevPage();
+					else menu.nextPage();
+		}else if(reaction.equals(CANCEL)){
+			Iterator<Menu> iter = openMenues.iterator();
+			while(iter.hasNext()) {
+				Menu next = iter.next();
+				if(next.matches(event.getMessageIdLong())) {
+					next.destroy();
+					iter.remove();
+					break;
+				}
+			}
+		}
 	}
 	
 	private void remReaction(MessageReactionRemoveEvent event) {
@@ -91,13 +102,13 @@ public class MenuListener implements EventListener{
 			return;
 		
 		Emoji reaction = new Emoji(event.getReactionEmote());
-		if(!(reaction.equals(LEFT_ARROW) || reaction.equals(RIGHT_ARROW)))
-			return;
 		
-		for(Menu m : openMenues)
-			if(m.matches(event.getMessageIdLong()))
-				if(reaction.equals(LEFT_ARROW))
-					m.prevPage();
-				else m.nextPage();
+		//Look, ma! No brackets!
+		if(reaction.equals(LEFT_ARROW) || reaction.equals(RIGHT_ARROW))
+			for(Menu menu : openMenues)
+				if(menu.matches(event.getMessageIdLong()))
+					if(reaction.equals(LEFT_ARROW))
+						menu.prevPage();
+					else menu.nextPage();
 	}
 }
