@@ -1,5 +1,7 @@
 package me.vem.jdab.utils;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -96,5 +98,18 @@ public class Utilities {
 			return null;
 		
 		return guild.getEmoteById(matcher.group(2));
+	}
+	
+	public static boolean saveToJSONFile(String filename, Object toJson) {
+		try {
+			PrintWriter out = ExtFileManager.getConfigOutput(filename);
+			out.print(ExtFileManager.getGsonPretty().toJson(toJson));
+			out.flush();
+			out.close();
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 }
