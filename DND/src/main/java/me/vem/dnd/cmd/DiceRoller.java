@@ -220,6 +220,7 @@ public class DiceRoller extends Command implements Configurable, EventListener{
 			int real = (int)(Math.random() * faces) + 1;
 			int effective = real + modifier;
 			if(effective > faces) effective = faces;
+			else if(effective < 1) effective = 1;
 			
 			StringBuilder parsed = new StringBuilder().append('[').append(effective).append(']');
 			if(modifier != 0)
