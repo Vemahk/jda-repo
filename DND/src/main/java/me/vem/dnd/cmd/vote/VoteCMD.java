@@ -71,11 +71,13 @@ public class VoteCMD extends Command implements EventListener{
 		for(int i=2;i<args.length-1;i+=2) {
 			Emoji e = null;
 			
-			Emote emote = Utilities.getEmoteFromMention(event.getGuild(), args[i]);
-			if(emote != null)
-				e = new Emoji(emote);
-			else if(EmojiManager.isEmoji(args[i]))
+			if(EmojiManager.isEmoji(args[i]))
 				e = new Emoji(args[i]);
+			else {
+				Emote emote = Utilities.getEmoteFromMention(event.getGuild(), args[i]);
+				if(emote != null)
+					e = new Emoji(emote);
+			}
 			
 			if(e == null) {
 				Logger.errf("Vote: could not read emote '%s'.", args[i]);
@@ -168,8 +170,6 @@ public class VoteCMD extends Command implements EventListener{
 		
 		instance = null;
 	}
-	
-	
 	
 	private static class Vote{
 		private Message msg;
