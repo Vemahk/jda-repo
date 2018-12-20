@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import me.vem.dnd.cmd.ClearOOC;
+import me.vem.dnd.cmd.DiceRoller;
 import me.vem.dnd.cmd.ExportChannel;
 import me.vem.dnd.cmd.Jobs;
 import me.vem.dnd.cmd.Meme;
@@ -35,6 +36,7 @@ public class DNDBot {
 		VoteCMD.initialize();
 		DiscordBot.getInstance().addEventListener(VoteCMD.getInstance());
 		DiscordBot.getInstance().addEventListener(RankHandling.getInstance());
+		DiscordBot.getInstance().addEventListener(DiceRoller.getInstance());
 	}
 	
 	public static String fetchToken(String file) {
