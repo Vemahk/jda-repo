@@ -8,7 +8,7 @@ import me.vem.jdab.cmd.Help;
 import me.vem.jdab.cmd.Prefix;
 import me.vem.jdab.struct.menu.MenuListener;
 import me.vem.jdab.utils.Logger;
-import me.vem.jdab.utils.Respond;
+import me.vem.jdab.utils.confirm.ConfirmationListener;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.hooks.EventListener;
@@ -72,13 +72,11 @@ public class DiscordBot {
 		
 		Logger.info("Shutting down...");
 		
-		//Shutdown the timer thread for queuing responses.
-		Respond.timerShutdown();
-		
 		//Call all registered commands' unload function.
 		Command.unloadAll();
 		
 		MenuListener.unload();
+		ConfirmationListener.unload();
 		
 		//Save all configurable event listeners
 		for(Object o : jda.getRegisteredListeners())

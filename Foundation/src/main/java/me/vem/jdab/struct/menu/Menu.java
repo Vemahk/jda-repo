@@ -69,6 +69,7 @@ public abstract class Menu {
 	}
 	
 	public void destroy() {
+		//The reason for the lambdas it to quiet errors of it not existing... In case third parties delete it before it can delete itself.
 		msg.delete().queue((success) -> {}, (failure) -> {});
 	}
 }

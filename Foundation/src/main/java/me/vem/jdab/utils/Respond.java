@@ -10,8 +10,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 
 public class Respond {
 
-	private static Timer timer = new Timer();
-	public static void timerShutdown() { timer.cancel(); }
+	private static Timer timer = new Timer(true);
 	
 	public static void deleteMessage(long milliDelay, Message message) {
 		timer.schedule(new Task(() -> message.delete().queue()), milliDelay);

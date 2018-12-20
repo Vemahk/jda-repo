@@ -60,6 +60,10 @@ public class MenuListener implements EventListener{
 			openMenues.add(m);
 	}
 	
+	public void remove(Menu m) {
+		openMenues.remove(m);
+	}
+	
 	@Override
 	public void onEvent(Event event) {
 		if(event instanceof MessageReactionAddEvent)
