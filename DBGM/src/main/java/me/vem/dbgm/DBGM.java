@@ -14,7 +14,6 @@ import me.vem.dbgm.cmd.Purge;
 import me.vem.dbgm.cmd.RoleOpt;
 import me.vem.dbgm.cmd.StreamTrack;
 import me.vem.dbgm.cmd.reaction.ReactionListener;
-import me.vem.dbgm.requ.Request;
 import me.vem.jdab.DiscordBot;
 import me.vem.jdab.utils.Console;
 import me.vem.jdab.utils.ExtFileManager;
@@ -36,7 +35,6 @@ public class DBGM {
 		
 		String tokenFile = args.length > 0 ? fetchToken(args[0]) : "token.txt";
 		DiscordBot.initialize(fetchToken(tokenFile));
-		DiscordBot.getInstance().setPreShutdown(() -> Request.shutdown());
 		
 		//Permissions is critical to the function of several other commands, so it must be initialized first.
 		Permissions.initialize();
