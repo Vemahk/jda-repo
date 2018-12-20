@@ -35,7 +35,7 @@ public abstract class Menu {
 		if(isScheduled)
 			return false;
 		
-		MenuListener.getInstance().timeout(this, delay);
+		MenuListener.getInstance().timeout(this, delay * 1000);
 		
 		isScheduled = true;
 		return true;
