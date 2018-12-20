@@ -9,6 +9,7 @@ import me.vem.dnd.cmd.ClearOOC;
 import me.vem.dnd.cmd.ExportChannel;
 import me.vem.dnd.cmd.Jobs;
 import me.vem.dnd.cmd.Meme;
+import me.vem.dnd.cmd.RankHandling;
 import me.vem.dnd.cmd.vote.VoteCMD;
 import me.vem.jdab.DiscordBot;
 import me.vem.jdab.utils.Console;
@@ -33,6 +34,7 @@ public class DNDBot {
 		
 		VoteCMD.initialize();
 		DiscordBot.getInstance().addEventListener(VoteCMD.getInstance());
+		DiscordBot.getInstance().addEventListener(RankHandling.getInstance());
 	}
 	
 	public static String fetchToken(String file) {
