@@ -81,7 +81,7 @@ public class Meme extends Command implements Configurable{
 	}
 
 	private EmbedBuilder getPage(int page) {
-		EmbedBuilder builder = new EmbedBuilder().setColor(Color.RED).setTitle("Help - Page " + page);
+		EmbedBuilder builder = new EmbedBuilder().setColor(Color.RED).setTitle("Memes - Page " + page);
 		
 		if(page < 1)
 			return builder.addField("No such page", "", false);
