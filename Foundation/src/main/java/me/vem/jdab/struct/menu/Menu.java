@@ -20,7 +20,9 @@ public abstract class Menu {
 	}
 	
 	/**
-	 * Updates {@code msg}, for if the page number is changed.
+	 * Updates {@code msg}, for if the page number is changed.<br><br>
+	 * Additional note: setPage(), nextPage(), and prevPage() all call update() at the end of their method call.
+	 * Therefore, the idea is that update refreshes the {@code msg} with the newly set page.
 	 */
 	protected abstract void update();
 
