@@ -43,6 +43,7 @@ public class DiscordBot {
 		}
 
 		jda.addEventListener(MenuListener.getInstance());
+		jda.addEventListener(ConfirmationListener.getInstance());
 		
 		Help.initialize();
 		Prefix.initialize();
