@@ -1,8 +1,10 @@
 package me.vem.dnd.cmd;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -11,23 +13,29 @@ import com.google.gson.reflect.TypeToken;
 
 import me.vem.jdab.cmd.Command;
 import me.vem.jdab.cmd.Configurable;
+import me.vem.jdab.struct.menu.EmbedMenu;
 import me.vem.jdab.utils.ExtFileManager;
 import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.Respond;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 public class Meme extends Command implements Configurable{
 
 	private static Meme instance;
-	public static Meme getInstance() { return instance; }
+	public static Meme getInstance() {
+		return instance;
+	}
+
 	public static void initialize() {
-		if(instance == null) instance = new Meme();
+		if (instance == null)
+			instance = new Meme();
 	}
 	
-	private Message lastList;
 	private Map<String, String> memes;
 	
 	private Meme() {
@@ -53,14 +61,7 @@ public class Meme extends Command implements Configurable{
 			if(args.length >= 2)
 				try { page = Integer.parseInt(args[1]); }catch(NumberFormatException e) {}
 			
-			if(lastList == null) respondPage(event, page);
-			else {
-				long diff = System.currentTimeMillis() / 1000 - lastList.getCreationTime().toEpochSecond();
-				if(diff <= 60) //It's been less than 60 seconds since the last list was posted.
-					lastList.editMessage(getPage(page)).queue();
-				else respondPage(event, page);
-			}
-			
+			new MemeMenu(Respond.sync(event.getChannel(), getPage(page)), page).setTimeout(60);
 			event.getMessage().delete().queue();
 			
 		}else if(meme.equals("add")) {
@@ -78,24 +79,29 @@ public class Meme extends Command implements Configurable{
 		
 		return true;
 	}
-	
-	private void respondPage(GuildMessageReceivedEvent event, int page) {
-		lastList = Respond.sync(event.getChannel(), getPage(page));
-	}
 
-	private String getPage(int page) {
-		if(memes.size() < (page-1) * 10) return "The Meme list does not have " + page + " pages";
+	private EmbedBuilder getPage(int page) {
+		EmbedBuilder builder = new EmbedBuilder().setColor(Color.RED).setTitle("Help - Page " + page);
 		
-		StringBuilder rsp = new StringBuilder("[Meme List Page ").append(page).append("]```");
+		if(page < 1)
+			return builder.addField("No such page", "", false);
 		
-		int i=0;
-		for(String s : memes.keySet()) {
-			if(i++ < (page-1) * 10) continue;
-			if(i >= page * 10) break;
-			rsp.append('\n').append(s);
+		Iterator<String> iter = memes.keySet().iterator();
+		for(int i=0; i < (page - 1) * 5;i++, iter.next())
+			if(!iter.hasNext())
+				return builder.addField("No such page", "", false);
+		
+		for(int x=0;x<5;x++) {
+			if(!iter.hasNext()) {
+				if(x == 0)
+					return builder.addField("No such page", "", false);
+				break;
+			}
+			String next = iter.next();
+			builder.addField(next, '`' + memes.get(next) + "`", false);
 		}
 		
-		return rsp.append("```").toString();
+		return builder.setColor(Color.CYAN);
 	}
 	
 	@Override public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
@@ -145,5 +151,20 @@ public class Meme extends Command implements Configurable{
 	@Override
 	public String getDescription() {
 		return "Stores a list of links to good memes.";
+	}
+	
+	private class MemeMenu extends EmbedMenu{
+		public MemeMenu(Message msg) {
+			super(msg);
+		}
+		
+		public MemeMenu(Message msg, int page) {
+			super(msg, page);
+		}
+
+		@Override
+		public MessageEmbed getEmbed(int page) {
+			return Meme.this.getPage(page).build();
+		}
 	}
 }
