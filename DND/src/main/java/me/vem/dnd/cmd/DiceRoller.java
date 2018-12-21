@@ -181,14 +181,9 @@ public class DiceRoller extends Command implements Configurable, EventListener{
 		private transient TextChannel textChannel;
 		private transient Message instr;
 		private transient Menu historyMenu;
+		private transient LinkedList<Pair<String, String>> history;
 		
 		private long channel;
-		private LinkedList<Pair<String, String>> history;
-		
-		public DiceInfo() {
-			history = new LinkedList<>();
-		}
-		
 		public long getChannelId() {
 			return channel;
 		}
@@ -256,6 +251,7 @@ public class DiceRoller extends Command implements Configurable, EventListener{
 		public void setup(TextChannel channel) {
 			this.textChannel = channel;
 			this.channel = channel.getIdLong();
+			this.history = new LinkedList<>();
 			
 			SelfPurgeList purge = new SelfPurgeList(channel);
 			for(Message msg : channel.getIterableHistory().cache(false))
@@ -280,9 +276,8 @@ public class DiceRoller extends Command implements Configurable, EventListener{
 			
 			instr = Respond.sync(channel, instructions);
 			
-			historyMenu = new EmbedMenu(Respond.sync(channel, getHistoryPage(1))) {
-				@Override
-				public MessageEmbed getEmbed(int page) {
+			historyMenu = new EmbedMenu(Respond.sync(channel, getHistoryPage(1)), 1, false) {
+				@Override public MessageEmbed getEmbed(int page) {
 					return getHistoryPage(page).build();
 				}
 			};

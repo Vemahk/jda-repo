@@ -22,7 +22,7 @@ public class DNDBot {
 	public static void main(String[] args) throws IOException {
 		Logger.info("Hello World!");
 		
-		Version.initialize(0, 0, 0, 3, "DND Bot");
+		Version.initialize(0, 0, 0, 4, "DND Bot");
 		Console.buildConsole();
 
 		String tokenFile = args.length > 0 ? fetchToken(args[0]) : "token.txt";
