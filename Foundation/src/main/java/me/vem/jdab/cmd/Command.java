@@ -5,11 +5,13 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import me.vem.jdab.DiscordBot;
 import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.Respond;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.core.hooks.EventListener;
 
 public abstract class Command {
 
@@ -55,8 +57,11 @@ public abstract class Command {
 	 * Calls the unload method on all initialized commands and clears the commands map.
 	 */
 	public static void unloadAll() {
-		for(Command cmd : commands)
+		for(Command cmd : commands) {
 			cmd.unload();
+			if(cmd instanceof EventListener)
+				DiscordBot.getInstance().removeEventListener(cmd);
+		}
 		commands.clear();
 	}
 	
