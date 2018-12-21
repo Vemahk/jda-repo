@@ -4,8 +4,9 @@ import net.dv8tion.jda.core.entities.Message;
 
 public abstract class DefaultMenu extends Menu{
 
-	public DefaultMenu(Message msg) { super(msg, 1); }
+	public DefaultMenu(Message msg) { super(msg); }
 	public DefaultMenu(Message msg, int page) { super(msg, page); }
+	public DefaultMenu(Message msg, int page, boolean closable) { super(msg, page, closable); }
 	
 	@Override
 	protected void update() {

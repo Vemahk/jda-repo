@@ -5,8 +5,9 @@ import net.dv8tion.jda.core.entities.MessageEmbed;
 
 public abstract class EmbedMenu extends Menu{
 
-	public EmbedMenu(Message msg) { super(msg, 1); }
+	public EmbedMenu(Message msg) { super(msg); }
 	public EmbedMenu(Message msg, int page) { super(msg, page); }
+	public EmbedMenu(Message msg, int page, boolean closable) { super(msg, page, closable); }
 	
 	@Override
 	protected void update() {

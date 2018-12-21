@@ -6,15 +6,17 @@ public abstract class Menu {
 	protected final Message msg;
 	private int page;
 
-	public Menu(Message msg) { this(msg, 1); }
-
-	public Menu(Message msg, int page) {
+	public Menu(Message msg) { this(msg, 1, true); }
+	public Menu(Message msg, int page) { this(msg, page, true); }
+	
+	public Menu(Message msg, int page, boolean closable) {
 		this.page = page;
 		this.msg = msg;
 		
 		msg.addReaction(MenuListener.LEFT_ARROW.toString()).queue();
 		msg.addReaction(MenuListener.RIGHT_ARROW.toString()).queue();
-		msg.addReaction(MenuListener.CANCEL.toString()).queue();
+		if(closable)
+			msg.addReaction(MenuListener.CANCEL.toString()).queue();
 
 		MenuListener.getInstance().add(this);
 	}
