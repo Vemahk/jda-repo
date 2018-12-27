@@ -6,10 +6,9 @@ import java.util.regex.Pattern;
 
 import org.jetbrains.annotations.NotNull;
 
-import me.vem.jdab.struct.SelfPurgeList;
+import me.vem.jdab.struct.MessagePurge;
 import me.vem.jdab.utils.Utilities;
 import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
@@ -61,26 +60,33 @@ public class Purge extends SecureCommand{
 	}
 	
 	private void purge(TextChannel channel, int lastn, @NotNull String regex, Member... members) {
-		SelfAPPurgeList rem = new SelfAPPurgeList(channel);
-		
 		Pattern pattern = regex.isEmpty() ? null : Pattern.compile(regex);
-		for(Message msg : channel.getIterableHistory().cache(false)) {
-			if(--lastn < 0) break;
+		
+		MessagePurge.purge(channel, lastn, (msg) -> {
+			/********************************************************************************\
+			|* AntiPurge -- Hardcoded.														*|
+			|* These messages cannot be purged, no matter what. Note that only messages		*|
+			|* sent by the bot with [AntiPurge] will resist the purge. Users' [AntiPurge]	*|
+			|* messages will still be purged. The bot will only send an [AntiPurge]			*|
+			|* message if the command is called by a allowable user. See the AntiPurge		*|
+			|* command for more details. 													*|
+			\********************************************************************************/
+			if(msg.getAuthor().equals(msg.getJDA().getSelfUser()) && msg.getContentDisplay().startsWith("[AntiPurge]"))
+				return false;
 			
-			//Skip if it does not pass the regex.
-			boolean regexPass = pattern == null || pattern.matcher(msg.getContentDisplay()).matches();
-			if(!regexPass) continue;
+			//If there is a pattern and it does not match it, return false.
+			if(pattern != null && !pattern.matcher(msg.getContentDisplay()).matches())
+				return false;
 			
 			if(members.length > 0) {
 				for(Member mem : members)
-					if(msg.getMember() == mem) {
-						rem.add(msg);
-						break;
-					}
-			}else rem.add(msg);
-		}
-		
-		rem.clear();
+					if(msg.getMember().equals(mem))
+						return true;
+				return false;
+			}
+			
+			return true;
+		});
 	}
 	
 	@Override
@@ -111,26 +117,5 @@ public class Purge extends SecureCommand{
 	@Override
 	public String getDescription() {
 		return "Deletes a number of messages from a specific user/from any user/that matches a regex.";
-	}
-}
-
-class SelfAPPurgeList extends SelfPurgeList{
-	
-	public SelfAPPurgeList(TextChannel tc) { super(tc); }
-
-	@Override
-	public boolean add(Message msg) {
-		/********************************************************************************\
-		|* AntiPurge -- Hardcoded.														*|
-		|* These messages cannot be purged, no matter what. Note that only messages		*|
-		|* sent by the bot with [AntiPurge] will resist the purge. Users' [AntiPurge]	*|
-		|* messages will still be purged. The bot will only send an [AntiPurge]			*|
-		|* message if the command is called by a allowable user. See the AntiPurge		*|
-		|* command for more details. 													*|
-		\********************************************************************************/
-		if(msg.getAuthor().equals(msg.getJDA().getSelfUser()) && msg.getContentDisplay().startsWith("[AntiPurge]"))
-			return false;
-		
-		return super.add(msg);
 	}
 }
