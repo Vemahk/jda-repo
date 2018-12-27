@@ -10,8 +10,8 @@ import me.vem.dnd.cmd.DiceRoller;
 import me.vem.dnd.cmd.ExportChannel;
 import me.vem.dnd.cmd.Jobs;
 import me.vem.dnd.cmd.Meme;
+import me.vem.dnd.cmd.PollCMD;
 import me.vem.dnd.cmd.RankHandling;
-import me.vem.dnd.cmd.vote.VoteCMD;
 import me.vem.jdab.DiscordBot;
 import me.vem.jdab.utils.Console;
 import me.vem.jdab.utils.ExtFileManager;
@@ -33,8 +33,8 @@ public class DNDBot {
 		Jobs.initialize();
 		Meme.initialize();
 		
-		VoteCMD.initialize();
-		DiscordBot.getInstance().addEventListener(VoteCMD.getInstance());
+		PollCMD.initialize();
+		DiscordBot.getInstance().addEventListener(PollCMD.getInstance());
 		DiscordBot.getInstance().addEventListener(RankHandling.getInstance());
 		DiscordBot.getInstance().addEventListener(DiceRoller.getInstance());
 	}

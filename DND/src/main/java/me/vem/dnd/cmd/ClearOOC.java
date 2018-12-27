@@ -83,7 +83,7 @@ public class ClearOOC extends Command implements Configurable{
 		int i=0;
 		for(Message m : channel.getIterableHistory().cache(false)) {
 			if(check > 0 && i++ >= check) break;
-			if(OOCRegex.matcher(m.getContentRaw()).matches())
+			if(event.getAuthor().isBot() || OOCRegex.matcher(m.getContentRaw()).matches())
 				list.add(m);
 		}
 		

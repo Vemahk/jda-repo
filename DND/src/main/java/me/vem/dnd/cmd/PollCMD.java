@@ -1,6 +1,7 @@
-package me.vem.dnd.cmd.vote;
+package me.vem.dnd.cmd;
 
 import java.awt.Color;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,25 +27,25 @@ import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.core.hooks.EventListener;
 
-public class VoteCMD extends Command implements EventListener{
+public class PollCMD extends Command implements EventListener{
 
-	private static VoteCMD instance;
-	public static VoteCMD getInstance() {
+	private static PollCMD instance;
+	public static PollCMD getInstance() {
 		return instance;
 	}
 	
 	public static void initialize() {
 		if(instance == null)
-			instance = new VoteCMD();
+			instance = new PollCMD();
 	}
 	
 	private Timer timer;
-	private List<Vote> activeVotes;
+	private List<Poll> activePolls;
 	
-	private VoteCMD() {
-		super("vote");
+	private PollCMD() {
+		super("poll");
 		timer = new Timer();
-		activeVotes = new LinkedList<>();
+		activePolls = new LinkedList<>();
 	}
 	
 	@Override
@@ -85,7 +86,7 @@ public class VoteCMD extends Command implements EventListener{
 			}
 			
 			if(items.containsKey(e)) {
-				Respond.async(event.getChannel(), "Cannot create a vote with two of the same emotes.");
+				Respond.async(event.getChannel(), "Cannot create a poll with two of the same emotes.");
 				return false;
 			}
 			
@@ -94,7 +95,7 @@ public class VoteCMD extends Command implements EventListener{
 		
 		EmbedBuilder builder = new EmbedBuilder().setColor(Color.GREEN);
 		
-		builder.setDescription("This vote will expire in " + seconds + " seconds.");
+		builder.setDescription("This poll will expire in " + seconds + " seconds.");
 		
 		for(Emoji emoji : items.keySet())
 			builder.addField(items.get(emoji), emoji.toString(), true);
@@ -109,12 +110,12 @@ public class VoteCMD extends Command implements EventListener{
 			if(e.isEmote()) m.addReaction(e.getEmote()).queue();
 			else m.addReaction(e.toString()).queue();
 		
-		Vote v = new Vote(m, items);
-		activeVotes.add(v);
+		Poll v = new Poll(m, items);
+		activePolls.add(v);
 		
 		timer.schedule(new Task(() -> {
 			v.end();
-			activeVotes.remove(v);
+			activePolls.remove(v);
 		}), seconds * 1000);
 		
 		return true;
@@ -132,18 +133,18 @@ public class VoteCMD extends Command implements EventListener{
 		if(event.getUser().getIdLong() == event.getJDA().getSelfUser().getIdLong())
 			return;
 		
-		for(Vote vote : activeVotes)
-			if(vote.msg.getIdLong() == event.getMessageIdLong())
-				vote.add(event.getUser(), new Emoji(event.getReactionEmote()));
+		for(Poll poll : activePolls)
+			if(poll.msg.getIdLong() == event.getMessageIdLong())
+				poll.add(event.getUser(), new Emoji(event.getReactionEmote()));
 	}
 	
 	public void remReaction(MessageReactionRemoveEvent event) {
 		if(event.getUser().getIdLong() == event.getJDA().getSelfUser().getIdLong())
 			return;
 		
-		for(Vote vote : activeVotes)
-			if(vote.msg.getIdLong() == event.getMessageIdLong())
-				vote.remove(event.getUser(), new Emoji(event.getReactionEmote()));
+		for(Poll poll : activePolls)
+			if(poll.msg.getIdLong() == event.getMessageIdLong())
+				poll.remove(event.getUser(), new Emoji(event.getReactionEmote()));
 	}
 	
 	@Override
@@ -154,9 +155,9 @@ public class VoteCMD extends Command implements EventListener{
 	@Override
 	public String[] usages() {
 		return new String[] {
-			"`vote create <time> <:emote1:> <`desc1`> <:emote2:> <`desc2`> ... (etc)`",
+			"`poll create <time> <:emote1:> <`desc1`> <:emote2:> <`desc2`> ... (etc)`",
 			" - `time` is in units of seconds.",
-			" - Creates a vote mapping emotes to certain items to vote for.",
+			" - Creates a poll mapping emotes to certain items to vote for.",
 			" - There must be at least two items to vote for."
 		};
 	}
@@ -164,19 +165,19 @@ public class VoteCMD extends Command implements EventListener{
 	@Override
 	protected void unload() {
 		timer.cancel();
-		for(Vote vote : activeVotes)
-			vote.msg.delete().queue();
-		activeVotes.clear();
+		for(Poll poll : activePolls)
+			poll.msg.editMessage(new EmbedBuilder().setColor(Color.RED).setTitle("This poll has timed out.").build()).queue((success) -> poll.msg.clearReactions().queue());
+		activePolls.clear();
 		
 		instance = null;
 	}
 	
-	private static class Vote{
+	private static class Poll{
 		private Message msg;
 		private Map<Emoji, String> items;
 		private Map<User, List<Emoji>> votes;
 		
-		public Vote(Message msg, Map<Emoji, String> items) {
+		public Poll(Message msg, Map<Emoji, String> items) {
 			this.msg = msg;
 			this.items = items;
 			votes = new LinkedHashMap<>();
@@ -204,9 +205,9 @@ public class VoteCMD extends Command implements EventListener{
 		}
 		
 		public void end() {
-			Map<Emoji, Integer> results = new LinkedHashMap<>();
+			Map<Emoji, List<User>> results = new LinkedHashMap<>();
 			for(Emoji e : items.keySet())
-				results.put(e, 0);
+				results.put(e, new LinkedList<>());
 			
 			List<User> dq = new LinkedList<>();
 			
@@ -214,78 +215,48 @@ public class VoteCMD extends Command implements EventListener{
 				List<Emoji> userVotes = votes.get(u);
 				if(userVotes.size() > 1)
 					dq.add(u);
-				else if(userVotes.size() == 1) {
-					Emoji e = userVotes.get(0);
-					results.put(e, results.get(e) + 1);
-				}
+				else if(userVotes.size() == 1) 
+					results.get(userVotes.get(0)).add(u);
 			}
 			
-			List<Emoji> mostVoted = new LinkedList<>();
-			int max = 0;
-			for(Emoji e : results.keySet()) {
-				int score = results.get(e);
-				if(score > max) {
-					max = score;
-					mostVoted.clear();
-					mostVoted.add(e);
-				}else if(score == max) {
-					mostVoted.add(e);
-				}
+			Emoji[] rank = new Emoji[results.size()];
+			
+			int x=0;
+			for(Emoji e : results.keySet())
+				rank[x++] = e;
+			
+			Arrays.sort(rank, (a, b) -> {
+				return results.get(b).size() - results.get(a).size();
+			});
+			
+			EmbedBuilder builder = new EmbedBuilder().setColor(Color.GREEN).setTitle("The poll has ended. The results are as follows...");
+			
+			for(Emoji e : rank) {
+				List<User> voters = results.get(e);
+				int numVotes = voters.size();
+				String title = '`' + items.get(e) + "` - " + numVotes + " vote" + (numVotes != 1 ? "s" : "");
+				
+				StringBuilder desc = new StringBuilder();
+				for(User u : voters)
+					desc.append(u.getAsMention()).append('\n');
+				
+				builder.addField(title, desc.toString(), true);
 			}
 			
-			Object[] winners = new Object[mostVoted.size()];
-			int x = 0;
-			for(Emoji e : mostVoted)
-				winners[x++] = '`' + items.get(e) + '`';
-			
-			Object[] dqNames = new String[dq.size()];
-			x = 0;
-			for(User u : dq)
-				dqNames[x++] = msg.getGuild().getMember(u).getAsMention();
-			
-			EmbedBuilder builder = new EmbedBuilder()
-										.setColor(Color.GREEN)
-										.setDescription(listForm(winners));
-			
-			if(winners.length > 1)
-				builder.setTitle("And the winners of the vote are...");
-			else builder.setTitle("And the winner of the vote is...");
-			
-			if(dqNames.length > 0)
-				builder.addField("Disqualified Users:", listForm(dqNames), false);
-			
-			Respond.async(msg.getTextChannel(), builder);
-			msg.delete().queue();
-		}
-		
-		private String listForm(Object... objs) {
-			if(objs.length == 0)
-				return "";
-			
-			StringBuilder builder = new StringBuilder();
-			
-			if(objs.length == 1)
-				builder.append(objs[0]);
-			else if(objs.length == 2)
-				builder.append(objs[0]).append(" and ").append(objs[1]);
-			else {
-				for(int i=0;i<objs.length;i++) {
-					if(i != 0)
-						builder.append(", ");
-					
-					if(i == objs.length-1)
-						builder.append("and ");
-					
-					builder.append(objs[i]);
-				}
+			if(dq.size() > 0) {
+				String title = dq.size() + " Disqualified User" + (dq.size() != 1 ? "s" : "") + ':';
+				StringBuilder desc = new StringBuilder();
+				for(User u : dq)
+					desc.append(u.getAsMention()).append('\n');
+				builder.addField(title, desc.toString(), false);
 			}
 			
-			return builder.toString();
+			msg.editMessage(builder.build()).queue((success) -> msg.clearReactions().queue());
 		}
 	}
 
 	@Override
 	public String getDescription() {
-		return "Allows people to call for votes for topics using emoji's.";
+		return "Allows people to call for polls for topics using emoji's.";
 	}
 }
