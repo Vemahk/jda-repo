@@ -6,6 +6,7 @@ import me.vem.jdab.cmd.Command;
 import me.vem.jdab.cmd.Configurable;
 import me.vem.jdab.cmd.Help;
 import me.vem.jdab.cmd.Prefix;
+import me.vem.jdab.cmd.Uptime;
 import me.vem.jdab.struct.menu.MenuListener;
 import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.confirm.ConfirmationListener;
@@ -46,6 +47,7 @@ public class DiscordBot {
 		
 		Help.initialize();
 		Prefix.initialize();
+		Uptime.initialize();
 	}
 	
 	public void addEventListener(Object listener) {
