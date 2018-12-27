@@ -14,7 +14,7 @@ import com.google.gson.reflect.TypeToken;
 
 import me.vem.jdab.cmd.Command;
 import me.vem.jdab.cmd.Configurable;
-import me.vem.jdab.struct.SelfPurgeList;
+import me.vem.jdab.struct.MessagePurge;
 import me.vem.jdab.utils.ExtFileManager;
 import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.Respond;
@@ -52,42 +52,35 @@ public class ClearOOC extends Command implements Configurable{
 		if(args.length > 0) {
 			if(args[0].equals("allow")) {
 				if(!guildSet.add(channel.getIdLong())) {
-					Respond.timeout(channel, userMsg, 5000, "Channel was already allowed to begin with.");
+					Respond.timeout(channel, userMsg, 5000, "This channel is already enabled for ClearOOC.");
 					return false;
 				}
-				Respond.timeout(channel, userMsg, 5000, "Channel allowed");
+				Respond.timeout(channel, userMsg, 5000, "This channel is now enabled for ClearOOC");
 				return true;
 			}else if(args[0].equals("disallow")) {
 				if(!guildSet.remove(channel.getIdLong())) {
-					Respond.timeout(channel, userMsg, 5000, "Channel was not allowed to begin with.");
+					Respond.timeout(channel, userMsg, 5000, "This channel was not already enabled for ClearOOC");
 					return false;
 				}
-				Respond.timeout(channel, userMsg, 5000, "Channel disallowed.");
+				Respond.timeout(channel, userMsg, 5000, "This channel is now disabled for ClearOOC");
 				return true;
 			}else{
 				try {
 					check = Integer.parseInt(args[0]);
-				}catch(Exception e) {} //Parse failed: do nothing.
+				}catch(Exception e) {check = 50;}
 			}
 		}
 		
 		if(!guildSet.contains(channel.getIdLong())) {
-			Respond.timeout(channel, userMsg, 5000, "ClearOOC is not allowed in this chatroom. Ask an admin for details.");
+			Respond.timeout(channel, userMsg, 5000, "ClearOOC is not allowed in this chatroom.");
 			return false;
 		}
 		
-		Respond.timeoutf(channel, userMsg, 5000, "Checking past %d messages for OOC...", check);
+		userMsg.delete().queue();
 		
-		SelfPurgeList list = new SelfPurgeList(event.getChannel());
-		
-		int i=0;
-		for(Message m : channel.getIterableHistory().cache(false)) {
-			if(check > 0 && i++ >= check) break;
-			if(event.getAuthor().isBot() || OOCRegex.matcher(m.getContentRaw()).matches())
-				list.add(m);
-		}
-		
-		list.clear();
+		MessagePurge.purge(event.getChannel(), check, (msg) -> {
+			return event.getAuthor().isBot() || OOCRegex.matcher(msg.getContentRaw()).matches();
+		});
 		
 		return true;
 	}

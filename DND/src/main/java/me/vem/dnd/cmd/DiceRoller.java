@@ -15,8 +15,8 @@ import com.google.gson.reflect.TypeToken;
 import me.vem.jdab.DiscordBot;
 import me.vem.jdab.cmd.Command;
 import me.vem.jdab.cmd.Configurable;
+import me.vem.jdab.struct.MessagePurge;
 import me.vem.jdab.struct.Pair;
-import me.vem.jdab.struct.SelfPurgeList;
 import me.vem.jdab.struct.menu.EmbedMenu;
 import me.vem.jdab.struct.menu.Menu;
 import me.vem.jdab.struct.menu.MenuListener;
@@ -253,10 +253,7 @@ public class DiceRoller extends Command implements Configurable, EventListener{
 			this.channel = channel.getIdLong();
 			this.history = new LinkedList<>();
 			
-			SelfPurgeList purge = new SelfPurgeList(channel);
-			for(Message msg : channel.getIterableHistory().cache(false))
-				purge.add(msg);
-			purge.clear();
+			MessagePurge.purge(channel);
 			
 			//Wow. This is trashy.
 			MessageEmbed instructions = new EmbedBuilder()
