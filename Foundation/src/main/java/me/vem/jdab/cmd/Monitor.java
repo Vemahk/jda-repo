@@ -1,8 +1,11 @@
 package me.vem.jdab.cmd;
 
+import java.awt.Color;
 import java.io.File;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -13,11 +16,17 @@ import me.vem.jdab.utils.ExtFileManager;
 import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.Respond;
 import me.vem.jdab.utils.Utilities;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.Event;
+import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageDeleteEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.core.hooks.EventListener;
 
 public class Monitor extends Command implements EventListener, Configurable{
@@ -33,12 +42,13 @@ public class Monitor extends Command implements EventListener, Configurable{
 	private MonitorInfo getInfo(Guild guild) {
 		MonitorInfo info = database.get(guild.getIdLong());
 		if(info == null)
-			database.put(guild.getIdLong(), info = new MonitorInfo(guild));
+			database.put(guild.getIdLong(), info = new MonitorInfo().setGuild(guild));
 		return info;
 	}
 	
 	private Monitor() {
 		super("monitor");
+		msgLookup = new TreeMap<>();
 		load();
 	}
 
@@ -115,7 +125,17 @@ public class Monitor extends Command implements EventListener, Configurable{
 	@Override public void onEvent(Event event) {
 		if(event instanceof GuildMessageReceivedEvent)
 			messageReceived((GuildMessageReceivedEvent)event);
+		else if(event instanceof GuildMessageDeleteEvent)
+			messageDeleted((GuildMessageDeleteEvent) event);
+		else if(event instanceof GuildMessageUpdateEvent)
+			messageUpdated((GuildMessageUpdateEvent) event);
+		else if(event instanceof GuildMemberJoinEvent)
+			userJoined((GuildMemberJoinEvent) event);
+		else if(event instanceof GuildMemberLeaveEvent)
+			userLeft((GuildMemberLeaveEvent) event);
 	}
+	
+	private TreeMap<Long, MessageInfo> msgLookup;
 	
 	private void messageReceived(GuildMessageReceivedEvent event) {
 		if(event.getAuthor().equals(event.getJDA().getSelfUser()))
@@ -123,8 +143,87 @@ public class Monitor extends Command implements EventListener, Configurable{
 		
 		MonitorInfo info = getInfo(event.getGuild());
 		
-		if(info.channel != null && event.getChannel().equals(info.channel))
+		if(info.channel == null)
+			return;
+		
+		if(event.getChannel().equals(info.channel))
 			event.getMessage().delete().queue();
+		else {
+			msgLookup.put(event.getMessageIdLong(), new MessageInfo(event.getAuthor(), event.getMessage().getContentRaw()));
+		}
+	}
+	
+	private void messageDeleted(GuildMessageDeleteEvent event) {
+		MonitorInfo info = getInfo(event.getGuild());
+		if(info.channel == null || info.channel.equals(event.getChannel()))
+			return;
+		
+		EmbedBuilder embed = new EmbedBuilder().setColor(Color.ORANGE);
+		
+		if(msgLookup.containsKey(event.getMessageIdLong())) {
+			MessageInfo msgInfo = msgLookup.get(event.getMessageIdLong());
+			embed.setDescription("**Message sent by** " + event.getJDA().getUserById(msgInfo.getAuthorId()).getAsMention() + " **deleted in** " + event.getChannel().getAsMention() + '\n' + msgInfo.getContent());
+		}else {
+			embed.setDescription("**Message deleted in** " + event.getChannel().getAsMention());
+		}
+
+		embed.setAuthor(event.getGuild().getName(), null, event.getGuild().getIconUrl());
+		embed.setFooter("Message ID: " + event.getMessageId(), null);
+		embed.setTimestamp(Instant.now());
+		
+		Respond.async(info.channel, embed);
+	}
+	
+	private void messageUpdated(GuildMessageUpdateEvent event) {
+		MonitorInfo info = getInfo(event.getGuild());
+		if(info.channel == null)
+			return;
+		
+		EmbedBuilder embed = new EmbedBuilder().setColor(Color.BLUE).setDescription("**Message edited in** " + event.getChannel().getAsMention());
+		
+		if(msgLookup.containsKey(event.getMessageIdLong())) {
+			MessageInfo msgInfo = msgLookup.get(event.getMessageIdLong());
+			embed.addField("Before", msgInfo.getContent(), false);
+			msgInfo.setContent(event.getMessage().getContentRaw());
+		}else {
+			msgLookup.put(event.getMessageIdLong(), new MessageInfo(event.getAuthor(), event.getMessage().getContentRaw()));
+		}
+		
+		embed.addField("After", event.getMessage().getContentRaw(), false);
+		
+		embed.setAuthor(event.getAuthor().getName() + '#' + event.getAuthor().getDiscriminator(), null, event.getAuthor().getAvatarUrl());
+		embed.setFooter("User ID: " + event.getAuthor().getId(), null);
+		embed.setTimestamp(Instant.now());
+		
+		Respond.async(info.channel, embed);
+	}
+	
+	private void userJoined(GuildMemberJoinEvent event) {
+		MonitorInfo info = getInfo(event.getGuild());
+		if(info == null)
+			return;
+		
+		EmbedBuilder embed = new EmbedBuilder().setColor(Color.GREEN);
+		embed.setAuthor("Member Joined", null, event.getUser().getAvatarUrl());
+		embed.setDescription('\\' + event.getMember().getAsMention() + " " + event.getUser().getName() + '#' + event.getUser().getDiscriminator());
+		embed.setFooter("User ID: " + event.getUser().getId(), null);
+		embed.setTimestamp(Instant.now());
+		
+		Respond.async(info.channel, embed);
+	}
+	
+	private void userLeft(GuildMemberLeaveEvent event) {
+		MonitorInfo info = getInfo(event.getGuild());
+		if(info == null)
+			return;
+		
+		EmbedBuilder embed = new EmbedBuilder().setColor(Color.RED);
+		embed.setAuthor("Member Joined", null, event.getUser().getAvatarUrl());
+		embed.setDescription('\\' + event.getUser().getAsMention() + " " + event.getUser().getName() + '#' + event.getUser().getDiscriminator());
+		embed.setFooter("User ID: " + event.getUser().getId(), null);
+		embed.setTimestamp(Instant.now());
+		
+		Respond.async(info.channel, embed);
 	}
 	
 	private class MonitorInfo{
@@ -134,26 +233,36 @@ public class Monitor extends Command implements EventListener, Configurable{
 		
 		private long channelId;
 		
-		public MonitorInfo() { }
-		
-		public MonitorInfo(Guild guild) {
-			setGuild(guild);
-		}
-		
-		public void setGuild(Guild guild) {
+		public MonitorInfo setGuild(Guild guild) {
 			if(this.guild == null)
 				this.guild = guild;
+			return this;
 		}
 		
 		public void setup(TextChannel channel) {
+			MessagePurge.purge(channel, (msg) -> {
+				return !msg.getAuthor().isBot();
+			});
+			
 			this.channel = channel;
 			this.channelId = channel.getIdLong();
 			
 			setGuild(channel.getGuild());
-			
-			MessagePurge.purge(channel, (msg) -> {
-				return !msg.getAuthor().isBot();
-			});
 		}
+	}
+	
+	private class MessageInfo{
+		private final long authorId;
+		private String content;
+		
+		public MessageInfo(User author, String content) {
+			authorId = author.getIdLong();
+			this.content = content;
+		}
+		
+		public long getAuthorId() { return authorId; }
+		public String getContent() { return content; }
+		
+		public void setContent(String newContent) { content = newContent; }
 	}
 }

@@ -26,7 +26,7 @@ public class DiscordBot {
 		if(instance == null) {
 			if(token == null || token.isEmpty()) 
 				throw new RuntimeException("Bot Token was null or empty. DiscordBot failed to load.");
-			else instance = new DiscordBot(token);
+			else new DiscordBot(token);
 		}
 	}
 	
@@ -41,7 +41,10 @@ public class DiscordBot {
 					.setAutoReconnect(true);
 		}catch(LoginException | IllegalArgumentException | InterruptedException e) {
 			e.printStackTrace();
+			return;
 		}
+		
+		instance = this;
 
 		jda.addEventListener(MenuListener.getInstance());
 		jda.addEventListener(ConfirmationListener.getInstance());
