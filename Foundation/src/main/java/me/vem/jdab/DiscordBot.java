@@ -5,6 +5,7 @@ import javax.security.auth.login.LoginException;
 import me.vem.jdab.cmd.Command;
 import me.vem.jdab.cmd.Configurable;
 import me.vem.jdab.cmd.Help;
+import me.vem.jdab.cmd.Monitor;
 import me.vem.jdab.cmd.Prefix;
 import me.vem.jdab.cmd.Uptime;
 import me.vem.jdab.struct.menu.MenuListener;
@@ -48,6 +49,8 @@ public class DiscordBot {
 		Help.initialize();
 		Prefix.initialize();
 		Uptime.initialize();
+		
+		jda.addEventListener(Monitor.getInstance());
 	}
 	
 	public void addEventListener(Object listener) {
