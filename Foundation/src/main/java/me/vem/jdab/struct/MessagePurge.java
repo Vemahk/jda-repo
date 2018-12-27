@@ -2,20 +2,97 @@ package me.vem.jdab.struct;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.function.Predicate;
 
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 
-public class SelfPurgeList implements Collection<Message>, Iterable<Message>{
+public class MessagePurge implements Collection<Message>, Iterable<Message>{
 	
 	private static final int msptw = 1000 * 60 * 60 * 24 * 7 * 2; //msptw -> milliseconds per two weeks.
+	
+	/**
+	 * Deletes all messages of the given channel within 2 weeks.
+	 * @param channel
+	 */
+	public static void purge(TextChannel channel) {
+		MessagePurge purge = new MessagePurge(channel);
+		for(Message msg : channel.getIterableHistory().cache(false))
+			purge.add(msg);
+		purge.clear();
+	}
+	
+	/**
+	 * Deletes all messages in channel that pass the test of a predicate within 2 weeks.
+	 * @param channel
+	 * @param predicate
+	 */
+	public static void purge(TextChannel channel, Predicate<Message> predicate) {
+		if (predicate == null) {
+			purge(channel);
+			return;
+		}
+		
+		MessagePurge purge = new MessagePurge(channel);
+		for(Message msg : channel.getIterableHistory().cache(false))
+			if(predicate.test(msg))
+				purge.add(msg);
+		purge.clear();
+	}
+	
+	/**
+	 * Deletes the last 'n' messages within the given channel, assuming they were sent within the last 2 weeks.
+	 * @param channel
+	 * @param n
+	 */
+	public static void purge(TextChannel channel, long n) {
+		if (n <= 0) {
+			purge(channel);
+			return;
+		}
+		
+		MessagePurge purge = new MessagePurge(channel);
+		for(Message msg : channel.getIterableHistory().cache(false)) {
+			purge.add(msg);
+			if(--n <= 0)
+				break;
+		}
+		purge.clear();
+	}
+	
+	/**
+	 * Checks the last 'n' messages of a given channel and deletes them if they pass a predicate, all assuming that the message is not more than 2 weeks old.
+	 * @param channel
+	 * @param n
+	 * @param predicate
+	 */
+	public static void purge(TextChannel channel, long n, Predicate<Message> predicate) {
+		if (n <= 0) {
+			purge(channel, predicate);
+			return;
+		}
+		
+		if(predicate == null) {
+			purge(channel, n);
+			return;
+		}
+		
+		MessagePurge purge = new MessagePurge(channel);
+		for(Message msg : channel.getIterableHistory().cache(false)) {
+			if(predicate.test(msg))
+				purge.add(msg);
+			if(--n <= 0)
+				break;
+		}
+		purge.clear();
+	}
 	
 	private Message[] list;
 	private int len;
 	
 	private TextChannel linkedChannel;
 	
-	public SelfPurgeList(TextChannel tc){
+	public MessagePurge(TextChannel tc){
 		list = new Message[100];
 		len = 0;
 		linkedChannel = tc;
@@ -43,7 +120,7 @@ public class SelfPurgeList implements Collection<Message>, Iterable<Message>{
 	@Override
 	public void clear() {
 		if(len == 1) linkedChannel.deleteMessageById(list[0].getIdLong()).queue();
-		if(len > 1)  linkedChannel.deleteMessages(this).queue();
+		else if(len > 1)  linkedChannel.deleteMessages(this).queue();
 		
 		len = 0;
 	}
