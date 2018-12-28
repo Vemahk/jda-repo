@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.function.Predicate;
 
+import me.vem.jdab.utils.Logger;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 
@@ -16,6 +17,11 @@ public class MessagePurge implements Collection<Message>, Iterable<Message>{
 	 * @param channel
 	 */
 	public static void purge(TextChannel channel) {
+		if(channel == null) {
+			Logger.warn("Purge fail");
+			return;
+		}
+		
 		MessagePurge purge = new MessagePurge(channel);
 		for(Message msg : channel.getIterableHistory().cache(false))
 			purge.add(msg);
@@ -28,6 +34,11 @@ public class MessagePurge implements Collection<Message>, Iterable<Message>{
 	 * @param predicate
 	 */
 	public static void purge(TextChannel channel, Predicate<Message> predicate) {
+		if(channel == null) {
+			Logger.warn("Purge fail");
+			return;
+		}
+		
 		if (predicate == null) {
 			purge(channel);
 			return;
@@ -46,6 +57,11 @@ public class MessagePurge implements Collection<Message>, Iterable<Message>{
 	 * @param n
 	 */
 	public static void purge(TextChannel channel, long n) {
+		if(channel == null) {
+			Logger.warn("Purge fail");
+			return;
+		}
+		
 		if (n <= 0) {
 			purge(channel);
 			return;
@@ -67,6 +83,11 @@ public class MessagePurge implements Collection<Message>, Iterable<Message>{
 	 * @param predicate
 	 */
 	public static void purge(TextChannel channel, long n, Predicate<Message> predicate) {
+		if(channel == null) {
+			Logger.warn("Purge fail");
+			return;
+		}
+		
 		if (n <= 0) {
 			purge(channel, predicate);
 			return;
