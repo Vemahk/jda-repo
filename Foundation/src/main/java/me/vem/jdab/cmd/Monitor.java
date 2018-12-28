@@ -4,7 +4,9 @@ import java.awt.Color;
 import java.io.File;
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 import java.util.TreeMap;
 
 import com.google.gson.Gson;
@@ -116,10 +118,20 @@ public class Monitor extends Command implements EventListener, Configurable{
 		database = gson.fromJson(content, new TypeToken<HashMap<Long, MonitorInfo>>(){}.getType());
 		
 		//Hmm
+		//
 		
-		for(MonitorInfo info : database.values()) {
-			info.setup(DiscordBot.getInstance().getJDA().getTextChannelById(info.channelId));
+		Queue<Long> invalid = new LinkedList<>();
+		
+		for(long l : database.keySet()) {
+			MonitorInfo info = database.get(l);
+			TextChannel channel = DiscordBot.getInstance().getJDA().getTextChannelById(info.channelId);
+			if(channel == null)
+				invalid.add(l);
+			else info.setup(channel);
 		}
+		
+		while(!invalid.isEmpty())
+			database.remove(invalid.poll());
 	}
 
 	@Override public void onEvent(Event event) {
