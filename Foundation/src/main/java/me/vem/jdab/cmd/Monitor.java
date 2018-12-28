@@ -162,7 +162,10 @@ public class Monitor extends Command implements EventListener, Configurable{
 		
 		if(msgLookup.containsKey(event.getMessageIdLong())) {
 			MessageInfo msgInfo = msgLookup.get(event.getMessageIdLong());
-			embed.setDescription("**Message sent by** " + event.getJDA().getUserById(msgInfo.getAuthorId()).getAsMention() + " **deleted in** " + event.getChannel().getAsMention() + '\n' + msgInfo.getContent());
+			User author = event.getJDA().getUserById(msgInfo.getAuthorId());
+			if (author.isBot())
+				return;
+			embed.setDescription("**Message sent by** " + author.getAsMention() + " **deleted in** " + event.getChannel().getAsMention() + '\n' + msgInfo.getContent());
 		}else {
 			embed.setDescription("**Message deleted in** " + event.getChannel().getAsMention());
 		}
@@ -177,6 +180,9 @@ public class Monitor extends Command implements EventListener, Configurable{
 	private void messageUpdated(GuildMessageUpdateEvent event) {
 		MonitorInfo info = getInfo(event.getGuild());
 		if(info.channel == null)
+			return;
+		
+		if(event.getAuthor().isBot())
 			return;
 		
 		EmbedBuilder embed = new EmbedBuilder().setColor(Color.BLUE).setDescription("**Message edited in** " + event.getChannel().getAsMention());
