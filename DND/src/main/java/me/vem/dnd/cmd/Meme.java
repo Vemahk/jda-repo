@@ -80,7 +80,6 @@ public class Meme extends Command implements Configurable{
 		}else if(memes.containsKey(args[0])){
 			event.getMessage().delete().complete();
 			String out = memes.get(args[0]);
-			if(ClearOOC.getInstance().roomEnabled(event.getGuild(), event.getChannel())) out = "("+out+")";
 			Respond.async(channel, out);
 		}else Respond.timeout(channel, userMsg, 5000, "Unknown Meme. Ask an admin to add it.");
 		
