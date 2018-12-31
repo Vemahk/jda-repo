@@ -53,26 +53,33 @@ public class Meme extends Command implements Configurable{
 		if(args.length == 0)
 			return sendHelp(channel, true);
 		
-		String meme = args[0];
-		if(meme.equals("list")) {
+		if("list".equals(args[0])) {
 			
 			int page = 1;
 			
 			if(args.length >= 2)
 				try { page = Integer.parseInt(args[1]); }catch(NumberFormatException e) {}
 			
-			new MemeMenu(Respond.sync(event.getChannel(), getPage(page)), page).setTimeout(60);
+			new MemeMenu(Respond.sync(event.getChannel(), getPage(page)), page).setTimeout(120);
 			event.getMessage().delete().queue();
 			
-		}else if(meme.equals("add")) {
+		}else if("add".equals(args[0])) {
 			if(args.length<3)
 				return sendHelp(channel, false);
 			
-			memes.put(args[1], args[2]);
-			Respond.timeout(channel, userMsg, 5000, "Meme added. OuO");
-		}else if(memes.containsKey(meme)){
+			if(memes.put(args[1], args[2]) == null)
+				Respond.timeoutf(channel, userMsg, 5000, "Meme `%s` added", args[1]);
+			else Respond.timeoutf(channel, userMsg, 5000, "Meme `%s` replaced", args[1]);
+		}else if("remove".equals(args[0])) {
+			if(args.length < 2)
+				return sendHelp(channel, false);
+			
+			if(memes.remove(args[1]) != null)
+				Respond.timeoutf(channel, userMsg, 5000, "Meme `%s` removed...", args[1]);
+			else Respond.timeoutf(channel, userMsg, 5000, "Meme `%s` not registered.", args[1]);
+		}else if(memes.containsKey(args[0])){
 			event.getMessage().delete().complete();
-			String out = memes.get(meme);
+			String out = memes.get(args[0]);
 			if(ClearOOC.getInstance().roomEnabled(event.getGuild(), event.getChannel())) out = "("+out+")";
 			Respond.async(channel, out);
 		}else Respond.timeout(channel, userMsg, 5000, "Unknown Meme. Ask an admin to add it.");
@@ -139,7 +146,9 @@ public class Meme extends Command implements Configurable{
 	@Override public String[] usages() {
 		return new String[] {
 			"`meme <memename>` -- Responds with the saved meme.",
-			"`meme list [pagenum=1]` -- Lists a given page of memes."
+			"`meme list [pagenum=1]` -- Lists a given page of memes.",
+			"``meme add <`name`> <`reaction`>`` -- Saves a certain reaction by a given name.",
+			"``meme remove <`name`>`` -- Removes a meme by its name."
 		};
 	}
 	
