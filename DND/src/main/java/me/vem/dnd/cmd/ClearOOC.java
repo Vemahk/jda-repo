@@ -79,7 +79,7 @@ public class ClearOOC extends Command implements Configurable{
 		userMsg.delete().queue();
 		
 		MessagePurge.purge(event.getChannel(), check, (msg) -> {
-			return event.getAuthor().isBot() || OOCRegex.matcher(msg.getContentRaw()).matches();
+			return msg.getAuthor().isBot() || OOCRegex.matcher(msg.getContentRaw()).matches();
 		});
 		
 		return true;
