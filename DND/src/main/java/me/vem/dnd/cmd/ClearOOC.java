@@ -7,11 +7,15 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import me.vem.jdab.DiscordBot;
 import me.vem.jdab.cmd.Command;
 import me.vem.jdab.cmd.Configurable;
 import me.vem.jdab.struct.MessagePurge;
@@ -38,6 +42,14 @@ public class ClearOOC extends Command implements Configurable{
 	private ClearOOC() {
 		super("clearooc");
 		load();
+		
+		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+		scheduler.scheduleAtFixedRate(() -> {
+			Logger.debug("Auto-clearooc initiated.");
+			for(long guildId : allowedRooms.keySet())
+				for(long channelId : allowedRooms.get(guildId)) 
+					clear(DiscordBot.getInstance().getJDA().getTextChannelById(channelId), 0);
+		}, 10, 10, TimeUnit.MINUTES);
 	}
 	
 	private static final Pattern OOCRegex = Pattern.compile("^\\s*\\(.*\\)\\s*$");
@@ -77,12 +89,15 @@ public class ClearOOC extends Command implements Configurable{
 		}
 		
 		userMsg.delete().queue();
-		
-		MessagePurge.purge(event.getChannel(), check, (msg) -> {
-			return msg.getAuthor().isBot() || OOCRegex.matcher(msg.getContentRaw()).matches();
-		});
+		clear(event.getChannel(), check);
 		
 		return true;
+	}
+	
+	private void clear(TextChannel channel, int num) {
+		MessagePurge.purge(channel, num, (msg) -> {
+			return msg.getAuthor().isBot() || OOCRegex.matcher(msg.getContentRaw()).matches();
+		});
 	}
 	
 	@Override
