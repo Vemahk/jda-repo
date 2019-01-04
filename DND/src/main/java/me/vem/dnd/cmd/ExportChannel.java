@@ -1,20 +1,27 @@
 package me.vem.dnd.cmd;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.time.OffsetDateTime;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Stack;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import me.vem.jdab.cmd.Command;
-import me.vem.jdab.utils.ExtFileManager;
-import me.vem.jdab.utils.Respond;
+import me.vem.jdab.utils.Logger;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Category;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.Message.Attachment;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
 public class ExportChannel extends Command {
@@ -33,42 +40,67 @@ public class ExportChannel extends Command {
 	public boolean run(GuildMessageReceivedEvent event, String... args) {
 		if(!super.run(event, args)) return false;
 		
-		Message response = Respond.sync(event.getChannel(), "Creating channel export ...");
-		long start = System.currentTimeMillis();
+		event.getMessage().delete().complete();
+		
+		File baseDir = new File(event.getGuild().getName() + " Export/");
+		if(!baseDir.exists()) baseDir.mkdirs();
+		
+		List<TextChannel> toExport = new LinkedList<>();
 		
 		if(args.length == 1 && "all".equals(args[0])) {
-			for(TextChannel channel : event.getGuild().getTextChannels()) {
-				Category parent = channel.getParent();
-				String catname = (parent == null) ? "global_category" : parent.getName();
-				export(channel, event.getGuild().getName() + '/' + catname + '/');
-			}
+			for(TextChannel channel : event.getGuild().getTextChannels())
+				toExport.add(channel);
 		}else if(args.length > 0){
-			for(TextChannel channel : event.getMessage().getMentionedChannels()) {
-				Category parent = channel.getParent();
-				String catname = (parent == null) ? "global_category" : parent.getName();
-				export(channel, event.getGuild().getName() + '/' + catname + '/');
-			}
-		}else export(event.getChannel(), "channel_export/");
+			for(TextChannel channel : event.getMessage().getMentionedChannels())
+				toExport.add(channel);
+		}else toExport.add(event.getChannel());
 		
-		response.editMessage("Export completed\nRuntime: " + (System.currentTimeMillis() - start) +"ms").queue();
-		Respond.deleteMessages(event.getChannel(), 5000, response, event.getMessage());
+		for(TextChannel channel : toExport)
+			export(channel, baseDir);
+		
+		try {
+			File ret = zip(baseDir);
+			sendFileSync(event.getAuthor(), ret);
+			ret.delete();
+			baseDir.delete();
+		} catch (IOException e) {
+			e.printStackTrace();
+			baseDir.delete();
+			return false;
+		}
+		
 		
 		return true;
 	}
 	
-	private GregorianCalendar day;
-	private void export(TextChannel channel, String dir) {
-		day = null;
+	/**
+	 * @param channel
+	 * @param base
+	 * @return the 
+	 */
+	private void export(TextChannel channel, File baseDir) {
 		String guildName = channel.getGuild().getName();
 		String channelName = channel.getName();
 		String date = dateTimeFormatter.format(Calendar.getInstance().getTime());
 		
-		try (PrintWriter writer = ExtFileManager.getConfigOutput(dir, channelName + " " + date)){
-			
+		File parent = channel.getParent() == null ? baseDir : new File(baseDir, channel.getParent().getName() + "/");
+		if(!parent.exists()) parent.mkdirs();
+		if(!parent.isDirectory()) Logger.errf("Directory is not a directory? %s", parent.getAbsolutePath());
+		
+		File file = new File(parent, channelName + "-" + date + ".txt");
+		
+		try (PrintWriter writer = new PrintWriter(file)){
 			writer.printf("%s%n%s%n%s%n", guildName, channelName, date);
+			
+			Stack<Message> msgs = new Stack<>();
+			
+			for(Message msg : channel.getIterableHistory().cache(false))
+				msgs.push(msg);
+			
+			GregorianCalendar day = null;
+			while(!msgs.isEmpty()) {
+				Message m = msgs.pop();
 
-
-			channel.getIterableHistory().cache(false).forEach(m -> {
 				OffsetDateTime creation = m.getCreationTime();
 				if(day == null || creation.getDayOfMonth() != day.get(GregorianCalendar.DAY_OF_MONTH) || 
 						creation.getMonthValue()-1 != day.get(GregorianCalendar.MONTH) ||
@@ -81,13 +113,58 @@ public class ExportChannel extends Command {
 				
 				for(Attachment a : m.getAttachments())
 					writer.printf("[Embeded: %s]%n", a.getUrl());
-			});
+			}
 			
 			writer.flush();
 			writer.close();
-		} catch (IOException e) {
+		}catch(IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private void sendFileSync(User u, File f) {
+		if(u.isFake() || f == null || f.isDirectory())
+			return;
+		u.openPrivateChannel().complete().sendFile(f).complete();
+	}
+	
+	/**
+	 * @param file The file, or directory, that you want to zip up.
+	 * @return the zipped file.
+	 * @throws IOException 
+	 */
+	private File zip(File file) throws IOException {
+		File tmpZip = File.createTempFile("tmp", ".zip");
+		FileOutputStream fos = new FileOutputStream(tmpZip);
+		ZipOutputStream zos = new ZipOutputStream(fos);
+		
+		zip(file, file.getName(), zos);
+		zos.close();
+		
+		return tmpZip;
+	}
+	
+	private void zip(File fileToZip, String fileName, ZipOutputStream zipOut) throws IOException {
+		if(fileToZip.isHidden()) return;
+		
+		if(fileToZip.isDirectory()) {
+			if(!fileName.endsWith("/"))
+				fileName += '/';
+			
+			zipOut.putNextEntry(new ZipEntry(fileName));
+			zipOut.closeEntry();
+			
+			for(File child : fileToZip.listFiles())
+				zip(child, fileName + child.getName(), zipOut);
+			return;
+		}
+		
+		FileInputStream fis = new FileInputStream(fileToZip);
+		zipOut.putNextEntry(new ZipEntry(fileName));
+		byte[] buf = new byte[1024];
+        for (int len; (len = fis.read(buf)) >= 0;) 
+            zipOut.write(buf, 0, len);
+        fis.close();
 	}
 	
 	@Override

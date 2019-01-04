@@ -38,12 +38,13 @@ public class ClearOOC extends Command implements Configurable{
 	}
 	
 	private static Map<Long, Set<Long>> allowedRooms;
+	private ScheduledExecutorService scheduler;
 	
 	private ClearOOC() {
 		super("clearooc");
 		load();
 		
-		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+		scheduler = Executors.newScheduledThreadPool(1);
 		scheduler.scheduleAtFixedRate(() -> {
 			Logger.debug("Auto-clearooc initiated.");
 			for(long guildId : allowedRooms.keySet())
@@ -60,7 +61,7 @@ public class ClearOOC extends Command implements Configurable{
 		TextChannel channel = event.getChannel();
 		Message userMsg = event.getMessage();
 		
-		int check = 50;
+		int check = 0;
 		if(args.length > 0) {
 			if(args[0].equals("allow")) {
 				if(!guildSet.add(channel.getIdLong())) {
@@ -79,7 +80,7 @@ public class ClearOOC extends Command implements Configurable{
 			}else{
 				try {
 					check = Integer.parseInt(args[0]);
-				}catch(Exception e) {check = 50;}
+				}catch(Exception e) {check = 0;}
 			}
 		}
 		
@@ -146,7 +147,7 @@ public class ClearOOC extends Command implements Configurable{
 	@Override
 	public String[] usages() {
 		return new String[] {
-			"`clearocc [num=50]` -- clears the last `num` entries that match OOC format.",
+			"`clearocc [num=0]` -- clears the last `num` entries that match OOC format.",
 			" - If `num` is 0, then it will attempt to check all messages in the channel."
 		};
 	}
@@ -154,6 +155,9 @@ public class ClearOOC extends Command implements Configurable{
 	@Override
 	protected void unload() {
 		save();
+		
+		scheduler.shutdownNow();
+		
 		instance = null;
 	}
 	

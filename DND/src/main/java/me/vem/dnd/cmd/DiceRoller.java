@@ -193,7 +193,7 @@ public class DiceRoller extends Command implements Configurable, EventListener{
 			if(parsed == null)
 				return;
 			
-			history.addFirst(new Pair<>(parsed, "Rolled by: " + member.getEffectiveName()));
+			history.addFirst(new Pair<>(parsed, "Dice: " + roll + ", Rolled by: " + member.getEffectiveName()));
 			historyMenu.setPage(historyMenu.getPage());
 		}
 		
