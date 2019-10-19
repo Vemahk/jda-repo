@@ -1,7 +1,7 @@
 package me.vem.jdab.struct.menu;
 
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 
 public abstract class EmbedMenu extends Menu{
 

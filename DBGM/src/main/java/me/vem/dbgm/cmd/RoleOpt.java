@@ -16,8 +16,8 @@ import me.vem.jdab.utils.ExtFileManager;
 import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.Respond;
 import me.vem.jdab.utils.Utilities;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 public class RoleOpt extends SecureCommand implements Configurable{
 
@@ -74,7 +74,8 @@ public class RoleOpt extends SecureCommand implements Configurable{
 			}
 			
 			Role r = event.getGuild().getRoleById(guildDatabase.get(args[1]));
-			event.getGuild().getController().removeSingleRoleFromMember(event.getMember(), r).queue(
+			
+			event.getGuild().removeRoleFromMember(event.getMember(), r).queue(
 					(success) -> Respond.asyncf(event.getChannel(), "Role `%s` removed.", r.getName()),
 					(failure) -> Respond.asyncf(event.getChannel(), "You did not have the role `%s`", r.getName()));
 		}else if("assign".equals(args[0])) {
@@ -113,7 +114,7 @@ public class RoleOpt extends SecureCommand implements Configurable{
 			}
 			
 			Role r = event.getGuild().getRoleById(guildDatabase.get(args[0]));
-			event.getGuild().getController().addSingleRoleToMember(event.getMember(), r).queue(
+			event.getGuild().addRoleToMember(event.getMember(), r).queue(
 					(success) -> Respond.asyncf(event.getChannel(), "Role `%s` assigned!", r.getName()),
 					(failure) -> Respond.asyncf(event.getChannel(), "Could not assign role `%s`. Perhaps you already had it?", r.getName()));
 			

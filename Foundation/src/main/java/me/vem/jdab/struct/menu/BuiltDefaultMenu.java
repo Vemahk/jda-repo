@@ -1,6 +1,6 @@
 package me.vem.jdab.struct.menu;
 
-import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.api.entities.Message;
 
 public class BuiltDefaultMenu extends DefaultMenu{
 

@@ -14,10 +14,10 @@ import me.vem.jdab.cmd.Configurable;
 import me.vem.jdab.utils.ExtFileManager;
 import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.Respond;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.events.Event;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.core.hooks.EventListener;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.hooks.EventListener;
 
 public class ReactionListener implements EventListener, Configurable{
 	
@@ -44,7 +44,7 @@ public class ReactionListener implements EventListener, Configurable{
 		ListCustomReactions.initialize();
 	}
 	
-	@Override public void onEvent(Event event) {
+	@Override public void onEvent(GenericEvent event) {
 		if (event instanceof GuildMessageReceivedEvent)
             onGuildMessageReceived((GuildMessageReceivedEvent) event);
 	}

@@ -3,13 +3,13 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>me.vem.dbgm</groupId>
 	<artifactId>DBGM</artifactId>
-	<version>0.0.1_9</version>
+	<version>0.0.2</version>
 
 	<dependencies>
 		<dependency>
 			<groupId>net.dv8tion</groupId>
 			<artifactId>JDA</artifactId>
-			<version>3.7.1_421</version>
+			<version>4.0.0_48</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.code.gson</groupId>

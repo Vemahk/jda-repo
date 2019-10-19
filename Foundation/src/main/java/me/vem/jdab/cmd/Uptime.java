@@ -3,7 +3,7 @@ package me.vem.jdab.cmd;
 import java.util.concurrent.TimeUnit;
 
 import me.vem.jdab.utils.Respond;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 public class Uptime extends Command{
 

@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import me.vem.jdab.utils.Respond;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 public class AntiPurge extends SecureCommand{
 

@@ -4,7 +4,7 @@ import java.util.Calendar;
 
 import me.vem.jdab.cmd.Command;
 import me.vem.jdab.utils.Respond;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 /**
  * Prints out the next contest, determined by date, and its information.

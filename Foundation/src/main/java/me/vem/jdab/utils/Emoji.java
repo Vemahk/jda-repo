@@ -4,8 +4,8 @@ import org.jetbrains.annotations.NotNull;
 
 import com.vdurmont.emoji.EmojiManager;
 
-import net.dv8tion.jda.core.entities.Emote;
-import net.dv8tion.jda.core.entities.MessageReaction.ReactionEmote;
+import net.dv8tion.jda.api.entities.Emote;
+import net.dv8tion.jda.api.entities.MessageReaction.ReactionEmote;
 
 public class Emoji{
 	private Emote emote;

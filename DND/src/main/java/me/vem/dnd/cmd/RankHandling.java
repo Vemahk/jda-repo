@@ -15,13 +15,13 @@ import me.vem.jdab.utils.ExtFileManager;
 import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.Respond;
 import me.vem.jdab.utils.Utilities;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.events.Event;
-import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.core.hooks.EventListener;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.hooks.EventListener;
 
 public class RankHandling extends Command implements Configurable, EventListener{
 
@@ -82,7 +82,7 @@ public class RankHandling extends Command implements Configurable, EventListener
 			}
 			
 			Role r = event.getGuild().getRoleById(info.getRoleID(args[1]));
-			event.getGuild().getController().removeSingleRoleFromMember(event.getMember(), r).queue(
+			event.getGuild().removeRoleFromMember(event.getMember(), r).queue(
 					(success) -> Respond.asyncf(event.getChannel(), "Role `%s` removed.", r.getName()),
 					(failure) -> Respond.asyncf(event.getChannel(), "You did not have the role `%s`", r.getName()));
 		}else if("assign".equals(args[0])) {
@@ -132,7 +132,7 @@ public class RankHandling extends Command implements Configurable, EventListener
 			}
 			
 			Role r = event.getGuild().getRoleById(info.getRoleID(args[0]));
-			event.getGuild().getController().addSingleRoleToMember(event.getMember(), r).queue(
+			event.getGuild().addRoleToMember(event.getMember(), r).queue(
 					(success) -> Respond.asyncf(event.getChannel(), "Role `%s` assigned!", r.getName()),
 					(failure) -> Respond.asyncf(event.getChannel(), "Could not assign role `%s`. Perhaps you already had it?", r.getName()));
 			
@@ -195,7 +195,7 @@ public class RankHandling extends Command implements Configurable, EventListener
 	}
 
 	@Override
-	public void onEvent(Event event) {
+	public void onEvent(GenericEvent event) {
 		if(event instanceof GuildMemberJoinEvent)
 			onGuildJoin((GuildMemberJoinEvent)event);
 	}
@@ -204,7 +204,7 @@ public class RankHandling extends Command implements Configurable, EventListener
 		RoleInfo info = getRoleInfo(event.getGuild());
 		if(info.getDefaultRoleId() != 0) {
 			//Add default role...
-			event.getGuild().getController().addSingleRoleToMember(event.getMember(), event.getGuild().getRoleById(info.getDefaultRoleId())).queue(
+			event.getGuild().addRoleToMember(event.getMember(), event.getGuild().getRoleById(info.getDefaultRoleId())).queue(
 				(success) -> {
 					event.getMember().getUser().openPrivateChannel().queue(
 						(pc) -> {

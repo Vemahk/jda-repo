@@ -5,9 +5,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import me.vem.jdab.utils.Emoji;
-import net.dv8tion.jda.core.events.Event;
-import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
-import net.dv8tion.jda.core.hooks.EventListener;
+import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.hooks.EventListener;
 
 public class ConfirmationListener implements EventListener{
 
@@ -43,7 +43,7 @@ public class ConfirmationListener implements EventListener{
 	}
 
 	@Override
-	public void onEvent(Event event) {
+	public void onEvent(GenericEvent event) {
 		if(event instanceof MessageReactionAddEvent)
 			reactionAdded((MessageReactionAddEvent)event);
 	}

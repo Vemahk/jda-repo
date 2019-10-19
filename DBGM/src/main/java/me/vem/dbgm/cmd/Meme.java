@@ -15,8 +15,8 @@ import me.vem.jdab.cmd.Configurable;
 import me.vem.jdab.utils.ExtFileManager;
 import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.Respond;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 public class Meme extends SecureCommand implements Configurable{
 
@@ -53,7 +53,7 @@ public class Meme extends SecureCommand implements Configurable{
 			final int fPage = page;
 			if(lastList == null) respondPage(event, page);
 			else {
-				long diff = System.currentTimeMillis() / 1000 - lastList.getCreationTime().toEpochSecond();
+				long diff = System.currentTimeMillis() / 1000 - lastList.getTimeCreated().toEpochSecond();
 				if(diff <= 60) //It's been less than 60 seconds since the last list was posted.
 					lastList.editMessage(getPage(page)).queue((msg) -> {},
 						(error) -> respondPage(event, fPage));

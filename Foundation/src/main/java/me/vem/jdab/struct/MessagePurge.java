@@ -5,8 +5,8 @@ import java.util.Iterator;
 import java.util.function.Predicate;
 
 import me.vem.jdab.utils.Logger;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
 
 public class MessagePurge implements Collection<Message>, Iterable<Message>{
 	
@@ -121,7 +121,7 @@ public class MessagePurge implements Collection<Message>, Iterable<Message>{
 	
 	@Override
 	public boolean add(Message e) {
-		long dt = System.currentTimeMillis() - e.getCreationTime().toEpochSecond() * 1000;
+		long dt = System.currentTimeMillis() - e.getTimeCreated().toEpochSecond() * 1000;
 		if(dt - msptw >= -1000) //If it's two weeks or older (with a grace of a second, for paranoia reasons).
 			return false;
 		

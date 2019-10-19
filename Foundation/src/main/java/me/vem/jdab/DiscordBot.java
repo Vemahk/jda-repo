@@ -11,8 +11,8 @@ import me.vem.jdab.cmd.Uptime;
 import me.vem.jdab.struct.menu.MenuListener;
 import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.confirm.ConfirmationListener;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.JDABuilder;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDABuilder;
 
 /**
  * The bot object that will open the JDA instance upon initialization.
@@ -36,7 +36,7 @@ public class DiscordBot {
 		try {
 			//Look at this trash. Don't be like me.
 			(jda = new JDABuilder(token)
-					.addEventListener(MessageListener.getInstance())
+					.addEventListeners(MessageListener.getInstance())
 					.build().awaitReady())
 					.setAutoReconnect(true);
 		}catch(LoginException | IllegalArgumentException | InterruptedException e) {

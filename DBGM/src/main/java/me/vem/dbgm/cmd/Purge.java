@@ -8,9 +8,9 @@ import org.jetbrains.annotations.NotNull;
 
 import me.vem.jdab.struct.MessagePurge;
 import me.vem.jdab.utils.Utilities;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 public class Purge extends SecureCommand{
 

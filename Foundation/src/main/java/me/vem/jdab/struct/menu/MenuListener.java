@@ -7,10 +7,10 @@ import java.util.Timer;
 
 import me.vem.jdab.utils.Emoji;
 import me.vem.jdab.utils.Task;
-import net.dv8tion.jda.core.events.Event;
-import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
-import net.dv8tion.jda.core.events.message.react.MessageReactionRemoveEvent;
-import net.dv8tion.jda.core.hooks.EventListener;
+import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
+import net.dv8tion.jda.api.hooks.EventListener;
 
 public class MenuListener implements EventListener{
 
@@ -65,7 +65,7 @@ public class MenuListener implements EventListener{
 	}
 	
 	@Override
-	public void onEvent(Event event) {
+	public void onEvent(GenericEvent event) {
 		if(event instanceof MessageReactionAddEvent)
 			addReaction((MessageReactionAddEvent)event);
 		else if(event instanceof MessageReactionRemoveEvent)

@@ -17,12 +17,12 @@ import java.util.zip.ZipOutputStream;
 
 import me.vem.jdab.cmd.Command;
 import me.vem.jdab.utils.Logger;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.Message.Attachment;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.Message.Attachment;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 public class ExportChannel extends Command {
 
@@ -101,7 +101,7 @@ public class ExportChannel extends Command {
 			while(!msgs.isEmpty()) {
 				Message m = msgs.pop();
 
-				OffsetDateTime creation = m.getCreationTime();
+				OffsetDateTime creation = m.getTimeCreated();
 				if(day == null || creation.getDayOfMonth() != day.get(GregorianCalendar.DAY_OF_MONTH) || 
 						creation.getMonthValue()-1 != day.get(GregorianCalendar.MONTH) ||
 						creation.getYear() != day.get(GregorianCalendar.YEAR)) {

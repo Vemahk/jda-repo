@@ -19,16 +19,16 @@ import me.vem.jdab.utils.ExtFileManager;
 import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.Respond;
 import me.vem.jdab.utils.Utilities;
-import net.dv8tion.jda.core.entities.Game;
-import net.dv8tion.jda.core.entities.Game.GameType;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.events.Event;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.core.events.user.update.UserUpdateGameEvent;
-import net.dv8tion.jda.core.hooks.EventListener;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Activity.ActivityType;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.user.UserActivityStartEvent;
+import net.dv8tion.jda.api.hooks.EventListener;
 
 public class StreamTrack extends SecureCommand implements EventListener, Configurable{
 
@@ -149,12 +149,13 @@ public class StreamTrack extends SecureCommand implements EventListener, Configu
 	}
 	
 	@Override
-	public void onEvent(Event event) {
-		if(event instanceof UserUpdateGameEvent)
-			onGameUpdate((UserUpdateGameEvent) event);
+	public void onEvent(GenericEvent event) {
+		 
+		if(event instanceof UserActivityStartEvent)
+			onGameUpdate((UserActivityStartEvent) event);
 	}
 
-	public void onGameUpdate(UserUpdateGameEvent event) {
+	public void onGameUpdate(UserActivityStartEvent event) {
 		Guild g = event.getGuild();
 		if(g == null) return;
 		
@@ -165,14 +166,14 @@ public class StreamTrack extends SecureCommand implements EventListener, Configu
 		if(!data.isTrackedUser(m.getUser()))
 			return;
 		
-		Game nGame = event.getNewGame();
-		if(nGame == null) return;
+		Activity activity = event.getNewActivity();
+		if(activity == null) return;
 		
-		if(nGame.getType() == GameType.STREAMING) {
+		if(activity.getType() == ActivityType.STREAMING) {
 			TextChannel rspChannel = g.getTextChannelById(data.getResponseChannelID());
 			String response = data.getResponse()
 								.replaceAll("%user%", m.getAsMention())
-								.replaceAll("%url%", nGame.getUrl());
+								.replaceAll("%url%", activity.getUrl());
 			Respond.async(rspChannel, response);
 		}
 	}
