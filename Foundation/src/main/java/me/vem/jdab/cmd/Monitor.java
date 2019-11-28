@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.io.File;
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
@@ -59,17 +60,33 @@ public class Monitor extends Command implements EventListener, Configurable{
 		if(!super.run(event, args))
 			return false;
 		
-		if(args.length == 0 || !"activate".equals(args[0]))
-			return sendHelp(event.getChannel(), false);
-		
-		MonitorInfo info = getInfo(event.getGuild());
+		if(args.length == 0)
+			return sendHelp(event.getChannel(), true);
 
-		if(info.channel != null) {
-			Respond.async(event.getChannel(), "This bot is already monitoring in another channel.");
-			return false;
-		}
-		
-		info.setup(event.getChannel());
+        MonitorInfo info = getInfo(event.getGuild());
+		if("activate".equals(args[0])) {
+	        if(info.channel != null) {
+	            Respond.async(event.getChannel(), "This bot is already monitoring in another channel.");
+	            return false;
+	        }
+	        
+	        info.setup(event.getChannel());
+	        
+		}else if("ignore".equals(args[0])) {
+		    String response = info.ignoreChannel(event.getChannel()) ?
+		            "The monitor will now not report changes from this room!" :
+		            "This room is already being ignored by the monitor!";
+		    
+		    Respond.async(event.getChannel(), response);
+		    
+		}else if("unignore".equals(args[0])) {
+		    String response = info.unignoreChannel(event.getChannel()) ?
+		            "The monitor will now begin reporting changes for this room again!" :
+		            "This room was already being monitored!";
+		    
+		    Respond.async(event.getChannel(), response);
+		    
+		}else return sendHelp(event.getChannel(), false);
 		
 		return true;
 	}
@@ -82,7 +99,9 @@ public class Monitor extends Command implements EventListener, Configurable{
 	@Override
 	public String[] usages() {
 		return new String[] {
-			"`monitor activate` -- Activates the bot monitoring in the current channel."
+			"`monitor activate` -- Activates the bot monitoring in the current channel.",
+			"`monitor ignore` -- Sets the current channel to be ignored by the monitor.",
+			"`monitor unignore` -- Sets the current channel to be monitored again, if ignored."
 		};
 	}
 
@@ -117,9 +136,6 @@ public class Monitor extends Command implements EventListener, Configurable{
 		Gson gson = ExtFileManager.getGsonPretty();
 		database = gson.fromJson(content, new TypeToken<HashMap<Long, MonitorInfo>>(){}.getType());
 		
-		//Hmm
-		//
-		
 		Queue<Long> invalid = new LinkedList<>();
 		
 		for(long l : database.keySet()) {
@@ -150,12 +166,11 @@ public class Monitor extends Command implements EventListener, Configurable{
 	private TreeMap<Long, MessageInfo> msgLookup;
 	
 	private void messageReceived(GuildMessageReceivedEvent event) {
-		if(event.getAuthor().equals(event.getJDA().getSelfUser()))
-			return;
-		
 		MonitorInfo info = getInfo(event.getGuild());
 		
-		if(info.channel == null)
+		if(event.getAuthor().isBot() 
+        || info.channel == null
+        || info.isIgnored(event.getChannel()))
 			return;
 		
 		if(event.getChannel().equals(info.channel))
@@ -167,7 +182,9 @@ public class Monitor extends Command implements EventListener, Configurable{
 	
 	private void messageDeleted(GuildMessageDeleteEvent event) {
 		MonitorInfo info = getInfo(event.getGuild());
-		if(info.channel == null || info.channel.equals(event.getChannel()))
+		if(info.channel == null 
+        || info.channel.equals(event.getChannel()) 
+        || info.isIgnored(event.getChannel()))
 			return;
 		
 		EmbedBuilder embed = new EmbedBuilder().setColor(Color.ORANGE);
@@ -191,10 +208,11 @@ public class Monitor extends Command implements EventListener, Configurable{
 	
 	private void messageUpdated(GuildMessageUpdateEvent event) {
 		MonitorInfo info = getInfo(event.getGuild());
-		if(info.channel == null)
-			return;
 		
-		if(event.getAuthor().isBot())
+		if(event.getAuthor().isBot()  
+        || info.channel == null
+        || info.channel.equals(event.getChannel()) 
+        || info.isIgnored(event.getChannel()))
 			return;
 		
 		EmbedBuilder embed = new EmbedBuilder().setColor(Color.BLUE).setDescription("**Message edited in** " + event.getChannel().getAsMention());
@@ -250,11 +268,24 @@ public class Monitor extends Command implements EventListener, Configurable{
 		private transient TextChannel channel;
 		
 		private long channelId;
+		private HashSet<Long> ignoredChannels;
 		
 		public MonitorInfo setGuild(Guild guild) {
 			if(this.guild == null)
 				this.guild = guild;
 			return this;
+		}
+		
+		public boolean ignoreChannel(TextChannel channel) {
+		    return ignoredChannels.add(channel.getIdLong());
+		}
+		
+		public boolean unignoreChannel(TextChannel channel) {
+		    return ignoredChannels.remove(channel.getIdLong());
+		}
+		
+		public boolean isIgnored(TextChannel channel) {
+		    return ignoredChannels.contains(channel.getIdLong());
 		}
 		
 		public void setup(TextChannel channel) {
@@ -264,6 +295,8 @@ public class Monitor extends Command implements EventListener, Configurable{
 			
 			this.channel = channel;
 			this.channelId = channel.getIdLong();
+			if(ignoredChannels == null)
+			    ignoredChannels = new HashSet<>();
 			
 			setGuild(channel.getGuild());
 		}
