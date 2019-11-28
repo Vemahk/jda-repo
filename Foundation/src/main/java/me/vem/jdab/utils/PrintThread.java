@@ -74,7 +74,7 @@ public class PrintThread extends Thread{
 		outQ = new ByteQueue(1 << 16);
 		errQ = new ByteQueue(1 << 16);
 		
-		//this.setDaemon(true);
+		this.setDaemon(true);
 	}
 	
 	@Override public void run() {
