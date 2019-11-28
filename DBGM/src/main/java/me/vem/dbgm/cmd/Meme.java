@@ -48,17 +48,9 @@ public class Meme extends SecureCommand implements Configurable{
 			int page = 1;
 			
 			if(args.length >= 2)
-				try { page = Integer.parseInt(args[1]); }catch(NumberFormatException e) {}
+				try { page = Integer.parseInt(args[1]); } catch(NumberFormatException e) {}
 			
-			final int fPage = page;
-			if(lastList == null) respondPage(event, page);
-			else {
-				long diff = System.currentTimeMillis() / 1000 - lastList.getTimeCreated().toEpochSecond();
-				if(diff <= 60) //It's been less than 60 seconds since the last list was posted.
-					lastList.editMessage(getPage(page)).queue((msg) -> {},
-						(error) -> respondPage(event, fPage));
-				else respondPage(event, page);
-			}
+			respondPage(event, page);
 			
 			event.getMessage().delete().queue();
 			
@@ -78,15 +70,16 @@ public class Meme extends SecureCommand implements Configurable{
 	}
 	
 	private void respondPage(GuildMessageReceivedEvent event, int page) {
-		if(lastList != null)
+		if(lastList != null) 
 			lastList.delete().queue((msg) -> {}, (err) -> {});
 		lastList = Respond.sync(event.getChannel(), getPage(page));
 	}
 
 	private String getPage(int page) {
+	    if(memes.size() == 0) return "You do not have any memes at all... Use `meme add` to add some dank memes.";
 		if(memes.size() < (page-1) * 10) return "The Meme list does not have " + page + " pages";
 		
-		StringBuilder rsp = new StringBuilder("[Meme List Page ").append(page).append("]```");
+		StringBuilder rsp = new StringBuilder("[Meme List Page ").append(page).append("] ```");
 		
 		int i=0;
 		for(String s : memes.keySet()) {
