@@ -30,9 +30,9 @@ public class Help extends Command{
 		if(args.length == 0) {
 			//WHAT'S THIS?! CALLBACK HELL?!
 			event.getAuthor().openPrivateChannel().queue((pc) -> {
-				new HelpMenu(pc.sendMessage(getCommandList(1).build()).complete());
+			    pc.sendMessage(getCommandList(1).build()).queue((msg) -> new HelpMenu(msg));
 			}, (fail) -> {
-				new HelpMenu(Respond.sync(event.getChannel(), getCommandList(1)));
+			    Respond.async(event.getChannel(), getCommandList(1).build(), (msg) -> new HelpMenu(msg));
 			});
 			return true;
 		}

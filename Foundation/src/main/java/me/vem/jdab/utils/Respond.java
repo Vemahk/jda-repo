@@ -2,6 +2,7 @@ package me.vem.jdab.utils;
 
 import java.util.Arrays;
 import java.util.Timer;
+import java.util.function.Consumer;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -49,6 +50,15 @@ public class Respond {
 	 */
 	public static void async(TextChannel channel, String msg) {
 		channel.sendMessage(msg).queue();
+	}
+
+	/**
+     * Asynchronous response w/ success callback.
+     * @param channel
+     * @param msg
+     */
+	public static void async(TextChannel channel, String msg, Consumer<? super Message> callback) {
+	    channel.sendMessage(msg).queue(callback);
 	}
 	
 	/**
@@ -129,6 +139,17 @@ public class Respond {
 	public static void async(TextChannel channel, MessageEmbed embed) {
 		channel.sendMessage(embed).queue();
 	}
+	
+	/**
+	 * Responds asynchronously with a given {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed}.
+	 * Will queue with the given success callback. You're mad if I think I'm going to include a failure callback, too.
+	 * @param channel
+	 * @param embed
+	 * @param successCallback
+	 */
+	public static void async(TextChannel channel, MessageEmbed embed, Consumer<? super Message> successCallback) {
+        channel.sendMessage(embed).queue(successCallback);
+    }
 	
 	/**
 	 * Responds synchronously with a {@link net.dv8tion.jda.core.entities.MessageEmbed MessageEmbed} built from the given builder.
