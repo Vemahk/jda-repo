@@ -14,15 +14,17 @@ public class Logger {
 		PrintThread.init();
 	}
 	
-	private static final SimpleDateFormat dateTime = new SimpleDateFormat("dd-MM-yyyy HH-mm-ss");
+	private static final SimpleDateFormat dateTime = new SimpleDateFormat("yyyyMMdd HH-mm-ss");
 	public static void setupFileLogging() {
 		PrintThread.init();
-		File f = ExtFileManager.getFile("logs", dateTime.format(Calendar.getInstance().getTime()));
+		
+		String time = dateTime.format(Calendar.getInstance().getTime());
+		File stdOutFile = ExtFileManager.getFile("logs", time + ".log");
+		File stdErrFile = ExtFileManager.getFile("logs", time + ".errlog");
 		
 		try {
-			PrintStream out = new PrintStream(f);
-			PrintThread.addSTDOut(out);
-			PrintThread.addSTDErr(out);
+			PrintThread.addSTDOut(new PrintStream(stdOutFile));
+			PrintThread.addSTDErr(new PrintStream(stdErrFile));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

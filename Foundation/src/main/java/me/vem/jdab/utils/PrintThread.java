@@ -74,14 +74,18 @@ public class PrintThread extends Thread{
 		outQ = new ByteQueue(1 << 16);
 		errQ = new ByteQueue(1 << 16);
 		
-		this.setDaemon(true);
+		//this.setDaemon(true);
 	}
 	
 	@Override public void run() {
 		try {
 			for(;!end;) {
-				while(!end && outQ.isEmpty() && errQ.isEmpty())
-					sleep(1);
+			    synchronized(this) {
+			        while(!end && outQ.isEmpty() && errQ.isEmpty()) {
+	                    wait();
+	                }			        
+			    }
+				
 				emptyOutQueue();
 				emptyErrQueue();
 			}
@@ -124,7 +128,7 @@ public class PrintThread extends Thread{
 		
 		public void write(char c) { write((byte)c); }
 		public void write(int i) { write((byte)i); }
-		public void write(byte b) {
+		public synchronized void write(byte b) {
 			if(size >= capacity()) 
 				throw new RuntimeException("ByteQueue is full: cannot write");
 			
@@ -132,11 +136,17 @@ public class PrintThread extends Thread{
 			size++;
 			if(write == capacity())
 				write = 0;
+			
+			if(PrintThread.instance != null) {
+			    synchronized(PrintThread.instance) {
+			        PrintThread.instance.notify();			        
+			    }
+			}
 		}
 
 		public char readChar() { return (char)readInt(); }
 		public int readInt() { return read() & 0xFF; }
-		public byte read() {
+		public synchronized byte read() {
 			if(isEmpty())
 				throw new RuntimeException("ByteQueue is empty: cannot read");
 			byte ret = queue[read++];

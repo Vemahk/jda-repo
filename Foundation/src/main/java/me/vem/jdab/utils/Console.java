@@ -166,10 +166,13 @@ public class Console {
 				console.dispose();
 				console = null;
 			}
+			
 			destroyTray();
 			
 			PrintThread.removeSTDOut(out);
 			PrintThread.removeSTDErr(out);
+			
+			out = null;
 			consoleOutput = null;
 
 			Logger.info("Goodbye!");
