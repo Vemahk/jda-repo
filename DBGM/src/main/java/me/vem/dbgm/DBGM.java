@@ -5,15 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-import me.vem.dbgm.cmd.AntiPurge;
-import me.vem.dbgm.cmd.ExportChannel;
-import me.vem.dbgm.cmd.ForceSave;
-import me.vem.dbgm.cmd.Meme;
-import me.vem.dbgm.cmd.Permissions;
-import me.vem.dbgm.cmd.Purge;
-import me.vem.dbgm.cmd.RoleOpt;
-import me.vem.dbgm.cmd.Stopwatch;
-import me.vem.dbgm.cmd.StreamTrack;
+import me.vem.dbgm.cmd.*;
 import me.vem.dbgm.cmd.reaction.ReactionListener;
 import me.vem.jdab.DiscordBot;
 import me.vem.jdab.utils.Console;
@@ -42,6 +34,7 @@ public class DBGM {
 
 		//ReactionListener must be initialized after Permissions because it in turn inits its relevant commands, some of which require Permissions.
 		bot.addEventListener(ReactionListener.getInstance());
+		bot.addEventListener(Monitor.getInstance());
 		
 		//Normal Commands
 		StreamTrack.initialize();

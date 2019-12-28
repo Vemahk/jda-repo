@@ -1,4 +1,4 @@
-package me.vem.jdab.cmd;
+package me.vem.dbgm.cmd;
 
 import java.awt.Color;
 import java.io.File;
@@ -14,6 +14,8 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import me.vem.jdab.DiscordBot;
+import me.vem.jdab.cmd.Command;
+import me.vem.jdab.cmd.Configurable;
 import me.vem.jdab.struct.MessagePurge;
 import me.vem.jdab.utils.ExtFileManager;
 import me.vem.jdab.utils.Logger;
