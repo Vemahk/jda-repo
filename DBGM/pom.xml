@@ -9,7 +9,7 @@
 		<dependency>
 			<groupId>net.dv8tion</groupId>
 			<artifactId>JDA</artifactId>
-			<version>4.0.0_48</version>
+			<version>4.1.0_87</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
@@ -25,7 +25,7 @@
 		<dependency>
 			<groupId>me.vem.jdab</groupId>
 			<artifactId>bot-foundation</artifactId>
-			<version>0.0.0_0</version>
+			<version>0.1.0</version>
 		</dependency>
 	</dependencies>
 

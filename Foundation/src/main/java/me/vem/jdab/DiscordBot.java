@@ -8,6 +8,7 @@ import me.vem.jdab.cmd.Help;
 import me.vem.jdab.cmd.Monitor;
 import me.vem.jdab.cmd.Prefix;
 import me.vem.jdab.cmd.Uptime;
+import me.vem.jdab.listener.CommandListener;
 import me.vem.jdab.struct.menu.MenuListener;
 import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.confirm.ConfirmationListener;
@@ -22,12 +23,14 @@ public class DiscordBot {
 
 	private static DiscordBot instance;
 	public static DiscordBot getInstance() { return instance; }
-	public static void initialize(String token) {
-		if(instance == null) {
-			if(token == null || token.isEmpty()) 
-				throw new RuntimeException("Bot Token was null or empty. DiscordBot failed to load.");
-			else new DiscordBot(token);
-		}
+	public static DiscordBot initialize(String token) {
+	    if(instance != null)
+	        throw new IllegalStateException("DiscordBot has already been initialized! Cannot reinitialize!");
+	    
+		if(token == null || token.isEmpty()) 
+			throw new RuntimeException("Bot Token was null or empty. DiscordBot failed to load.");
+		
+		return new DiscordBot(token);
 	}
 	
 	private JDA jda;
@@ -36,7 +39,7 @@ public class DiscordBot {
 		try {
 			//Look at this trash. Don't be like me.
 			(jda = new JDABuilder(token)
-					.addEventListeners(MessageListener.getInstance())
+					.addEventListeners(CommandListener.getInstance())
 					.build().awaitReady())
 					.setAutoReconnect(true);
 		}catch(LoginException | IllegalArgumentException | InterruptedException e) {

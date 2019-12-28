@@ -35,13 +35,13 @@ public class DBGM {
 		Logger.infof("Hello World! From %s", Version.getVersion());
 		
 		String tokenFile = args.length > 0 ? fetchToken(args[0]) : "token.txt";
-		DiscordBot.initialize(fetchToken(tokenFile));
+		DiscordBot bot = DiscordBot.initialize(fetchToken(tokenFile));
 		
 		//Permissions is critical to the function of several other commands, so it must be initialized first.
 		Permissions.initialize();
 
 		//ReactionListener must be initialized after Permissions because it in turn inits its relevant commands, some of which require Permissions.
-		DiscordBot.getInstance().addEventListener(ReactionListener.getInstance());
+		bot.addEventListener(ReactionListener.getInstance());
 		
 		//Normal Commands
 		StreamTrack.initialize();

@@ -1,4 +1,4 @@
-package me.vem.jdab;
+package me.vem.jdab.listener;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -18,17 +18,17 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 
-public class MessageListener implements EventListener{
+public class CommandListener implements EventListener{
 
 	// I <3 Singletons
-	private static MessageListener instance;
-	public static MessageListener getInstance() {
+	private static CommandListener instance;
+	public static CommandListener getInstance() {
 		if(instance == null)
-			instance = new MessageListener();
+			instance = new CommandListener();
 		return instance;
 	}
 	
-	private MessageListener() {}
+	private CommandListener() {}
 
 	@Override
 	public void onEvent(GenericEvent event) {

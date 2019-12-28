@@ -16,7 +16,9 @@ public class CSBot {
 		Console.buildConsole();
 		
 		DiscordBot.initialize(IgnoredReference.botToken);
-		DiscordBot.getInstance().getJDA().addEventListener(FilteredMessageListener.getInstance());
+		DiscordBot bot = DiscordBot.getInstance();
+		
+		bot.addEventListener(FilteredMessageListener.getInstance());
 
 		Contests.initialize();
 		NextContest.initialize();

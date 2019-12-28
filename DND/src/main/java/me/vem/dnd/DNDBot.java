@@ -26,17 +26,17 @@ public class DNDBot {
 		Console.buildConsole();
 
 		String tokenFile = args.length > 0 ? fetchToken(args[0]) : "token.txt";
-		DiscordBot.initialize(fetchToken(tokenFile));
+		DiscordBot bot = DiscordBot.initialize(fetchToken(tokenFile));
 		
 		ClearOOC.initialize();
 		ExportChannel.initialize();
 		Jobs.initialize();
 		Meme.initialize();
-		
 		PollCMD.initialize();
-		DiscordBot.getInstance().addEventListener(PollCMD.getInstance());
-		DiscordBot.getInstance().addEventListener(RankHandling.getInstance());
-		DiscordBot.getInstance().addEventListener(DiceRoller.getInstance());
+		
+		bot.addEventListener(PollCMD.getInstance());
+		bot.addEventListener(RankHandling.getInstance());
+		bot.addEventListener(DiceRoller.getInstance());
 	}
 	
 	public static String fetchToken(String file) {
