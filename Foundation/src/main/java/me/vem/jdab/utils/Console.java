@@ -62,39 +62,6 @@ public class Console {
         buildTrayIcon();
         buildConsole();
 	}
-
-	public JMenuBar getMenuBar() {
-	    if(menuBar != null)
-	        return menuBar;
-	    
-		menuBar = new JMenuBar();
-		menuBar.setLayout(new FlowLayout(FlowLayout.RIGHT));
-		
-		JMenu menu = new JMenu("Options");
-		menuBar.add(menu);
-		
-		JMenuItem shutdown = new JMenuItem("Shutdown Bot");
-		shutdown.addActionListener(e -> shutdown());
-		menu.add(shutdown);
-		
-		return menuBar;
-	}
-	
-	/**
-	 * Closes the current console window.
-	 * Will also shut the bot down if the tray icon is not supported.
-	 */
-	public void dispose() {
-		if (console == null)
-			return;
-
-		if (!SystemTray.isSupported() || tray == null) {
-			shutdown();
-		}else {
-			console.dispose();
-			console = null;
-		}
-	}
 	
 	private void buildConsole() {
         console = new JFrame(Version.getVersion() + " Console");
@@ -163,6 +130,39 @@ public class Console {
 			e.printStackTrace();
 		}
 	}
+
+    public JMenuBar getMenuBar() {
+        if(menuBar != null)
+            return menuBar;
+        
+        menuBar = new JMenuBar();
+        menuBar.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        
+        JMenu menu = new JMenu("Options");
+        menuBar.add(menu);
+        
+        JMenuItem shutdown = new JMenuItem("Shutdown Bot");
+        shutdown.addActionListener(e -> shutdown());
+        menu.add(shutdown);
+        
+        return menuBar;
+    }
+    
+    /**
+     * Closes the current console window.
+     * Will also shut the bot down if the tray icon is not supported.
+     */
+    public void dispose() {
+        if (console == null)
+            return;
+
+        if (!SystemTray.isSupported() || tray == null) {
+            shutdown();
+        }else {
+            console.dispose();
+            console = null;
+        }
+    }
 	
 	public void destroyTray() {
 		if(tray == null) return;
