@@ -13,7 +13,7 @@ public class CSBot {
 	
 	public static void main(String[] args) throws IOException {
 		Version.initialize(0, 0, 0, 1, "CSTeam Bot");
-		Console.buildConsole();
+		Console.initialize();
 		
 		DiscordBot.initialize(IgnoredReference.botToken);
 		DiscordBot bot = DiscordBot.getInstance();

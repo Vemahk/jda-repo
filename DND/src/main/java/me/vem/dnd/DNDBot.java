@@ -23,7 +23,7 @@ public class DNDBot {
 		Logger.info("Hello World!");
 		
 		Version.initialize(0, 0, 0, 9, "DND Bot");
-		Console.buildConsole();
+		Console.initialize();
 
 		String tokenFile = args.length > 0 ? fetchToken(args[0]) : "token.txt";
 		DiscordBot bot = DiscordBot.initialize(fetchToken(tokenFile));

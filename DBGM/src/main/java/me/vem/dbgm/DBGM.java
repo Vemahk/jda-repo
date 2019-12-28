@@ -30,7 +30,7 @@ public class DBGM {
 	public static void main(String[] args) {
 		Logger.setupFileLogging();
 		Version.initialize(0, 0, 1, 9, "DBGM");
-		Console.buildConsole();
+		Console.initialize();
 		
 		Logger.infof("Hello World! From %s", Version.getVersion());
 		

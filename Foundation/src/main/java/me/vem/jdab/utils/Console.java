@@ -29,47 +29,45 @@ import me.vem.jdab.DiscordBot;
 
 public class Console {
 
-	private static JFrame console;
-	private static JTextArea consoleOutput;
-	private static PrintStream out;
+    private static Console instance;
+    public static boolean hasInstance() { return instance != null; }
+    
+    public static Console getInstance() {
+        if(!hasInstance())
+            initialize();
+        
+        return instance;
+    }
+    
+    public static void initialize() {
+        if(hasInstance())
+            throw new IllegalStateException("Attempted to initialize Console even though it has already been initialized.");
+        
+        instance = new Console();
+    }
+    
+    //JFrame Elements
+    private JFrame console;
+	private JTextArea consoleOutput;
+	
+	//JMenu Elements
+	private JMenuBar menuBar;
 
-	private static TrayIcon tray;
+    private TrayIcon tray;
+    
+	private PrintStream out;
 
-	/** @return true if there is an open console. */
-	public static boolean hasConsole() { return console != null; }
-
-	/**
-	 * Creates the console only if it does not already exist.
-	 * 
-	 * @return true if build was successful; <br>
-	 *         false if there is already an open console that exists.
-	 */
-	public static boolean buildConsole() {
-		if (hasConsole())
-			return false;
-
-		buildTextArea();
-		activateTrayIcon();
-
-		console = new JFrame(Version.getVersion() + " Console");
-		console.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-		console.setContentPane(new JScrollPane(consoleOutput));
-		console.setJMenuBar(getNewMenuBar());
-		console.setSize(new Dimension(600, 400));
-		console.setLocationRelativeTo(null);
-		console.setVisible(true);
-		
-		console.addWindowListener(new WindowAdapter() {
-			@Override public void windowClosing(WindowEvent windowEvent) {
-				disposeConsole();
-			}
-		});
-		
-		return true;
+	private Console() {
+        buildTextArea();
+        buildTrayIcon();
+        buildConsole();
 	}
 
-	private static JMenuBar getNewMenuBar() {
-		JMenuBar menuBar = new JMenuBar();
+	public JMenuBar getMenuBar() {
+	    if(menuBar != null)
+	        return menuBar;
+	    
+		menuBar = new JMenuBar();
 		menuBar.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		
 		JMenu menu = new JMenu("Options");
@@ -84,9 +82,10 @@ public class Console {
 	
 	/**
 	 * Closes the current console window.
+	 * Will also shut the bot down if the tray icon is not supported.
 	 */
-	public static void disposeConsole() {
-		if (!hasConsole())
+	public void dispose() {
+		if (console == null)
 			return;
 
 		if (!SystemTray.isSupported() || tray == null) {
@@ -97,11 +96,29 @@ public class Console {
 		}
 	}
 	
+	private void buildConsole() {
+        console = new JFrame(Version.getVersion() + " Console");
+        console.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        console.setContentPane(new JScrollPane(consoleOutput));
+        console.setJMenuBar(getMenuBar());
+        console.setSize(new Dimension(600, 400));
+        console.setLocationRelativeTo(null);
+        console.setVisible(true);
+        
+        console.addWindowListener(new WindowAdapter() {
+            @Override public void windowClosing(WindowEvent windowEvent) {
+                dispose();
+            }
+        });
+	}
+	
 	/**
 	 * Loads the text area object and redirection System.out and System.err to print to the text area.
 	 */
-	private static void buildTextArea() {
-		if(consoleOutput != null) return;
+	private void buildTextArea() {
+		if(consoleOutput != null)
+		    return;
+		
 		consoleOutput = new JTextArea();
 		consoleOutput.setEditable(false);
 		
@@ -121,7 +138,7 @@ public class Console {
 	 * Activates the Windows Tray icon that this application will run out of. <br>
 	 * Will not do anything for non-Windows systems (To my knowledge).
 	 */
-	private static void activateTrayIcon() {
+	private void buildTrayIcon() {
 		if(!SystemTray.isSupported() || tray != null)
 			return;
 		
@@ -147,13 +164,13 @@ public class Console {
 		}
 	}
 	
-	public static void destroyTray() {
+	public void destroyTray() {
 		if(tray == null) return;
 		SystemTray.getSystemTray().remove(tray);
 		tray = null;
 	}
 	
-	public static boolean shutdown() {
+	public boolean shutdown() {
 		int res = JOptionPane.showConfirmDialog(console,
 				"Are you sure?", "Shutdown Bot", JOptionPane.YES_NO_OPTION,
 				JOptionPane.QUESTION_MESSAGE);
@@ -163,7 +180,7 @@ public class Console {
 			if(bot != null)
 				bot.shutdown();
 			
-			if(hasConsole()) {
+			if(console != null) {
 				console.dispose();
 				console = null;
 			}
