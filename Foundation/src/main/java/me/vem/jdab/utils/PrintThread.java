@@ -10,25 +10,25 @@ public class PrintThread extends Thread{
 	
 	private static PrintStream oldout, olderr;
 	
-	public static final PrintStream out = new PrintStream(new OutputStream() {
+	private static final PrintStream out = new PrintStream(new OutputStream() {
 		@Override public void write(int i) throws IOException {
-			getInstance().outQ.write(i);
+			instance.outQ.write(i);
 		}
 	});
 	
 	public static final PrintStream err = new PrintStream(new OutputStream() {
 		@Override public void write(int i) throws IOException {
-			getInstance().errQ.write(i);
+			instance.errQ.write(i);
 		}
 	});
 	
 	private static PrintThread instance;
-	private static PrintThread getInstance() {
-		init();
-		return instance;
+	
+	public static boolean hasInstance() {
+	    return instance != null;
 	}
 	
-	public static void init() {
+	public static PrintThread getInstance() {
 		if(instance == null) {
 			instance = new PrintThread();
 			
@@ -40,29 +40,12 @@ public class PrintThread extends Thread{
 			
 			instance.start();
 		}
+		
+		return instance;
 	}
 	
-	public static void kill() {
-		if(instance != null)
-			instance.end();
-	}
-	
-	public static void addSTDOut(PrintStream stream) {
-		getInstance().stdouts.add(stream);
-	}
-	
-	public static void addSTDErr(PrintStream stream) {
-		getInstance().stderrs.add(stream);
-	}
-	
-	public static boolean removeSTDOut(PrintStream stream) {
-		return getInstance().stdouts.remove(stream);
-	}
-	
-	public static boolean removeSTDErr(PrintStream stream) {
-		return getInstance().stderrs.remove(stream);
-	}
-	
+    private boolean alive = true;
+    
 	private final List<PrintStream> stdouts, stderrs;
 	private final ByteQueue outQ, errQ;
 	
@@ -78,44 +61,68 @@ public class PrintThread extends Thread{
 	}
 	
 	@Override public void run() {
-		try {
-			for(;!end;) {
-			    synchronized(this) {
-			        while(!end && outQ.isEmpty() && errQ.isEmpty()) {
-	                    wait();
-	                }			        
-			    }
-				
-				emptyOutQueue();
-				emptyErrQueue();
-			}
-		} catch (InterruptedException e) { }
+		while(alive){
+		    synchronized(this) {
+		        while(alive && outQ.isEmpty() && errQ.isEmpty()) {
+                    try {
+                        wait();
+                    } catch (InterruptedException e) {
+                        if(alive)
+                            e.printStackTrace();
+                    }
+                }			        
+		    }
+			
+		    synchronized(stdouts) {
+	            while(!outQ.isEmpty()) {
+	                int i = outQ.readInt();
+	                for(PrintStream stream : stdouts)
+	                    stream.write(i);
+	            }
+	        }
+		    
+		    synchronized(stderrs) {
+	            while(!errQ.isEmpty()) {
+	                int i = errQ.readInt();
+	                for(PrintStream stream : stderrs)
+	                    stream.write(i);   
+	            }
+	        }
+		}
 
 		System.setOut(oldout);
 		System.setErr(olderr);
 		instance = null;
 	}
-	
-	private void emptyOutQueue() {
-		while(!outQ.isEmpty()) {
-			int i = outQ.readInt();
-			for(PrintStream stream : stdouts)
-				stream.write(i);
-		}
-	}
-	
-	private void emptyErrQueue() {
-		while(!errQ.isEmpty()) {
-			int i = errQ.readInt();
-			for(PrintStream stream : stderrs)
-				stream.write(i);
-		}
-	}
-	
-	private boolean end;
-	public void end() {
-		end = true;
-	}
+    
+    public void kill() {
+        alive = false;
+        instance.interrupt();
+    }
+    
+    public void addOut(PrintStream stream) {
+        synchronized(stdouts) {
+            stdouts.add(stream);   
+        }
+    }
+    
+    public void addErr(PrintStream stream) {
+        synchronized(stderrs) {
+            stderrs.add(stream);   
+        }
+    }
+    
+    public boolean removeOut(PrintStream stream) {
+        synchronized(stdouts) {
+            return stdouts.remove(stream); 
+        }
+    }
+    
+    public boolean removeErr(PrintStream stream) {
+        synchronized(stderrs) {
+            return stderrs.remove(stream);    
+        }
+    }
 	
 	class ByteQueue{
 		private byte[] queue;

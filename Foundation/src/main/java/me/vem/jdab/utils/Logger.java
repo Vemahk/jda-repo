@@ -10,21 +10,17 @@ public class Logger {
 
 	private static enum Severity{ INFO, WARNING, ERROR, DEBUG; }
 	
-	public static void multithread() {
-		PrintThread.init();
-	}
-	
 	private static final SimpleDateFormat dateTime = new SimpleDateFormat("yyyyMMdd HH-mm-ss");
 	public static void setupFileLogging() {
-		PrintThread.init();
+		PrintThread printer = PrintThread.getInstance();
 		
 		String time = dateTime.format(Calendar.getInstance().getTime());
 		File stdOutFile = ExtFileManager.getFile("logs", time + ".log");
 		File stdErrFile = ExtFileManager.getFile("logs", time + ".errlog");
 		
 		try {
-			PrintThread.addSTDOut(new PrintStream(stdOutFile));
-			PrintThread.addSTDErr(new PrintStream(stdErrFile));
+			printer.addOut(new PrintStream(stdOutFile));
+			printer.addErr(new PrintStream(stdErrFile));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

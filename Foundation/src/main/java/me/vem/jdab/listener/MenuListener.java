@@ -1,12 +1,14 @@
-package me.vem.jdab.struct.menu;
+package me.vem.jdab.listener;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Timer;
 
-import me.vem.jdab.utils.Emoji;
-import me.vem.jdab.utils.Task;
+import me.vem.jdab.struct.Task;
+import me.vem.jdab.struct.menu.Menu;
+import me.vem.jdab.utils.emoji.Emoji;
+import me.vem.jdab.utils.emoji.Emojis;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
@@ -72,23 +74,19 @@ public class MenuListener implements EventListener{
 			remReaction((MessageReactionRemoveEvent)event);
 	}
 	
-	public static final Emoji LEFT_ARROW = new Emoji("\u2B05");
-	public static final Emoji RIGHT_ARROW = new Emoji("\u27A1");
-	public static final Emoji CANCEL = new Emoji("\u274C");
-	
 	private void addReaction(MessageReactionAddEvent event) {
 		if(event.getUser().equals(event.getJDA().getSelfUser()))
 			return;
 		
 		Emoji reaction = new Emoji(event.getReactionEmote());
 		
-		if(reaction.equals(LEFT_ARROW) || reaction.equals(RIGHT_ARROW)){
+		if(reaction.equals(Emojis.LEFT_ARROW) || reaction.equals(Emojis.RIGHT_ARROW)){
 			for(Menu menu : openMenues)
 				if(menu.matches(event.getMessageIdLong()))
-					if(reaction.equals(LEFT_ARROW))
+					if(reaction.equals(Emojis.LEFT_ARROW))
 						menu.prevPage();
 					else menu.nextPage();
-		}else if(reaction.equals(CANCEL)){
+		}else if(reaction.equals(Emojis.XMARK)){
 			Iterator<Menu> iter = openMenues.iterator();
 			while(iter.hasNext()) {
 				Menu next = iter.next();
@@ -108,10 +106,10 @@ public class MenuListener implements EventListener{
 		Emoji reaction = new Emoji(event.getReactionEmote());
 		
 		//Look, ma! No brackets!
-		if(reaction.equals(LEFT_ARROW) || reaction.equals(RIGHT_ARROW))
+		if(reaction.equals(Emojis.LEFT_ARROW) || reaction.equals(Emojis.RIGHT_ARROW))
 			for(Menu menu : openMenues)
 				if(menu.matches(event.getMessageIdLong()))
-					if(reaction.equals(LEFT_ARROW))
+					if(reaction.equals(Emojis.LEFT_ARROW))
 						menu.prevPage();
 					else menu.nextPage();
 	}

@@ -12,11 +12,12 @@ import java.util.Timer;
 import com.vdurmont.emoji.EmojiManager;
 
 import me.vem.jdab.cmd.Command;
-import me.vem.jdab.utils.Emoji;
+import me.vem.jdab.struct.Task;
 import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.Respond;
-import me.vem.jdab.utils.Task;
 import me.vem.jdab.utils.Utilities;
+import me.vem.jdab.utils.emoji.Emoji;
+import me.vem.jdab.utils.emoji.Emojis;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Emote;
@@ -117,7 +118,7 @@ public class PollCMD extends Command implements EventListener{
 		activePolls.add(poll);
 
 		if(seconds <= 0) {
-			m.addReaction(CANCEL.toString()).queue();
+			m.addReaction(Emojis.XMARK.toString()).queue();
 			poll.setManual();
 		} else {
 			timer.schedule(new Task(() -> {
@@ -129,7 +130,7 @@ public class PollCMD extends Command implements EventListener{
 		return true;
 	}
 
-	private static final Emoji CANCEL = new Emoji("\u274C");
+	
 	
 	@Override
 	public void onEvent(GenericEvent event) {
@@ -155,7 +156,7 @@ public class PollCMD extends Command implements EventListener{
 		
 		Emoji emoji = new Emoji(event.getReactionEmote());
 		
-		if(emoji.equals(CANCEL)) {
+		if(emoji.equals(Emojis.XMARK)) {
 			if(!target.isManual()) return;
 			
 			if(!event.getUser().equals(target.getAuthor()) && !event.getMember().hasPermission(Permission.ADMINISTRATOR)) {

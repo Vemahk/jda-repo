@@ -1,20 +1,22 @@
-package me.vem.jdab.utils.confirm;
+package me.vem.jdab.listener;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import me.vem.jdab.utils.Emoji;
+import me.vem.jdab.utils.Request;
+import me.vem.jdab.utils.emoji.Emoji;
+import me.vem.jdab.utils.emoji.Emojis;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 
-public class ConfirmationListener implements EventListener{
+public class RequestListener implements EventListener{
 
-	private static ConfirmationListener instance;
-	public static ConfirmationListener getInstance() {
+	private static RequestListener instance;
+	public static RequestListener getInstance() {
 		if(instance == null)
-			instance = new ConfirmationListener();
+			instance = new RequestListener();
 		return instance;
 	}
 	
@@ -38,7 +40,7 @@ public class ConfirmationListener implements EventListener{
 	
 	List<Request> openRequests;
 	
-	private ConfirmationListener() {
+	private RequestListener() {
 		openRequests = new LinkedList<>();
 	}
 
@@ -48,17 +50,13 @@ public class ConfirmationListener implements EventListener{
 			reactionAdded((MessageReactionAddEvent)event);
 	}
 	
-	
-	static final Emoji CHECK = new Emoji("\u2705");
-	static final Emoji XMARK = new Emoji("\u274C");
-	
 	private void reactionAdded(MessageReactionAddEvent event) {
 		if(event.getUser().equals(event.getJDA().getSelfUser()))
 			return;
 		
 		Emoji reaction = new Emoji(event.getReactionEmote());
 		
-		if(!(reaction.equals(CHECK) || reaction.equals(XMARK)))
+		if(!(reaction.equals(Emojis.CHECK) || reaction.equals(Emojis.XMARK)))
 			return;
 		
 		Request request = null;
@@ -75,7 +73,7 @@ public class ConfirmationListener implements EventListener{
 		if(!event.getUser().equals(request.getCaller()))
 			return;
 		
-		if(reaction.equals(CHECK))
+		if(reaction.equals(Emojis.CHECK))
 			request.confirmed();
 		else request.denied();
 		

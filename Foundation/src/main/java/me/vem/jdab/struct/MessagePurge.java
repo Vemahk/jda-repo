@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 
 public class MessagePurge implements Collection<Message>, Iterable<Message>{
 	
+    //Bots can only delete messages that were sent within the last two weeks.
 	private static final int msptw = 1000 * 60 * 60 * 24 * 7 * 2; //msptw -> milliseconds per two weeks.
 	
 	/**

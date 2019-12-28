@@ -1,4 +1,4 @@
-package me.vem.jdab.utils;
+package me.vem.jdab.struct;
 
 import java.util.TimerTask;
 

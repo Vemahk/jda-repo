@@ -112,8 +112,9 @@ public class Console {
 				if(c == '\n') consoleOutput.update(consoleOutput.getGraphics());
 			}
 		});
-		PrintThread.addSTDOut(out);
-		PrintThread.addSTDErr(out);
+		
+		PrintThread.getInstance().addOut(out);
+		PrintThread.getInstance().addErr(out);
 	}
 	
 	/**
@@ -169,14 +170,18 @@ public class Console {
 			
 			destroyTray();
 			
-			PrintThread.removeSTDOut(out);
-			PrintThread.removeSTDErr(out);
+			if(PrintThread.hasInstance()) {
+			    PrintThread printer = PrintThread.getInstance();
+
+			    printer.removeOut(out);
+			    printer.removeErr(out);
+			    printer.kill();
+			}
 			
 			out = null;
 			consoleOutput = null;
 
 			Logger.info("Goodbye!");
-			PrintThread.kill();
 			return true;
 		}
 		return false;

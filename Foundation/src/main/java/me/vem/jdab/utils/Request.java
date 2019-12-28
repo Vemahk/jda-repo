@@ -1,8 +1,9 @@
-package me.vem.jdab.utils.confirm;
+package me.vem.jdab.utils;
 
 import java.awt.Color;
 
-import me.vem.jdab.utils.Respond;
+import me.vem.jdab.listener.RequestListener;
+import me.vem.jdab.utils.emoji.Emojis;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -20,9 +21,9 @@ public class Request {
 		this.failure = failure;
 		
 		msg = Respond.sync(channel, new EmbedBuilder().setTitle("Are you sure?").setDescription(desc).setColor(Color.CYAN).build());
-		msg.addReaction(ConfirmationListener.CHECK.toString()).queue();
-		msg.addReaction(ConfirmationListener.XMARK.toString()).queue();
-		ConfirmationListener.add(this);
+		msg.addReaction(Emojis.CHECK.toString()).queue();
+		msg.addReaction(Emojis.XMARK.toString()).queue();
+		RequestListener.add(this);
 	}
 	
 	public User getCaller() {

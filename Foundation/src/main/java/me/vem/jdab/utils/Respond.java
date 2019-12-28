@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Timer;
 import java.util.function.Consumer;
 
+import me.vem.jdab.struct.Task;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;

@@ -9,9 +9,9 @@ import me.vem.jdab.cmd.Monitor;
 import me.vem.jdab.cmd.Prefix;
 import me.vem.jdab.cmd.Uptime;
 import me.vem.jdab.listener.CommandListener;
-import me.vem.jdab.struct.menu.MenuListener;
+import me.vem.jdab.listener.MenuListener;
+import me.vem.jdab.listener.RequestListener;
 import me.vem.jdab.utils.Logger;
-import me.vem.jdab.utils.confirm.ConfirmationListener;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 
@@ -50,7 +50,7 @@ public class DiscordBot {
 		instance = this;
 
 		jda.addEventListener(MenuListener.getInstance());
-		jda.addEventListener(ConfirmationListener.getInstance());
+		jda.addEventListener(RequestListener.getInstance());
 		
 		Help.initialize();
 		Prefix.initialize();
@@ -90,7 +90,7 @@ public class DiscordBot {
 		Command.unloadAll();
 		
 		MenuListener.unload();
-		ConfirmationListener.unload();
+		RequestListener.unload();
 		
 		//Save all configurable event listeners
 		for(Object o : jda.getRegisteredListeners())

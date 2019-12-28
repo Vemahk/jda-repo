@@ -1,4 +1,4 @@
-package me.vem.jdab.utils;
+package me.vem.jdab.utils.emoji;
 
 import org.jetbrains.annotations.NotNull;
 

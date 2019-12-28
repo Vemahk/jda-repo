@@ -1,5 +1,7 @@
 package me.vem.jdab.struct.menu;
 
+import me.vem.jdab.listener.MenuListener;
+import me.vem.jdab.utils.emoji.Emojis;
 import net.dv8tion.jda.api.entities.Message;
 
 public abstract class Menu {
@@ -13,10 +15,10 @@ public abstract class Menu {
 		this.page = page;
 		this.msg = msg;
 		
-		msg.addReaction(MenuListener.LEFT_ARROW.toString()).queue();
-		msg.addReaction(MenuListener.RIGHT_ARROW.toString()).queue();
+		msg.addReaction(Emojis.LEFT_ARROW.toString()).queue();
+		msg.addReaction(Emojis.RIGHT_ARROW.toString()).queue();
 		if(closable)
-			msg.addReaction(MenuListener.CANCEL.toString()).queue();
+			msg.addReaction(Emojis.XMARK.toString()).queue();
 
 		MenuListener.getInstance().add(this);
 	}
