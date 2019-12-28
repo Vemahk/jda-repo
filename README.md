@@ -4,6 +4,8 @@ This repository is a consolidation of all my Discord Bot projects.
 # Foundation
 Foundation is not bot in and of itself, but it is a set of classes that gives a foundation (hence the name) for the other bots that I have. All of my bots stem from this project.
 
+Foundation has now been moved to its own repository, jda-foundation. All three of the bots listed here use and implemenet Foundation's code. Please refer to jda-foundation for more information.
+
 # DBGM - Discord Bot General Manager
 DBGM is my experimental bot. All ideas I have for a bot usually start here. The idea of this bot was to be the one bot that I used to do anything that I needed to do so that I didn't clutter my servers with a bunch of one-task bots. Also, it gives me a ton of practice on new concepts that I haven't messed with before.
 
