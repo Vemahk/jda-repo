@@ -102,8 +102,8 @@ public class DiceRoller extends Command implements Configurable, EventListener{
 	}
 
 	@Override
-	public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
-		return event.getMember().hasPermission(Permission.ADMINISTRATOR);
+	public boolean hasPermissions(Member member, String... args) {
+		return member.hasPermission(Permission.ADMINISTRATOR);
 	}
 
 	@Override

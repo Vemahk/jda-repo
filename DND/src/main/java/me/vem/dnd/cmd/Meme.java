@@ -19,6 +19,7 @@ import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.Respond;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -110,9 +111,9 @@ public class Meme extends Command implements Configurable{
 		return builder.setColor(Color.CYAN);
 	}
 	
-	@Override public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
+	@Override public boolean hasPermissions(Member member, String... args) {
 		if(args.length > 0 && "add".equals(args[0]))
-			return event.getMember().hasPermission(Permission.ADMINISTRATOR);
+			return member.hasPermission(Permission.ADMINISTRATOR);
 		return true;
 	}
 	

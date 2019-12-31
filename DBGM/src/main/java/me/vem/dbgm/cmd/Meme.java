@@ -15,6 +15,7 @@ import me.vem.jdab.cmd.Configurable;
 import me.vem.jdab.utils.ExtFileManager;
 import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.Respond;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
@@ -91,10 +92,10 @@ public class Meme extends SecureCommand implements Configurable{
 		return rsp.append("```").toString();
 	}
 	
-	@Override public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
+	@Override public boolean hasPermissions(Member member, String... args) {
 		if(args.length > 0 && "add".equals(args[0]))
-			return Permissions.getInstance().hasPermissionsFor(event.getMember(), "meme.add");
-		return Permissions.getInstance().hasPermissionsFor(event.getMember(), "meme");
+			return Permissions.getInstance().hasPermissionsFor(member, "meme.add");
+		return Permissions.getInstance().hasPermissionsFor(member, "meme");
 	}
 	
 	@Override public List<String> getValidKeySet() {

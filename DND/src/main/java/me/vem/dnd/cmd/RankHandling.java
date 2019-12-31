@@ -17,6 +17,7 @@ import me.vem.jdab.utils.Respond;
 import me.vem.jdab.utils.Utilities;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
@@ -159,9 +160,17 @@ public class RankHandling extends Command implements Configurable, EventListener
 	}
 
 	@Override
-	public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
-		if(args.length > 0 && ("assign".equals(args[0]) || "unassign".equals(args[0]) || "default".equals(args[0])))
-			return event.getMember().hasPermission(Permission.ADMINISTRATOR);
+	public boolean hasPermissions(Member member, String... args) {
+	    if(args.length == 0)
+	        return true;
+	    
+	    switch(args[0]) {
+    	    case "assign":
+    	    case "unassign":
+    	    case "default":
+    	        return member.hasPermission(Permission.ADMINISTRATOR);
+	    }
+	    
 		return true;
 	}
 

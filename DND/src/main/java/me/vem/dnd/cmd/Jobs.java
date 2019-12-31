@@ -19,6 +19,7 @@ import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.Respond;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -149,9 +150,9 @@ public class Jobs extends Command implements Configurable{
 		};
 	}
 	
-	@Override public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
+	@Override public boolean hasPermissions(Member member, String... args) {
 		if(args.length > 0 && ("add".equals(args[0]) || "remove".equals(args[0])))
-			return event.getMember().hasPermission(Permission.ADMINISTRATOR);
+			return member.hasPermission(Permission.ADMINISTRATOR);
 		return true;
 	}
 	

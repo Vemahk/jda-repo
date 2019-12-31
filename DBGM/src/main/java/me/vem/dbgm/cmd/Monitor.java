@@ -24,6 +24,7 @@ import me.vem.jdab.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.GenericEvent;
@@ -94,8 +95,8 @@ public class Monitor extends Command implements EventListener, Configurable{
 	}
 	
 	@Override
-	public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
-		return event.getMember().hasPermission(Permission.ADMINISTRATOR);
+	public boolean hasPermissions(Member member, String... args) {
+		return member.hasPermission(Permission.ADMINISTRATOR);
 	}
 
 	@Override

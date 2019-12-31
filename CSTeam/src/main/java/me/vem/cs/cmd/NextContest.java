@@ -4,6 +4,7 @@ import java.util.Calendar;
 
 import me.vem.jdab.cmd.Command;
 import me.vem.jdab.utils.Respond;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 /**
@@ -53,7 +54,7 @@ public class NextContest extends Command{
 	}
 
 	@Override
-	public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
+	public boolean hasPermissions(Member member, String... args) {
 		return true; //Everyone can use this.
 	}
 

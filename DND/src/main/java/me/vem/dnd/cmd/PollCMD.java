@@ -21,6 +21,7 @@ import me.vem.jdab.utils.emoji.Emojis;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Emote;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.GenericEvent;
@@ -129,8 +130,6 @@ public class PollCMD extends Command implements EventListener{
 		
 		return true;
 	}
-
-	
 	
 	@Override
 	public void onEvent(GenericEvent event) {
@@ -185,8 +184,8 @@ public class PollCMD extends Command implements EventListener{
 	}
 	
 	@Override
-	public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
-		return event.getMember().hasPermission(Permission.ADMINISTRATOR);
+	public boolean hasPermissions(Member member, String... args) {
+		return member.hasPermission(Permission.ADMINISTRATOR);
 	}
 
 	@Override

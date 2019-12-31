@@ -7,6 +7,7 @@ import me.vem.jdab.DiscordBot;
 import me.vem.jdab.cmd.Command;
 import me.vem.jdab.cmd.Configurable;
 import me.vem.jdab.utils.Respond;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 public class ForceSave extends SecureCommand{
@@ -45,8 +46,8 @@ public class ForceSave extends SecureCommand{
 	}
 	
 	@Override
-	public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
-		return Permissions.getInstance().hasPermissionsFor(event.getMember(), "forcesave");
+	public boolean hasPermissions(Member member, String... args) {
+		return Permissions.getInstance().hasPermissionsFor(member, "forcesave");
 	}
 	
 	@Override public String[] usages() {

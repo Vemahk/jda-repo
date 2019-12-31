@@ -13,6 +13,7 @@ import me.vem.jdab.utils.ExtFileManager;
 import me.vem.jdab.utils.Logger;
 import me.vem.jdab.utils.Respond;
 import me.vem.jdab.utils.Utilities;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 public class Stopwatch extends Command implements Configurable {
@@ -95,7 +96,7 @@ public class Stopwatch extends Command implements Configurable {
     }
 
     @Override
-    public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
+    public boolean hasPermissions(Member member, String... args) {
         return true;
     }
 

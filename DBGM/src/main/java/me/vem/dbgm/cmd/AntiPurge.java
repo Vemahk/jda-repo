@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import me.vem.jdab.utils.Respond;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 public class AntiPurge extends SecureCommand{
@@ -47,8 +48,8 @@ public class AntiPurge extends SecureCommand{
 	}
 
 	@Override
-	public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
-		return Permissions.getInstance().hasPermissionsFor(event.getMember(), "antipurge");
+	public boolean hasPermissions(Member member, String... args) {
+		return Permissions.getInstance().hasPermissionsFor(member, "antipurge");
 	}
 
 	@Override

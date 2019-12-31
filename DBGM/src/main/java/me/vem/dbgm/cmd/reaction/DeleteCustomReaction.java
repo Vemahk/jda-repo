@@ -6,6 +6,7 @@ import java.util.List;
 import me.vem.dbgm.cmd.Permissions;
 import me.vem.dbgm.cmd.SecureCommand;
 import me.vem.jdab.utils.Respond;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 public class DeleteCustomReaction extends SecureCommand{
@@ -33,8 +34,8 @@ public class DeleteCustomReaction extends SecureCommand{
 	}
 	
 	@Override
-	public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
-		return Permissions.getInstance().hasPermissionsFor(event.getMember(), "dcr");
+	public boolean hasPermissions(Member member, String... args) {
+		return Permissions.getInstance().hasPermissionsFor(member, "dcr");
 	}
 	
 	@Override

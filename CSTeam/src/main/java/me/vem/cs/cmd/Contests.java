@@ -14,6 +14,7 @@ import me.vem.jdab.cmd.Configurable;
 import me.vem.jdab.utils.ExtFileManager;
 import me.vem.jdab.utils.Respond;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 /**
@@ -135,8 +136,8 @@ public class Contests extends Command implements Configurable{
 	}
 
 	@Override
-	public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
-		return event.getMember().hasPermission(Permission.ADMINISTRATOR);
+	public boolean hasPermissions(Member member, String... args) {
+		return member.hasPermission(Permission.ADMINISTRATOR);
 	}
 
 	@Override

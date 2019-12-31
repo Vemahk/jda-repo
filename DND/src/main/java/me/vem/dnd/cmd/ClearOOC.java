@@ -102,13 +102,11 @@ public class ClearOOC extends Command implements Configurable{
 	}
 	
 	@Override
-	public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
-		Member mem = event.getMember();
-		
+	public boolean hasPermissions(Member member, String... args) {
 		if(args.length > 0 && ("allow".equals(args[0]) || "disallow".equals(args[0])))
-			return mem.hasPermission(Permission.ADMINISTRATOR);
+			return member.hasPermission(Permission.ADMINISTRATOR);
 		
-		return mem.hasPermission(Permission.MESSAGE_MANAGE);
+		return member.hasPermission(Permission.MESSAGE_MANAGE);
 	}
 	
 	public boolean roomEnabled(Guild g, TextChannel tc) {

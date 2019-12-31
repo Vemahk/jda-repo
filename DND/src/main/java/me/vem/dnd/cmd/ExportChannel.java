@@ -18,6 +18,7 @@ import java.util.zip.ZipOutputStream;
 import me.vem.jdab.cmd.Command;
 import me.vem.jdab.utils.Logger;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Message.Attachment;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -168,8 +169,8 @@ public class ExportChannel extends Command {
 	}
 	
 	@Override
-	public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
-		return event.getMember().hasPermission(Permission.ADMINISTRATOR);
+	public boolean hasPermissions(Member member, String... args) {
+		return member.hasPermission(Permission.ADMINISTRATOR);
 	}
 	
 	@Override public String[] usages() {

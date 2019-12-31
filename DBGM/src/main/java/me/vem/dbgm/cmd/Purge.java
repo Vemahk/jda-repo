@@ -90,8 +90,8 @@ public class Purge extends SecureCommand{
 	}
 	
 	@Override
-	public boolean hasPermissions(GuildMessageReceivedEvent event, String... args) {
-		return Permissions.getInstance().hasPermissionsFor(event.getMember(), "purge");
+	public boolean hasPermissions(Member member, String... args) {
+		return Permissions.getInstance().hasPermissionsFor(member, "purge");
 	}
 	
 	@Override
