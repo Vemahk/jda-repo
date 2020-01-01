@@ -273,7 +273,7 @@ public class DiceRoller extends Command implements Configurable, EventListener{
 			
 			instr = Respond.sync(channel, instructions);
 			
-			historyMenu = new EmbedMenu(Respond.sync(channel, getHistoryPage(1)), 1, false) {
+			historyMenu = new EmbedMenu(channel, 1, false) {
 				@Override public MessageEmbed getEmbed(int page) {
 					return getHistoryPage(page).build();
 				}

@@ -4,12 +4,11 @@ import java.awt.Color;
 
 import me.vem.jdab.cmd.Command;
 import me.vem.jdab.struct.menu.EmbedMenu;
-import me.vem.jdab.utils.Respond;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 
 public class ListCustomReactions extends Command{
@@ -27,7 +26,8 @@ public class ListCustomReactions extends Command{
 		if(!super.run(event, args))
 			return false;
 		
-		new CRMenu(Respond.sync(event.getChannel(), getPage(event.getGuild(), 1)));
+		if(event.getChannel() != null)
+		    new CRMenu(event.getChannel());
 		
 		return true;
 	}
@@ -73,13 +73,17 @@ public class ListCustomReactions extends Command{
 	}
 	
 	private class CRMenu extends EmbedMenu{
-		public CRMenu(Message msg) {
-			super(msg);
+	    private Guild guild;
+	    
+		public CRMenu(TextChannel channel) {
+			super(channel);
+			
+			guild = channel.getGuild();
 		}
 
 		@Override
 		public MessageEmbed getEmbed(int page) {
-			return ListCustomReactions.this.getPage(msg.getGuild(), page).build();
+			return ListCustomReactions.this.getPage(guild, page).build();
 		}
 	}
 }

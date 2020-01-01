@@ -21,6 +21,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
@@ -61,7 +62,7 @@ public class Meme extends Command implements Configurable{
 			if(args.length >= 2)
 				try { page = Integer.parseInt(args[1]); }catch(NumberFormatException e) {}
 			
-			new MemeMenu(Respond.sync(event.getChannel(), getPage(page)), page).setTimeout(120);
+			new MemeMenu(event.getChannel(), page).setTimeout(120);
 			event.getMessage().delete().queue();
 			
 		}else if("add".equals(args[0])) {
@@ -163,12 +164,12 @@ public class Meme extends Command implements Configurable{
 	}
 	
 	private class MemeMenu extends EmbedMenu{
-		public MemeMenu(Message msg) {
-			super(msg);
+		public MemeMenu(MessageChannel channel) {
+			super(channel);
 		}
 		
-		public MemeMenu(Message msg, int page) {
-			super(msg, page);
+		public MemeMenu(MessageChannel channel, int page) {
+			super(channel, page);
 		}
 
 		@Override
