@@ -23,17 +23,20 @@ import me.vem.jdab.utils.Respond;
 import me.vem.jdab.utils.Utilities;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.audit.ActionType;
+import net.dv8tion.jda.api.audit.AuditLogEntry;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
-import net.dv8tion.jda.api.events.guild.member.GuildMemberLeaveEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
+import net.dv8tion.jda.api.requests.restaction.pagination.AuditLogPaginationAction;
 
 public class Monitor extends Command implements EventListener, Configurable{
 
@@ -162,8 +165,8 @@ public class Monitor extends Command implements EventListener, Configurable{
 			messageUpdated((GuildMessageUpdateEvent) event);
 		else if(event instanceof GuildMemberJoinEvent)
 			userJoined((GuildMemberJoinEvent) event);
-		else if(event instanceof GuildMemberLeaveEvent)
-			userLeft((GuildMemberLeaveEvent) event);
+		else if(event instanceof GuildMemberRemoveEvent)
+			userLeft((GuildMemberRemoveEvent) event);
 	}
 	
 	private TreeMap<Long, MessageInfo> msgLookup;
@@ -190,23 +193,33 @@ public class Monitor extends Command implements EventListener, Configurable{
         || info.isIgnored(event.getChannel()))
 			return;
 		
-		EmbedBuilder embed = new EmbedBuilder().setColor(Color.ORANGE);
-		
-		if(msgLookup.containsKey(event.getMessageIdLong())) {
-			MessageInfo msgInfo = msgLookup.get(event.getMessageIdLong());
-			User author = event.getJDA().getUserById(msgInfo.getAuthorId());
-			if (author.isBot())
-				return;
-			embed.setDescription("**Message sent by** " + author.getAsMention() + " **deleted in** " + event.getChannel().getAsMention() + '\n' + msgInfo.getContent());
-		}else {
-			embed.setDescription("**Message deleted in** " + event.getChannel().getAsMention());
-		}
+		AuditLogPaginationAction auditLogs = event.getGuild().retrieveAuditLogs();
+		auditLogs.type(ActionType.MESSAGE_DELETE);
+		auditLogs.limit(1);
+		auditLogs.queue(entries -> {
+	        if(entries.isEmpty()) return;
+	        AuditLogEntry entry = entries.get(0);
+	        if(entry.getUser().isBot())
+	            return;
+	        
+	        EmbedBuilder embed = new EmbedBuilder().setColor(Color.ORANGE);
+	        
+	        if(msgLookup.containsKey(event.getMessageIdLong())) {
+	            MessageInfo msgInfo = msgLookup.get(event.getMessageIdLong());
+	            User author = event.getJDA().getUserById(msgInfo.getAuthorId());
+	            if (author.isBot())
+	                return;
+	            embed.setDescription("**Message sent by** " + author.getAsMention() + " **deleted by ** " + event.getGuild().getMember(entry.getUser()).getAsMention() + " **in** " + event.getChannel().getAsMention() + '\n' + msgInfo.getContent());
+	        }else {
+	            embed.setDescription("**Message deleted in** " + event.getChannel().getAsMention());
+	        }
 
-		embed.setAuthor(event.getGuild().getName(), null, event.getGuild().getIconUrl());
-		embed.setFooter("Message ID: " + event.getMessageId(), null);
-		embed.setTimestamp(Instant.now());
-		
-		Respond.async(info.channel, embed);
+	        embed.setAuthor(event.getGuild().getName(), null, event.getGuild().getIconUrl());
+	        embed.setFooter("Message ID: " + event.getMessageId(), null);
+	        embed.setTimestamp(Instant.now());
+	        
+	        Respond.async(info.channel, embed);
+		});
 	}
 	
 	private void messageUpdated(GuildMessageUpdateEvent event) {
@@ -251,7 +264,7 @@ public class Monitor extends Command implements EventListener, Configurable{
 		Respond.async(info.channel, embed);
 	}
 	
-	private void userLeft(GuildMemberLeaveEvent event) {
+	private void userLeft(GuildMemberRemoveEvent event) {
 		MonitorInfo info = getInfo(event.getGuild());
 		if(info == null)
 			return;
